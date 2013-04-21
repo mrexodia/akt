@@ -1,4 +1,4 @@
-#include "CertTool_global.h"
+#include "CertTool_parser.h"
 
 void CT_AddToLog(HWND list, const char* text)
 {

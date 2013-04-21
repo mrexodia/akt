@@ -6,6 +6,7 @@
 #define _WIN32_IE 0x0500
 
 #include <windows.h>
+#include <commctrl.h>
 
 #include "..\resource.h"
 #include "..\TitanEngine\TitanEngine.h"
@@ -14,8 +15,8 @@
 
 #include "keygen\keygen_main.h"
 
-#include "help_dialog.h"
-#include "about.h"
+//#include "help_dialog.h"
+//#include "about.h"
 //#include "encdec.h"
 //#include "analysis.h"
 //#include "keygenerate.h"
@@ -67,5 +68,6 @@ int DecodeShortV3(const char* serial, bool level10, unsigned char* dest, int des
 unsigned int FindBAADF00DPattern(BYTE* d, unsigned int size);
 unsigned int FindSalt1Pattern(BYTE* d, unsigned int size);
 unsigned int FindSalt2Pattern(BYTE* d, unsigned int size);
+bool IsArmadilloProtected(ULONG_PTR va);
 
 #endif

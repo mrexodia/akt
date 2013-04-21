@@ -465,3 +465,13 @@ unsigned int FindSalt2Pattern(BYTE* d, unsigned int size)
             return i+13;
     return 0;
 }
+
+bool IsArmadilloProtected(ULONG_PTR va)
+{
+    unsigned int* va1=(unsigned int*)(va+0x3c);
+    unsigned int pe_offset=*va1;
+    char* isarma=(char*)(va+pe_offset+0x1A);
+    if(memcmp(isarma, "SR", 2))
+        return false;
+    return true;
+}

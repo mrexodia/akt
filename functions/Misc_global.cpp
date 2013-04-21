@@ -1,7 +1,4 @@
-#ifndef _MSC_GLOBAL_H
-#define _MSC_GLOBAL_H
-
-#include "_global.h"
+#include "Misc_global.h"
 
 //GetCurrentSym
 HWND MSC_shared;
@@ -61,20 +58,6 @@ unsigned int MSC_VR_magic_ebp_sub=0; //ebp difference to retrieve the magic from
 //Section Deleter
 HWND MSC_SD_list;
 bool MSC_SD_updated_sections=false;
-
-struct SECTION_ANALYSIS
-{
-    int entry_section;
-    int code_section;
-    int export_section;
-    int import_section;
-    int resource_section;
-    int relocation_section;
-    int tls_section;
-    int first_arma_section;
-    unsigned char code_section_bytes[2];
-    bool isDll;
-};
 
 //arma960
 //Arma v9.60 and higher (probably)
@@ -184,5 +167,3 @@ unsigned int MSC_FindStdcallPattern(BYTE* d, unsigned int size)
             return i;
     return 0;
 }
-
-#endif

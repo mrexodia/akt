@@ -1,4 +1,4 @@
-#include "CertTool_global.h"
+#include "CertTool_debugger.h"
 
 void CT_cbGetSalt()
 {

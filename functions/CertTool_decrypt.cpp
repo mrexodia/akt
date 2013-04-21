@@ -1,14 +1,14 @@
-#include "CertTool_global.h"
+#include "CertTool_decrypt.h"
 
-static unsigned long CT_a;
+unsigned long CT_a;
 
-static unsigned long CT_mult(long p, long q)
+unsigned long CT_mult(long p, long q)
 {
     unsigned long p1=p/10000L, p0=p%10000L, q1=q/10000L, q0=q%10000L;
     return (((p0*q1+p1*q0) % 10000L) * 10000L+p0*q0) % 100000000L;
 }
 
-static unsigned long CT_NextRandomRange(long range)
+unsigned long CT_NextRandomRange(long range)
 {
     CT_a=(CT_mult(CT_a, 31415821L)+1) % 100000000L;
     return (((CT_a/10000L)*range)/10000L);

@@ -140,16 +140,6 @@ void VF_cbVerEntry()
         SetAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_BREAKPOINT, UE_APISTART, (void*)VF_cbVerVirtualProtect);
 }
 
-bool IsArmadilloProtected(ULONG_PTR va)
-{
-    unsigned int* va1=(unsigned int*)(va+0x3c);
-    unsigned int pe_offset=*va1;
-    char* isarma=(char*)(va+pe_offset+0x1A);
-    if(memcmp(isarma, "SR", 2))
-        return false;
-    return true;
-}
-
 void VF_Version()
 {
     VF_fdFileIsDll = false;

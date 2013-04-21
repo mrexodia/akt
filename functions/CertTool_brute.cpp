@@ -1,4 +1,4 @@
-#include "CertTool_global.h"
+#include "CertTool_brute.h"
 
 bool InitializeSymBruteLibrary(HWND hwndDlg)
 {

@@ -1,4 +1,4 @@
-#include "CertTool_global.h"
+#include "CertTool_dialog.h"
 
 BOOL CALLBACK CT_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {

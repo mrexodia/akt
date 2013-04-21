@@ -1,7 +1,4 @@
-#ifndef _CT_GLOBAL
-#define _CT_GLOBAL
-
-#include "_global.h"
+#include "CertTool_global.h"
 
 HWND CT_shared;
 
@@ -22,36 +19,6 @@ bool CT_brute_nosym=false; //Skip sym solving?
 bool CT_brute_symverify=false; //verify symmetric before taking it as valid?
 bool CT_fdFileIsDll=false; //Debugged is dll?
 unsigned int CT_time1=0; //For duration calculation.
-
-struct CERT_DATA
-{
-    unsigned char* raw_data;
-    unsigned char* encrypted_data;
-    char* projectid;
-    //char* customerservice;
-    //char* website;
-    unsigned int projectid_diff;
-    unsigned int initial_diff;
-    unsigned int raw_size;
-    unsigned int encrypted_size;
-    unsigned int first_dw;
-    unsigned int magic1;
-    unsigned int magic2;
-    unsigned int salt;
-    unsigned int decrypt_seed[3];
-    unsigned int decrypt_addvals[4];
-    bool checksumv8;
-    bool zero_md5_symverify;
-};
-
-struct BRUTE_DATA
-{
-    unsigned int magic1;
-    unsigned int magic2;
-    unsigned int md5;
-    unsigned char* encrypted_data;
-    unsigned int encrypted_size;
-};
 
 BRUTE_DATA* CT_current_brute;
 CERT_DATA* CT_cert_data;
@@ -75,37 +42,12 @@ BYTE CT_salt_code[61]= {0}; //Bytes of the salt code (for disassembly)
 int CT_cert_func_count=0; //Counter of passes on the NextDword function
 LPPROCESS_INFORMATION CT_fdProcessInfo = NULL; //process info
 
-//Brute
-typedef struct _hash_list
-{
-    int count;
-    unsigned long hash[32];
-} hash_list;
-
-//Callback typedefs
-typedef void (*PRINT_FOUND)(unsigned long hash, unsigned long key);
-typedef void (*PRINT_PROGRESS)(double checked, double all, time_t* start);
-typedef void (*PRINT_ERROR)(const char* error_msg);
-
-//DLL typedefs
-typedef void (*BRUTESTART)(int alg, hash_list *list, unsigned long from, unsigned long to, unsigned long param);
-typedef void (*SETCALLBACKS)(PRINT_FOUND cb1, PRINT_PROGRESS cb2, PRINT_ERROR cb3);
-typedef void (*BRUTESTOP)();
-typedef void (*BRUTESETTINGS)(HWND parent);
-typedef int(*UPDATEKEYS)(int level, const char* y_txt);
-typedef int(*SOLVEDLP)(const char* pvt_txt);
-
 //Brute global vars
 HINSTANCE hBrute;
 BRUTESTART BruteStart;
 SETCALLBACKS BruteSetCallbacks;
 BRUTESTOP BruteStop;
 BRUTESETTINGS BruteSettings;
-
-//Brute callbacks
-void cbBruteProgess(double checked, double all, time_t* start);
-void cbBrutePrintFound(unsigned long hash, unsigned long key);
-void cbBruteError(const char* error_msg);
 
 //Dlp brute
 HINSTANCE hBruteDlp;
@@ -339,5 +281,3 @@ unsigned int CT_FindEndLoopPattern(BYTE* d, unsigned int size)
             return i+5;
     return 0;
 }
-
-#endif

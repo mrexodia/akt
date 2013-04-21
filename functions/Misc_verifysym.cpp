@@ -1,6 +1,4 @@
-#include "Misc_global.h"
-
-#define max_bufsize 65535
+#include "Misc_verifysym.h"
 
 unsigned int MSC_FindMagicPattern(BYTE* d, unsigned int size, unsigned int* ebp_sub)
 {
