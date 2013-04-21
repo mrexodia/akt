@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="Armadillo_KeyTool" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Release">
+				<Option output="bin/Armadillo_KeyTool" prefix_auto="1" extension_auto="1" />
+				<Option object_output="%temp%/" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Linker>
+					<Add option="-s" />
+					<Add library=".\exception\libexception.a" />
+					<Add library=".\TitanEngine\libTitanEngine.a" />
+					<Add library="libimagehlp.a" />
+					<Add library="libpsapi.a" />
+					<Add library="libcomdlg32.a" />
+					<Add library=".\TitanEngine\libMingW_SEH.a" />
+					<Add library=".\TitanEngine\aplib.lib" />
+					<Add library=".\TitanEngine\bufferoverflowu.lib" />
+					<Add library=".\TitanEngine\libdistorm3.a" />
+					<Add library=".\BeaEngine\BeaEngine.lib" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+		</Compiler>
+		<Linker>
+			<Add library="gdi32" />
+			<Add library="user32" />
+			<Add library="kernel32" />
+			<Add library="comctl32" />
+			<Add library="uxtheme" />
+		</Linker>
+		<Unit filename="BeaEngine/BeaEngine.h" />
+		<Unit filename="TitanEngine/TitanEngine.h" />
+		<Unit filename="exception/akt_exception.h" />
+		<Unit filename="functions/CertTool_brute.h" />
+		<Unit filename="functions/CertTool_debugger.h" />
+		<Unit filename="functions/CertTool_decrypt.h" />
+		<Unit filename="functions/CertTool_dialog.h" />
+		<Unit filename="functions/CertTool_global.h" />
+		<Unit filename="functions/CertTool_parser.h" />
+		<Unit filename="functions/EVLog_debugger.h" />
+		<Unit filename="functions/EVLog_global.h" />
+		<Unit filename="functions/EVLog_maindlg.h" />
+		<Unit filename="functions/InlineHelper_codegen.h" />
+		<Unit filename="functions/InlineHelper_debugger.h" />
+		<Unit filename="functions/InlineHelper_decrypt.h" />
+		<Unit filename="functions/InlineHelper_dialog.h" />
+		<Unit filename="functions/InlineHelper_global.h" />
+		<Unit filename="functions/InlineHelper_plugins.h" />
+		<Unit filename="functions/Misc_checksum.h" />
+		<Unit filename="functions/Misc_currentsym.h" />
+		<Unit filename="functions/Misc_dialog.h" />
+		<Unit filename="functions/Misc_global.h" />
+		<Unit filename="functions/Misc_projectid.h" />
+		<Unit filename="functions/Misc_sectiondeleter.h" />
+		<Unit filename="functions/Misc_verifysym.h" />
+		<Unit filename="functions/VersionFind_decode.h" />
+		<Unit filename="functions/VersionFind_dialog.h" />
+		<Unit filename="functions/VersionFind_extraoptions.h" />
+		<Unit filename="functions/VersionFind_global.h" />
+		<Unit filename="functions/VersionFind_rawoptions.h" />
+		<Unit filename="functions/VersionFind_version.h" />
+		<Unit filename="functions/_global.h" />
+		<Unit filename="functions/about.h" />
+		<Unit filename="functions/analysis.h" />
+		<Unit filename="functions/encdec.h" />
+		<Unit filename="functions/help_dialog.h" />
+		<Unit filename="functions/keygen/keygen_bigint.h" />
+		<Unit filename="functions/keygen/keygen_blowfish.h" />
+		<Unit filename="functions/keygen/keygen_crc32.h" />
+		<Unit filename="functions/keygen/keygen_ecc.h" />
+		<Unit filename="functions/keygen/keygen_info.h" />
+		<Unit filename="functions/keygen/keygen_main.h" />
+		<Unit filename="functions/keygen/keygen_md5.h" />
+		<Unit filename="functions/keygen/keygen_misc.h" />
+		<Unit filename="functions/keygen/keygen_random.h" />
+		<Unit filename="functions/keygenerate.h" />
+		<Unit filename="main.cpp" />
+		<Unit filename="resource.h" />
+		<Unit filename="resource.rc">
+			<Option compilerVar="WINDRES" />
+		</Unit>
+		<Unit filename="tabs.h" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
