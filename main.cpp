@@ -9,7 +9,9 @@
 #include "resource.h"
 #include "tabs.h"
 
-#include "TitanEngine/TitanEngine.h"
+#include "functions/_global.h"
+
+/*#include "TitanEngine/TitanEngine.h"
 #include "BeaEngine/BeaEngine.h"
 #include "exception/akt_exception.h"
 #include "functions/_global.h"
@@ -40,7 +42,7 @@
 #include "functions/CertTool_parser.h"
 #include "functions/CertTool_debugger.h"
 #include "functions/CertTool_brute.h"
-#include "functions/CertTool_dialog.h"
+#include "functions/CertTool_dialog.h"*/
 
 char settings_ini[256]="";
 bool start_ontop=false;
