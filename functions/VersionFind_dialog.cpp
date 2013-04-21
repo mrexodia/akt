@@ -1,4 +1,4 @@
-#include "_global.h"
+#include "VersionFind_dialog.h"
 
 DWORD WINAPI VF_DebugThread(void* lpVoid)
 {
@@ -67,7 +67,7 @@ DWORD WINAPI VF_DebugThread(void* lpVoid)
             HANDLE hFile=CreateFileA(log_location, GENERIC_ALL, 0, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
             if(hFile==INVALID_HANDLE_VALUE)
             {
-                if(MessageBoxA(IH_shared, "Could not write log file, wanna copy the log to clipboard?", "Error", MB_ICONERROR|MB_YESNO)==IDYES)
+                if(MessageBoxA(VF_shared, "Could not write log file, wanna copy the log to clipboard?", "Error", MB_ICONERROR|MB_YESNO)==IDYES)
                     CopyToClipboard(log_text);
             }
             else

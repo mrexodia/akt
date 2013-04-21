@@ -1,4 +1,4 @@
-#include "Misc_global.h"
+#include "Misc_currentsym.h"
 
 unsigned int FindMagicPattern(BYTE* d, unsigned int size)
 {

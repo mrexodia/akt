@@ -1,4 +1,4 @@
-#include "Misc_global.h"
+#include "Misc_dialog.h"
 
 BOOL CALLBACK MSC_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {

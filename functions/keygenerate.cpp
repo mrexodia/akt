@@ -1,4 +1,4 @@
-#include "_global.h"
+#include "keygenerate.h"
 
 int keygenerate_level=0;
 unsigned int keygenerate_sym_xorval=0;

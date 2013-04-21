@@ -3,32 +3,35 @@
 
 #include "_global.h"
 
-//Version number
-HWND VF_shared;
-bool VF_fdFileIsDll = false;
-LPPROCESS_INFORMATION VF_fdProcessInfo = NULL;
-char VF_szFileName[256]="";
-char VF_version[20]="";
+extern HWND VF_shared;
+extern bool VF_fdFileIsDll;
+extern LPPROCESS_INFORMATION VF_fdProcessInfo;
+extern char VF_szFileName[256];
+extern char VF_version[20];
 
-unsigned int VF_version_decrypt_call_dest=0;
-unsigned int VF_version_decrypt_call=0;
-unsigned int VF_version_decrypt_neweip=0;
-unsigned int VF_version_decrypt_buffer=0;
+extern unsigned int VF_version_decrypt_call_dest;
+extern unsigned int VF_version_decrypt_call;
+extern unsigned int VF_version_decrypt_neweip;
+extern unsigned int VF_version_decrypt_buffer;
 
-//Extra Options
-unsigned int VF_extra_options_reg=0;
-unsigned int VF_extra_options=0;
+extern unsigned int VF_extra_options_reg;
+extern unsigned int VF_extra_options;
 
-//Raw Options
-bool VF_minimal=false;
-long VF_fdImageBase=0;
-long VF_fdEntryPoint=0;
-long VF_fdEntrySectionNumber=0;
-long VF_fdEntrySectionOffset=0;
-long VF_fdEntrySectionSize=0;
-unsigned int VF_raw_options=0;
-unsigned int VF_raw_options_reg=0;
+extern bool VF_minimal;
+extern long VF_fdImageBase;
+extern long VF_fdEntryPoint;
+extern long VF_fdEntrySectionNumber;
+extern long VF_fdEntrySectionOffset;
+extern long VF_fdEntrySectionSize;
+extern unsigned int VF_raw_options;
+extern unsigned int VF_raw_options_reg;
 
-
+unsigned int VF_FindUsbPattern(BYTE* d, unsigned int size);
+unsigned int VF_FindAnd20Pattern(BYTE* d, unsigned int size);
+unsigned int VF_FindAnd40000Pattern(BYTE* d, unsigned int size);
+bool VF_IsMinimalProtection(ULONG_PTR va);
+void VF_FatalError(const char* msg);
+unsigned int VF_FindarmVersion(BYTE* d, unsigned int size);
+unsigned int VF_FindPushAddr(BYTE* d, unsigned int size, unsigned int addr);
 
 #endif

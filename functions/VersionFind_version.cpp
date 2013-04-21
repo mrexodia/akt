@@ -1,32 +1,4 @@
-#include "VersionFind_global.h"
-
-void VF_FatalError(const char* msg)
-{
-    MessageBoxA(VF_shared, msg, "Fatal Error!", MB_ICONERROR);
-    StopDebug();
-}
-
-unsigned int FindarmVersion(BYTE* d, unsigned int size)
-{
-    for(unsigned int i=0; i<size; i++) //3C61726D56657273696F6E (<armVersion)
-        if(d[i]==0x3C and d[i+1]==0x61 and d[i+2]==0x72 and d[i+3]==0x6D and d[i+4]==0x56 and d[i+5]==0x65 and d[i+6]==0x72 and d[i+7]==0x73 and d[i+8]==0x69 and d[i+9]==0x6F and d[i+10]==0x6E)
-        {
-            while(d[i]!=0)
-                i--;
-            return i+1;
-        }
-    return 0;
-}
-
-unsigned int FindPushAddr(BYTE* d, unsigned int size, unsigned int addr)
-{
-    BYTE b[4]= {0};
-    memcpy(b, &addr, 4);
-    for(unsigned int i=0; i<size; i++) //68XXXXXXXX
-        if(d[i]==0x68 and d[i+1]==b[0] and d[i+2]==b[1] and d[i+3]==b[2] and d[i+4]==b[3])
-            return i;
-    return 0;
-}
+#include "VersionFind_version.h"
 
 void VF_cbVerGetVersion()
 {
@@ -75,11 +47,11 @@ void VF_cbVerVirtualProtect()
     sec_size=mbi.RegionSize;
     sec_data=(BYTE*)malloc(sec_size);
     ReadProcessMemory(VF_fdProcessInfo->hProcess, (const void*)sec_addr, sec_data, sec_size, 0);
-    unsigned int armversion_addr=FindarmVersion(sec_data, sec_size);
+    unsigned int armversion_addr=VF_FindarmVersion(sec_data, sec_size);
     if(!armversion_addr)
         VF_FatalError("Could not find '<armVersion'");
     armversion_addr+=sec_addr;
-    unsigned int push_addr=FindPushAddr(sec_data, sec_size, armversion_addr);
+    unsigned int push_addr=VF_FindPushAddr(sec_data, sec_size, armversion_addr);
     if(!push_addr)
         VF_FatalError("Could not find reference to '<armVersion'");
     int call_decrypt=push_addr;

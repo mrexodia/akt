@@ -1,20 +1,4 @@
-#include "VersionFind_global.h"
-
-unsigned int FindAnd20Pattern(BYTE* d, unsigned int size)
-{
-    for(unsigned int i=0; i<size; i++) //83E?20
-        if(d[i]==0x83 and(d[i+1]>>4)==0x0E and d[i+2]==0x20)
-            return i;
-    return 0;
-}
-
-unsigned int FindAnd40000Pattern(BYTE* d, unsigned int size)
-{
-    for(unsigned int i=0; i<size; i++) //81E?00000400
-        if(d[i]==0x81 and(d[i+1]>>4)==0x0E and d[i+2]==0x00 and d[i+3]==0x00 and d[i+4]==0x04 and d[i+5]==0x00)
-            return i;
-    return 0;
-}
+#include "VersionFind_rawoptions.h"
 
 void VF_cbRetrieveRawOptions()
 {
@@ -29,7 +13,7 @@ void VF_cbMutexReturn()
     DeleteBPX(eip);
     BYTE* eip_data=(BYTE*)malloc(100);
     ReadProcessMemory(VF_fdProcessInfo->hProcess, (void*)eip, eip_data, 100, 0);
-    int and20=FindAnd20Pattern(eip_data, 100);
+    int and20=VF_FindAnd20Pattern(eip_data, 100);
     if(!and20)
         VF_FatalError("Could not find 'and [reg],20'");
     unsigned int andreg=eip_data[and20+1]&0x0F;
@@ -79,7 +63,7 @@ void VF_cbOpGetCommandLine()
     DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"GetCommandLineW", UE_APISTART);
     BYTE* data=(BYTE*)malloc(VF_fdEntrySectionSize);
     ReadProcessMemory(VF_fdProcessInfo->hProcess, (void*)VF_fdEntrySectionOffset, data, VF_fdEntrySectionSize, 0);
-    int and40000=FindAnd40000Pattern(data, VF_fdEntrySectionSize);
+    int and40000=VF_FindAnd40000Pattern(data, VF_fdEntrySectionSize);
     if(!and40000)
         VF_FatalError("Could not find 'and [reg],40000'");
     unsigned int andreg=data[and40000+1]&0x0F;
@@ -124,17 +108,6 @@ void VF_cbOpEntry()
     }
 }
 
-bool IsMinimalProtection(ULONG_PTR va)
-{
-    OutputDebugStringA("IsMinimalProtection");
-    int offset=GetPE32Data(VF_szFileName, VF_fdEntrySectionNumber, UE_SECTIONRAWOFFSET);
-    BYTE firstbytes[2]= {0};
-    memcpy(firstbytes, (void*)(va+offset), 2);
-    if(firstbytes[0]==0x60 and firstbytes[1]==0xE8)
-        return false;
-    return true;
-}
-
 bool VF_RawOptions()
 {
     VF_fdFileIsDll = false;
@@ -165,7 +138,7 @@ bool VF_RawOptions()
             VF_fdEntrySectionOffset = (long)GetPE32Data(VF_szFileName, VF_fdEntrySectionNumber, UE_SECTIONVIRTUALOFFSET)+VF_fdImageBase;
             VF_fdEntrySectionSize = (long)GetPE32Data(VF_szFileName, VF_fdEntrySectionNumber, UE_SECTIONVIRTUALSIZE);
             StaticFileClose(hFile);
-            VF_minimal=IsMinimalProtection(va);
+            VF_minimal=VF_IsMinimalProtection(va);
             VF_fdFileIsDll = inFileStatus.FileIsDLL;
             if(!VF_fdFileIsDll)
             {

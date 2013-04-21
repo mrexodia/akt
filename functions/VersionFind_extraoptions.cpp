@@ -1,16 +1,4 @@
-#include "VersionFind_global.h"
-
-unsigned int FindUsbPattern(BYTE* d, unsigned int size)
-{
-    for(unsigned int i=0; i<size; i++) //55534220646576696365
-        if(d[i]==0x55 and d[i+1]==0x53 and d[i+2]==0x42 and d[i+3]==0x20 and d[i+4]==0x64 and d[i+5]==0x65 and d[i+6]==0x76 and d[i+7]==0x69 and d[i+8]==0x63 and d[i+9]==0x65)
-        {
-            while(d[i]!=0)
-                i--;
-            return i+1;
-        }
-    return 0;
-}
+#include "VersionFind_extraoptions.h"
 
 void VF_cbExtraDwordRetrieve()
 {
@@ -25,7 +13,7 @@ void VF_cbExtraDw()
     DeleteBPX(eip);
     BYTE* eip_data=(BYTE*)malloc(0x1000);
     ReadProcessMemory(VF_fdProcessInfo->hProcess, (void*)eip, eip_data, 0x1000, 0);
-    unsigned int and20=FindAnd20Pattern(eip_data, 0x1000);
+    unsigned int and20=VF_FindAnd20Pattern(eip_data, 0x1000);
     if(!and20)
         VF_FatalError("Could not find 'and [reg],20");
     unsigned int andreg=eip_data[and20+1]&0x0F;
@@ -79,11 +67,11 @@ void VF_cbExtraVirtualProtect()
     ReadProcessMemory(VF_fdProcessInfo->hProcess, (const void*)sec_addr, sec_data, sec_size, 0);
 
     OutputDebugStringA("usbdevice");
-    unsigned int usbdevice=FindUsbPattern(sec_data, sec_size);
+    unsigned int usbdevice=VF_FindUsbPattern(sec_data, sec_size);
     if(usbdevice)
     {
         usbdevice+=sec_addr;
-        unsigned int usb_push=FindPushAddr(sec_data, sec_size, usbdevice);
+        unsigned int usb_push=VF_FindPushAddr(sec_data, sec_size, usbdevice);
         if(!usb_push)
             VF_FatalError("Could not find reference to 'USB Device'");
         unsigned int invalidkey=0;
@@ -217,4 +205,3 @@ void VF_ExtraOptions()
         MessageBoxA(VF_shared, "This is not a valid PE file...", "Error!", MB_ICONERROR);
     }
 }
-

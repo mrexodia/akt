@@ -1,4 +1,4 @@
-#include "Misc_global.h"
+#include "Misc_sectiondeleter.h"
 
 bool MSC_SD_IsArmadilloProtected(char* va)
 {

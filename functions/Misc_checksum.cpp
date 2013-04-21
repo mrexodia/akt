@@ -1,4 +1,4 @@
-#include "Misc_global.h"
+#include "Misc_checksum.h"
 
 unsigned int MakeChecksumV3(unsigned int sym)
 {
@@ -190,15 +190,15 @@ DWORD WINAPI MSC_GetSalt(void* lpvoid)
     return 0;
 }
 
-static unsigned long MSC_CHK_a;
+unsigned long MSC_CHK_a;
 
-static unsigned long MSC_CHK_mult(long p, long q)
+unsigned long MSC_CHK_mult(long p, long q)
 {
     unsigned long p1=p/10000L, p0=p%10000L, q1=q/10000L, q0=q%10000L;
     return (((p0*q1+p1*q0) % 10000L) * 10000L+p0*q0) % 100000000L;
 }
 
-static unsigned long MSC_CHK_NextRandomRange(long range)
+unsigned long MSC_CHK_NextRandomRange(long range)
 {
     MSC_CHK_a=(MSC_CHK_mult(MSC_CHK_a, 31415821L)+1) % 100000000L;
     return (((MSC_CHK_a/10000L)*range)/10000L);
