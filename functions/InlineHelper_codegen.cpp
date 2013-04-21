@@ -1,4 +1,4 @@
-#include "..\template.h"
+#include "InlineHelper_codegen.h"
 
 void IH_GenerateAsmCode()
 {

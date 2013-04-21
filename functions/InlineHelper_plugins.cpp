@@ -1,4 +1,4 @@
-#include "InlineHelper_global.h"
+#include "InlineHelper_plugins.h"
 
 void IH_GetPluginList(void)
 {

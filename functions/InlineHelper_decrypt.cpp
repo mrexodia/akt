@@ -1,4 +1,4 @@
-#include "InlineHelper_global.h"
+#include "InlineHelper_decrypt.h"
 
 //TODO: Implement this
 /*
@@ -9,7 +9,6 @@
 -original entry is new entry
 -set ep to free space
 */
-
 
 void IHD_FatalError(const char* msg)
 {

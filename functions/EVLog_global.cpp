@@ -1,7 +1,4 @@
-#ifndef _EV_GLOBAL_H
-#define _EV_GLOBAL_H
-
-#include "_global.h"
+#include "EVLog_global.h"
 
 //Debugger
 HWND EV_shared;
@@ -23,5 +20,3 @@ bool EV_bpvp_set=false;
 
 //Dialog
 char EV_program_dir[256]="";
-
-#endif

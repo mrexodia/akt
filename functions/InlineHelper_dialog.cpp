@@ -1,4 +1,4 @@
-#include "InlineHelper_global.h"
+#include "InlineHelper_dialog.h"
 
 BOOL CALLBACK IH_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {

@@ -1,7 +1,4 @@
-#ifndef _IH_GLOBAL_H
-#define _IH_GLOBAL_H
-
-#include "_global.h"
+#include "InlineHelper_global.h"
 
 //Global vars
 long IH_fdImageBase = NULL; //Process image base
@@ -41,8 +38,6 @@ LPPROCESS_INFORMATION IH_fdProcessInfo; //Process information structure
 
 //Plugins
 HINSTANCE PLUGIN_INST;
-typedef char*(*PLUGINFO)(void);
-typedef void(*PLUGFUNC)(HINSTANCE hInst, HWND hwndDlg, const char* register_vp, const char* progdir, unsigned int imagebase);
 PLUGINFO PluginInfo;
 PLUGFUNC PluginFunction;
 char IH_plugin_ini_file[256]="";
@@ -100,5 +95,3 @@ unsigned int IH_Find960Pattern(BYTE* d, unsigned int size)
             return i;
     return 0;
 }
-
-#endif

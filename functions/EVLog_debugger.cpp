@@ -1,4 +1,4 @@
-#include "EVLog_global.h"
+#include "EVLog_debugger.h"
 
 void RemoveListDuplicates(HWND hwndDlg, UINT id)
 {

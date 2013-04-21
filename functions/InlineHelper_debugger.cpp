@@ -1,4 +1,4 @@
-#include "InlineHelper_global.h"
+#include "InlineHelper_debugger.h"
 
 BYTE IH_FindCrcStart(BYTE* data) //Find the start of the CRC array
 {

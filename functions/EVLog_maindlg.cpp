@@ -1,4 +1,4 @@
-#include "EVLog_global.h"
+#include "EVLog_maindlg.h"
 
 BOOL CALLBACK EV_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {

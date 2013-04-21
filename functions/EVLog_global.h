@@ -4,24 +4,24 @@
 #include "_global.h"
 
 //Debugger
-HWND EV_shared;
-HWND EV_list_hwnd;
-bool EV_fdFileIsDll = false;
-LPPROCESS_INFORMATION EV_fdProcessInfo = NULL;
-long EV_fdImageBase = NULL;
-long EV_fdEntryPoint = NULL;
-long EV_fdEntrySectionNumber = NULL;
-long EV_fdEntrySectionSize = NULL;
-long EV_fdEntrySectionOffset = NULL;
-DWORD EV_bytes_read=0;
-char EV_szFileName[256]="";
-char EV_log_message[256]="";
-char EV_guard_text[256]="Break!";
-DWORD EV_oldprotect=0;
-ULONG_PTR EV_va;
-bool EV_bpvp_set=false;
+extern HWND EV_shared;
+extern HWND EV_list_hwnd;
+extern bool EV_fdFileIsDll;
+extern LPPROCESS_INFORMATION EV_fdProcessInfo;
+extern long EV_fdImageBase;
+extern long EV_fdEntryPoint;
+extern long EV_fdEntrySectionNumber;
+extern long EV_fdEntrySectionSize;
+extern long EV_fdEntrySectionOffset;
+extern DWORD EV_bytes_read;
+extern char EV_szFileName[256];
+extern char EV_log_message[256];
+extern char EV_guard_text[256];
+extern DWORD EV_oldprotect;
+extern ULONG_PTR EV_va;
+extern bool EV_bpvp_set;
 
 //Dialog
-char EV_program_dir[256]="";
+extern char EV_program_dir[256];
 
 #endif

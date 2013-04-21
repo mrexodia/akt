@@ -17,6 +17,9 @@
 #include "functions/help_dialog.h"
 #include "functions/about.h"
 #include "functions/CertTool_dialog.h"
+#include "functions/encdec.h"
+#include "functions/InlineHelper_dialog.h"
+#include "functions/InlineHelper_plugins.h"
 
 /*#include "TitanEngine/TitanEngine.h"
 #include "BeaEngine/BeaEngine.h"
@@ -24,13 +27,13 @@
 #include "functions/_global.h"
 
 
-#include "functions/encdec.h"
+
 #include "functions/analysis.h"
 #include "functions/keygenerate.h"
-#include "functions/InlineHelper_plugins.h"
+
 #include "functions/InlineHelper_codegen.h"
 #include "functions/InlineHelper_debugger.h"
-#include "functions/InlineHelper_dialog.h"
+
 #include "functions/InlineHelper_decrypt.h"
 #include "functions/EVLog_debugger.h"
 #include "functions/EVLog_maindlg.h"

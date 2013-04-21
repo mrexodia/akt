@@ -1,4 +1,4 @@
-#include "_global.h"
+#include "encdec.h"
 
 BOOL CALLBACK DlgEncDec(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
