@@ -1,5 +1,7 @@
 #include "CertTool_dialog.h"
 
+char CT_szProgramDir[256]=""; //debugged program dir
+
 BOOL CALLBACK CT_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     switch(uMsg)

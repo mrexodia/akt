@@ -1,5 +1,9 @@
 #include "CertTool_parser.h"
 
+//Superglobal variables
+bool CT_created_log=false; //bool for if our log was created
+bool CT_isparsing=false; //Is parsing certificate info?
+
 void CT_AddToLog(HWND list, const char* text)
 {
     //Add to the listbox

@@ -4,6 +4,8 @@
 #include "CertTool_global.h"
 #include "CertTool_parser.h"
 
+extern bool CT_isdebugging;
+
 void CT_cbGetSalt();
 void CT_RetrieveSaltValue();
 void CT_cbEndBigLoop();

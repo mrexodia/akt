@@ -15,35 +15,6 @@
 
 #include "keygen\keygen_main.h"
 
-//#include "help_dialog.h"
-//#include "about.h"
-//#include "encdec.h"
-//#include "analysis.h"
-//#include "keygenerate.h"
-//#include "InlineHelper_plugins.h"
-//#include "InlineHelper_codegen.h"
-//#include "InlineHelper_debugger.h"
-//#include "InlineHelper_dialog.h"
-//#include "InlineHelper_decrypt.h"
-//#include "EVLog_debugger.h"
-//#include "EVLog_maindlg.h"
-//#include "VersionFind_version.h"
-//#include "VersionFind_rawoptions.h"
-//#include "VersionFind_extraoptions.h"
-//#include "VersionFind_decode.h"
-//#include "VersionFind_dialog.h"
-//#include "Misc_currentsym.h"
-//#include "Misc_sectiondeleter.h"
-//#include "Misc_projectid.h"
-//#include "Misc_checksum.h"
-//#include "Misc_verifysym.h"
-//#include "Misc_dialog.h"
-//#include "CertTool_decrypt.h"
-//#include "CertTool_parser.h"
-//#include "CertTool_debugger.h"
-//#include "CertTool_brute.h"
-//#include "CertTool_dialog.h"
-
 
 extern HINSTANCE hInst;
 extern bool log_version;

@@ -1,68 +1,17 @@
 #include "CertTool_global.h"
 
-HWND CT_shared;
+HWND CT_shared; //shared window handle
 
 char CT_szFileName[256]=""; //debugged program
-char CT_szProgramDir[256]=""; //debugged program dir
 char CT_szLogFile[256]=""; //_cert.log file
 char CT_szAktLogFile[256]=""; //_cert.tpodt file
 char CT_szCryptCertFile[256]=""; //_cert.bin file
 char CT_szRawCertFile[256]=""; //_raw.cert file
-bool CT_created_log=false; //bool for if our log was created
-bool CT_isdebugging=false; //Is retrieving cert info?
-bool CT_isparsing=false; //Is parsing certificate info?
+
 bool CT_logtofile=true; //Create log files?
-bool CT_brute=false; //Solve certs?
-bool CT_brute_initialized=false; //initialized sym brute lib?
-bool CT_brute_dlp_initialized=false; //initialized dlp brute lib?
-bool CT_brute_nosym=false; //Skip sym solving?
-bool CT_brute_symverify=false; //verify symmetric before taking it as valid?
-bool CT_fdFileIsDll=false; //Debugged is dll?
 unsigned int CT_time1=0; //For duration calculation.
 
-BRUTE_DATA* CT_current_brute;
 CERT_DATA* CT_cert_data;
-
-unsigned int CT_magic_value_addr=0; //address of the magic values place
-unsigned int CT_magic_ebp_sub=0; //ebp difference to retrieve the magic from
-unsigned int CT_magic_byte=0; //address of the compare of the crc byte
-unsigned int CT_tea_decrypt=0; //address of the tea decrypt function
-unsigned int CT_noteax=0; //address of the sym check place (not [reg])
-unsigned int CT_end_big_loop=0; //end of the certificate loop
-unsigned char CT_magic_byte_cert=0; //correct crc byte
-unsigned short CT_cmp_data=0; //cmp [reg],[reg] bytes for disassembly
-unsigned char* CT_encrypted_cert_real=0; //certificate container byte parts
-unsigned int CT_encrypted_cert_real_size=0; //size of the current piece
-bool CT_patched_magic_jump=false; //bool to ensure we can retrieve all certificates (dynamically)
-UINT CT_register_magic_byte=0; //register (titsEngine form) to retrieve the current byte from
-unsigned int CT_salt_func_addr=0; //Address of the salt function
-unsigned int CT_salt_register=0; //Register to retrieve salt from
-unsigned int CT_salt_breakpoint=0; //Place to retrieve the salt from register
-BYTE CT_salt_code[61]= {0}; //Bytes of the salt code (for disassembly)
-int CT_cert_func_count=0; //Counter of passes on the NextDword function
-LPPROCESS_INFORMATION CT_fdProcessInfo = NULL; //process info
-
-//Brute global vars
-HINSTANCE hBrute;
-BRUTESTART BruteStart;
-SETCALLBACKS BruteSetCallbacks;
-BRUTESTOP BruteStop;
-BRUTESETTINGS BruteSettings;
-
-//Dlp brute
-HINSTANCE hBruteDlp;
-UPDATEKEYS UpdateKeys;
-SOLVEDLP SolveDlp;
-
-int CT_total_sym_found=0;
-char* CT_section_name=0;
-bool CT_brute_is_paused=false;
-bool CT_brute_shutdown=false;
-
-//Arma 9.60 seed retrieve for decryption
-//int CT_NextDword_count=0;
-int CT_return_counter=0;
-int CT_other_seed_counter=0;
 
 void CT_FatalError(const char* msg)
 {

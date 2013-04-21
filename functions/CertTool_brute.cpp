@@ -1,5 +1,29 @@
 #include "CertTool_brute.h"
 
+///Superglobal
+HINSTANCE hBrute;
+BRUTESTART BruteStart;
+SETCALLBACKS BruteSetCallbacks;
+BRUTESTOP BruteStop;
+BRUTESETTINGS BruteSettings;
+
+//Dlp brute
+HINSTANCE hBruteDlp;
+UPDATEKEYS UpdateKeys;
+SOLVEDLP SolveDlp;
+
+int CT_total_sym_found=0; //number of symmetric keys found
+char* CT_section_name=0; //current INI (.akt) section name
+bool CT_brute_is_paused=false; //is_paused flag
+bool CT_brute_shutdown=false; //shutdown after bruting is finished?
+bool CT_brute=false; //Solve certs?
+bool CT_brute_initialized=false; //initialized sym brute lib?
+bool CT_brute_dlp_initialized=false; //initialized dlp brute lib?
+bool CT_brute_nosym=false; //Skip sym solving?
+bool CT_brute_symverify=false; //verify symmetric before taking it as valid?
+
+BRUTE_DATA* CT_current_brute;
+
 bool InitializeSymBruteLibrary(HWND hwndDlg)
 {
     if(hBrute)
