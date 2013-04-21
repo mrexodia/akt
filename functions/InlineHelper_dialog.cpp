@@ -143,7 +143,7 @@ BOOL CALLBACK IH_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 if(!MenuItemClicked)
                     return TRUE;
 
-                sprintf(temp_str, "%d", MenuItemClicked);
+                sprintf(temp_str, "%d", (int)MenuItemClicked);
                 GetPrivateProfileStringA(temp_str, "plugin_dll", "", plugin_dll, 100, IH_plugin_ini_file);
                 sprintf(dll_to_load, "plugins\\%s", plugin_dll);
 

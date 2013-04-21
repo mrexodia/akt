@@ -366,7 +366,7 @@ void BigInt_Multiply(BigInt a, BigInt b, BigInt answer)
 }
 
 int BigInt_Divide(BigInt a, BigInt b, BigInt answer, BigInt remainder)
-{
+{ //TODO: fix something here (memleak temp1 or t)
     int compare, i, signa, signb;
     WORKING_DIGIT high, low, t;
     BigInt temp1, temp2;
@@ -956,11 +956,12 @@ void BigInt_ToString(BigInt s, int base, char* d)
     copy_s=BigInt_Create();
     BigInt_Copy(copy_s, s);
     BigInt_SetU(ten, base);
+    int j=0;
     while(BigInt_Compare(copy_s, BigInt_Zero()))
     {
         BigInt_Divide(copy_s, ten, answer, remainder);
         BigInt_Copy(copy_s, answer);
-        sprintf(d, "%s%c", d, digits[BigInt_Get(remainder)]);
+        j+=sprintf(d+j, "%c", digits[BigInt_Get(remainder)]);
     }
     BigInt_Destroy(ten);
     BigInt_Destroy(remainder);
@@ -979,12 +980,12 @@ bool BigInt_ToHexString(BigInt n, char* d)
             return false;
         if(n->negative)
             strcpy(d, "-");
-        for(int i=0; i<n->length; i++)
+        for(int i=0,j=0; i<n->length; i++)
         {
             if(!i)
-                sprintf(d, "%s%X", d, n->digits[n->length-1]);
+                j+=sprintf(d+j, "%X", n->digits[n->length-1]);
             else
-                sprintf(d, "%s%.2X", d, n->digits[n->length-i-1]);
+                j+=sprintf(d+j, "%.2X", n->digits[n->length-i-1]);
         }
     }
     else
@@ -1013,9 +1014,9 @@ bool BigInt_FromHexString(const char* source, BigInt dest)
         return false;
     }
 
-    for(int i=0; i<len; i++) //Format hex characters
+    for(int i=0,j=0; i<len; i++) //Format hex characters
         if(isxdigit(s[i]))
-            sprintf(temp, "%s%c", temp, s[i]);
+            j+=sprintf(temp+j, "%c", s[i]);
 
     //We hate prepended zeroes
     s=temp;

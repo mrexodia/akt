@@ -39,8 +39,6 @@ unsigned char* CT_DecryptCerts()
 {
     OutputDebugStringA("CT_DecryptCerts");
     CERT_DATA* cd=CT_cert_data;
-    HWND hwndDlg;
-    hwndDlg=CT_shared;
 
     if(!cd->raw_data or !cd->raw_size)
         return 0;

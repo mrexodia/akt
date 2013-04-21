@@ -117,7 +117,7 @@ void EV_FatalError(const char* msg)
     ExitProcess(1);
 }
 
-void EV_BreakDebugger()
+void EV_BreakDebugger() //TODO: never used
 {
     VirtualProtect(EV_guard_text, 256, PAGE_READWRITE|PAGE_GUARD, &EV_oldprotect);
     EV_guard_text[0]=0;

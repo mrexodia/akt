@@ -2,7 +2,7 @@
 
 HINSTANCE hInst;
 bool log_version=true; //Log version...
-bool help_open=false; //Prevent double help screens.
+//bool help_open=false; //Prevent double help screens.
 char program_dir[256]="";
 char FormatTextHex_format[1024]=""; //String for hex format
 
@@ -104,9 +104,9 @@ char* FormatTextHex(const char* text)
 {
     int len=strlen(text);
     FormatTextHex_format[0]=0;
-    for(int i=0; i<len; i++)
+    for(int i=0,j=0; i<len; i++)
         if((text[i]>64 and text[i]<71) or(text[i]>47 and text[i]<58))
-            sprintf(FormatTextHex_format, "%s%c", FormatTextHex_format, text[i]);
+            j+=sprintf(FormatTextHex_format+j, "%c", text[i]);
     return FormatTextHex_format;
 }
 
@@ -162,9 +162,9 @@ void FormatHex(char* string)
     _strupr(string);
     char* new_string=(char*)malloc(len+1);
     memset(new_string, 0, len+1);
-    for(int i=0; i<len; i++)
+    for(int i=0,j=0; i<len; i++)
         if(IsHexChar(string[i]))
-            sprintf(new_string, "%s%c", new_string, string[i]);
+            j+=sprintf(new_string+j, "%c", string[i]);
     strcpy(string, new_string);
     free(new_string);
 }
@@ -199,8 +199,8 @@ int ByteArrayToString(unsigned char* s, char* d, int s_len, int d_len)
     memset(d, 0, d_len);
     if(s_len>d_len)
         return -1;
-    for(int i=0; i<s_len; i++)
-        sprintf(d, "%s%.2X", d, s[i]);
+    for(int i=0,j=0; i<s_len; i++)
+        j+=sprintf(d+j, "%.2X", s[i]);
     return strlen(d);
 }
 
@@ -364,7 +364,7 @@ int DecodeShortV3(const char* serial, bool level10, unsigned char* dest, int des
                     if(value==3)
                     {
                         value=0;
-                        keystring=true;
+                        keystring=true; //TODO: remove?
                     }
                     if(value!=0)
                     {
@@ -378,7 +378,7 @@ int DecodeShortV3(const char* serial, bool level10, unsigned char* dest, int des
                     if(value==3)
                     {
                         value=0;
-                        keystring=true;
+                        keystring=true; //TODO: remove?
                     }
                     if(value!=0 && value>=16)
                     {

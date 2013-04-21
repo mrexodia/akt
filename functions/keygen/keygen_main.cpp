@@ -87,7 +87,7 @@ const char* CreateKey(unsigned int symmetric_key, unsigned int sym_xor, const ch
     ByteArray2String((unsigned char*)k, cooked, 2*sizeof(unsigned long), 2048);
     sprintf(log_msg, "Enciphered KeyBytes:\r\n%s", cooked);
     AddLogMessage(log, log_msg, false);
-    cooked[0]=0;
+    cooked[0]=0; //TODO: remove?
 
     /* Format and return it! */
     wsprintfA(returntext, "%04X-%04X-%04X-%04X", k[0]>>16, k[0]&0xFFFF, k[1]>>16, k[1]&0xFFFF);

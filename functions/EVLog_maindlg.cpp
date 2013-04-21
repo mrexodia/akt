@@ -69,7 +69,7 @@ BOOL CALLBACK EV_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 char var_value[512]="";
                 SendMessageA(EV_list_hwnd, LB_GETTEXT, cursel, (LPARAM)line_text);
                 int len=strlen(line_text);
-                for(int i=0,j=0; i<len; i++)
+                for(int i=0,j=0,k=0,l=0; i<len; i++)
                 {
                     if(line_text[i]=='=')
                     {
@@ -77,9 +77,9 @@ BOOL CALLBACK EV_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
                         j=1;
                     }
                     if(!j)
-                        sprintf(var_name, "%s%c", var_name, line_text[i]);
+                        k+=sprintf(var_name+k, "%c", line_text[i]);
                     else
-                        sprintf(var_value, "%s%c", var_value, line_text[i]);
+                        l+=sprintf(var_value+l, "%c", line_text[i]);
                 }
                 HMENU myMenu=NULL;
                 myMenu=CreatePopupMenu();

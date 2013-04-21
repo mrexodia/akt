@@ -26,7 +26,7 @@ void CT_AddToLog(HWND list, const char* text)
                 if(MessageBoxA(CT_shared, "Could not create log file, continue?", CT_szLogFile, MB_ICONERROR|MB_YESNO)==IDNO)
                 {
                     free(new_text);
-                    TerminateThread(GetCurrentThread(), 0);
+                    TerminateThread(GetCurrentThread(), 0); return;
                 }
             }
             else
@@ -54,10 +54,10 @@ void CT_AddLogMessage(HWND list, const char* text)
 {
     int len=strlen(text);
     char current_add[256]="";
-    for(int i=0; i<len; i++)
+    for(int i=0,j=0; i<len; i++)
     {
         if(text[i]!='\r' and text[i]!='\n')
-            sprintf(current_add, "%s%c", current_add, text[i]);
+            j+=sprintf(current_add+j, "%c", text[i]);
         else
         {
             if(text[i]=='\r' and text[i+1]=='\n')
@@ -310,10 +310,10 @@ void CT_ParseCerts()
                 strncpy(log_msg, (const char*)data, pub_size);
                 WritePrivateProfileStringA(section_name, "pub", log_msg, CT_szAktLogFile);
 
-                for(int i=0,j=0; i<pub_size; i++)
+                for(int i=0,j=0,k=0; i<pub_size; i++)
                 {
                     if(data[i]!=',')
-                        sprintf(byte_string, "%s%c", byte_string, data[i]);
+                        k+=sprintf(byte_string+k, "%c", data[i]);
                     else
                     {
                         if(!j)

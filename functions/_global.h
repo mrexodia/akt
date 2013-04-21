@@ -47,9 +47,7 @@
 
 extern HINSTANCE hInst;
 extern bool log_version;
-extern bool help_open;
 extern char program_dir[256];
-extern char FormatTextHex_format[1024];
 
 UINT DetermineRegisterFromText(char* reg_text);
 unsigned int FindDwordInMemory(BYTE* dump_addr, unsigned dword_to_find, unsigned int filesize);

@@ -185,7 +185,7 @@ void InitTabStruct(HWND hwndDlg, UINT tab_id, bool auto_resize_window, bool auto
 }
 
 //Used for debugging, prints information about a specified rectangle
-void print_rect(RECT* r, const char* title)
+void print_rect(RECT* r, const char* title) //TODO: never used
 {
     char print_text[512]="";
     sprintf(print_text, "left (x of the upper-left corner):\r\n%d\r\ntop (y upper-left corner):\r\n%d\r\nright (x lower-right corner):\r\n%d\r\nbottom (y lower-right corner):\r\n%d\r\nheight (bottom-top)\r\n%d\r\nwidth (right-left)\r\n%d", (int)r->left, (int)r->top, (int)r->right, (int)r->bottom, (int)(r->bottom-r->top), (int)(r->right-r->left));

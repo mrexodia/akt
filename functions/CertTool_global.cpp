@@ -194,7 +194,7 @@ unsigned int CT_FindTeaDecryptPattern(BYTE* d, unsigned int size)
     return 0;
 }
 
-unsigned int CT_FindNextDwordPattern(BYTE* d, unsigned int size)
+unsigned int CT_FindNextDwordPattern(BYTE* d, unsigned int size) //TODO: never used
 {
     for(unsigned int i=0; i<size; i++) //558BEC??????????????????????????????045DC3
         if(d[i]==0x55 and d[i+1]==0x8B and d[i+2]==0xEC and d[i+18]==0x04 and d[i+19]==0x5D and d[i+20]==0xC3)

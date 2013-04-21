@@ -66,7 +66,7 @@ char RetrieveKeyInfo(int level_input, const char* name_, unsigned long hardwareI
     }
     else if(level>=5)
     {
-        v3=1;
+        v3=1; //TODO: remove?
         level=level-4;
         //V3 keys can now have signature levels 1 through 9
         if(level<1 || level>9)
@@ -364,11 +364,12 @@ char RetrieveKeyInfo(int level_input, const char* name_, unsigned long hardwareI
         unsigned int seed_array=crc32(cooked, strlen(cooked), NewCRC32);
         InitRandomGenerator(seed_array);
         sprintf(log_msg, "NextRandomRange Array (Seed=%.8X):\r\n", seed_array);
-        for(x=0; x<keylength; x++)
+        int y;
+        for(x=0,y=0; x<keylength; x++)
         {
             unsigned char ran=NextRandomRange(256);
             keybytes[x]^=ran;
-            sprintf(log_msg, "%s%.2X", log_msg, ran);
+            y+=sprintf(log_msg+y, "%.2X", ran);
         }
         AddLogMessage(log, log_msg, false);
 

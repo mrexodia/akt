@@ -1,5 +1,7 @@
 #include "help_dialog.h"
 
+bool help_open=false;
+
 BOOL CALLBACK DlgHelp(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     switch(uMsg)

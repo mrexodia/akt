@@ -71,7 +71,7 @@ void VF_cbVerVirtualProtect()
     }
     if(!push100)
         VF_FatalError("Could not find 'push 100'");
-    push_addr+=sec_addr;
+    //push_addr+=sec_addr; //TODO: remove this
     call_decrypt+=sec_addr;
     push100+=sec_addr;
     VF_version_decrypt_call=call_decrypt;

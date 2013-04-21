@@ -10,7 +10,7 @@
 -set ep to free space
 */
 
-void IHD_FatalError(const char* msg)
+void IHD_FatalError(const char* msg) //TODO: never used
 {
     MessageBoxA(IH_shared, msg, "Fatal Error!", MB_ICONERROR);
     ExitProcess(1);
@@ -142,7 +142,7 @@ void IHD_cbEntry()
             SetMemoryBPXEx((GetPE32Data(IHD_szFileName, i, UE_SECTIONVIRTUALOFFSET)+IHD_fdImageBase), 0x1000, UE_MEMORY_WRITE, false, (void*)IHD_cbGuardPage);
 }
 
-DWORD WINAPI IHD_DebugThread(LPVOID lpStartAddress)
+DWORD WINAPI IHD_DebugThread(LPVOID lpStartAddress) //TODO: never used
 {
     IHD_fdFileIsDll = false;
     IHD_fdImageBase = NULL;

@@ -200,7 +200,7 @@ void md5(unsigned long *i, const void *bytes, unsigned long length)
         *b++=(unsigned char)(d&0xFF);
         d>>=8;
         *b++=(unsigned char)(d&0xFF);
-        d>>=8;
+        d>>=8; //TODO: remove?
 
         TransformBlock(i, buffer);
         TransformBlock(i, buffer+64);

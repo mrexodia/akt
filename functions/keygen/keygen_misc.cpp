@@ -100,7 +100,7 @@ designed to clear out the time-zone and daylight-savings-time differences. It's
 not strictly necessary, since Armadillo allows for a variation of a day, and
 may not be portable (thus the #ifdefs). */
 #ifdef _WIN32
-void NoTimeZoneStuff(void)
+void NoTimeZoneStuff(void) //TODO: never used
 {
     static int firstrun=1;
     if(firstrun)
@@ -149,7 +149,7 @@ void InterpretDate(unsigned short keymade, unsigned short *year, unsigned short 
     }
 }
 
-unsigned long hextoint(const char *string)
+unsigned long hextoint(const char *string) //TODO: never used
 {
     unsigned long r=0;
     const char *c=string;

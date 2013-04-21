@@ -161,7 +161,7 @@ unsigned int MSC_VR_GenerateNumberDword(int* in_value)
     return (((val1<<24)|(val2<<16))|(val3<<8))|val4;
 }
 
-void MSC_VR_TEA_Decrypt(unsigned int* k, unsigned char* data, unsigned int length, int flag)
+void MSC_VR_TEA_Decrypt(unsigned int* k, unsigned char* data, unsigned int length, int flag) //TODO: never used
 {
     unsigned int v0, v1, sum, i;
     unsigned int delta = 0x9e3779b9;
@@ -388,10 +388,10 @@ DWORD WINAPI MSC_VR_BruteThread(LPVOID arg)
     read=0;
     ReadFile(hFile, MSC_VR_keys, len, &read, 0);
     CloseHandle(hFile);
-    for(int i=0; i<len; i++)
+    for(int i=0,j=0; i<len; i++)
     {
         if((MSC_VR_keys[i]>64 and MSC_VR_keys[i]<71) or(MSC_VR_keys[i]>47 and MSC_VR_keys[i]<58) or(MSC_VR_keys[i]>96 and MSC_VR_keys[i]<103))   //1234567890ABCDEFabcdef
-            sprintf(MSC_VR_keys_format, "%s%c", MSC_VR_keys_format, MSC_VR_keys[i]);
+            j+=sprintf(MSC_VR_keys_format+j, "%c", MSC_VR_keys[i]);
     }
     len=strlen(MSC_VR_keys_format);
     int i=0;

@@ -321,9 +321,9 @@ BOOL CALLBACK MSC_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             char date_text[20]="";
             char new_date[20]="";
             int len=GetDlgItemTextA(hwndDlg, IDC_EDT_DATEYMD1, date_text, 20);
-            for(int i=0; i<len; i++)
+            for(int i=0,j=0; i<len; i++)
                 if(date_text[i]!='-')
-                    sprintf(new_date, "%s%c", new_date, date_text[i]);
+                    j+=sprintf(new_date+j, "%c", date_text[i]);
             len=strlen(new_date);
             if(len!=8)
             {

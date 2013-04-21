@@ -77,7 +77,7 @@ BOOL CALLBACK DlgAnalysis(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 {
                     if(!xorsym)
                     {
-                        xorsym=true;
+                        xorsym=true; //TODO: remove?
                         AddLogMessage(log, "Symmetric key changes:", false);
                     }
                     sprintf(temp, "%.8X^%.8X=%.8X (sym^xorval=newsym)", (unsigned int)info.symkey, (unsigned int)sym_xorval, (unsigned int)info.symkey^sym_xorval);

@@ -478,7 +478,7 @@ void FillArmaOptionsStruct(unsigned int raw, const char* ver, ARMA_OPTIONS* op, 
     else
         op->backupkey=BACKUPKEY_NOBACKUP;
     //Compression
-    if(raw&0x3)
+    if(raw&0x3) //TODO: fix this!
         op->compression=COMPRESSION_BEST;
     else if(raw&0x1)
         op->compression=COMPRESSION_BETTER;
