@@ -4,3 +4,10 @@ bin/Armadillo_KeyTool.exe
 .f
 CppCheckResults.xml
 SNDB4/
+
+# Ignore Object files
+obj/*
+
+# Ignore Eclipse Project
+.project
+.cproject
