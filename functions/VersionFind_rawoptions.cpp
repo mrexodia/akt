@@ -1,51 +1,73 @@
 #include "VersionFind_rawoptions.h"
 
+/**********************************************************************
+ *						Module Variables
+ *********************************************************************/
+// Debugging Variables
+static bool g_fdFileIsDll = false;
+static LPPROCESS_INFORMATION g_fdProcessInfo;
+
+// Internal Use Variables
+static long g_fdEntrySectionOffset=0;
+static long g_fdEntrySectionSize=0;
+static unsigned int g_raw_options_reg=0;
+static ErrMessageCallback g_ErrorMessageCallback = NULL;
+
+// Output Pointers
+static unsigned int* gPtrRawOptions=0;
+
+
+/**********************************************************************
+ *						Functions
+ *********************************************************************/
 void VF_cbRetrieveRawOptions()
 {
     DeleteBPX(GetContextData(UE_EIP));
-    VF_raw_options=GetContextData(VF_raw_options_reg);
+    *gPtrRawOptions=GetContextData(g_raw_options_reg);
     StopDebug();
 }
+
 
 void VF_cbMutexReturn()
 {
     unsigned int eip=GetContextData(UE_EIP);
     DeleteBPX(eip);
     BYTE* eip_data=(BYTE*)malloc(100);
-    ReadProcessMemory(VF_fdProcessInfo->hProcess, (void*)eip, eip_data, 100, 0);
+    ReadProcessMemory(g_fdProcessInfo->hProcess, (void*)eip, eip_data, 100, 0);
     int and20=VF_FindAnd20Pattern(eip_data, 100);
     if(!and20)
-        VF_FatalError("Could not find 'and [reg],20'");
+        VF_FatalError("Could not find 'and [reg],20'", g_ErrorMessageCallback);
     unsigned int andreg=eip_data[and20+1]&0x0F;
-    VF_raw_options_reg=0xFFFFFFFF;
+    g_raw_options_reg=0xFFFFFFFF;
     switch(andreg)
     {
     case 0:
-        VF_raw_options_reg=UE_EAX;
+        g_raw_options_reg=UE_EAX;
         break;
     case 1:
-        VF_raw_options_reg=UE_ECX;
+        g_raw_options_reg=UE_ECX;
         break;
     case 2:
-        VF_raw_options_reg=UE_EDX;
+        g_raw_options_reg=UE_EDX;
         break;
     case 3:
-        VF_raw_options_reg=UE_EBX;
+        g_raw_options_reg=UE_EBX;
         break;
     case 5:
-        VF_raw_options_reg=UE_EBP;
+        g_raw_options_reg=UE_EBP;
         break;
     case 6:
-        VF_raw_options_reg=UE_ESI;
+        g_raw_options_reg=UE_ESI;
         break;
     case 7:
-        VF_raw_options_reg=UE_EDI;
+        g_raw_options_reg=UE_EDI;
         break;
     }
-    if(VF_raw_options_reg==0xFFFFFFFF)
-        VF_FatalError("Could not determine raw options register");
+    if(g_raw_options_reg==0xFFFFFFFF)
+        VF_FatalError("Could not determine raw options register", g_ErrorMessageCallback);
     SetBPX((and20+eip), UE_BREAKPOINT, (void*)VF_cbRetrieveRawOptions);
 }
+
 
 void VF_cbOpOpenMutexA()
 {
@@ -53,53 +75,55 @@ void VF_cbOpOpenMutexA()
     unsigned int return_addr=0;
     DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"OpenMutexA", UE_APISTART);
     esp_addr=(long)GetContextData(UE_ESP);
-    ReadProcessMemory(VF_fdProcessInfo->hProcess, (const void*)esp_addr, &return_addr, 4, 0);
+    ReadProcessMemory(g_fdProcessInfo->hProcess, (const void*)esp_addr, &return_addr, 4, 0);
     SetBPX(return_addr, UE_BREAKPOINT, (void*)VF_cbMutexReturn);
 }
+
 
 void VF_cbOpGetCommandLine()
 {
     DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"GetCommandLineA", UE_APISTART);
     DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"GetCommandLineW", UE_APISTART);
-    BYTE* data=(BYTE*)malloc(VF_fdEntrySectionSize);
-    ReadProcessMemory(VF_fdProcessInfo->hProcess, (void*)VF_fdEntrySectionOffset, data, VF_fdEntrySectionSize, 0);
-    int and40000=VF_FindAnd40000Pattern(data, VF_fdEntrySectionSize);
+    BYTE* data=(BYTE*)malloc(g_fdEntrySectionSize);
+    ReadProcessMemory(g_fdProcessInfo->hProcess, (void*)g_fdEntrySectionOffset, data, g_fdEntrySectionSize, 0);
+    int and40000=VF_FindAnd40000Pattern(data, g_fdEntrySectionSize);
     if(!and40000)
-        VF_FatalError("Could not find 'and [reg],40000'");
+        VF_FatalError("Could not find 'and [reg],40000'", g_ErrorMessageCallback);
     unsigned int andreg=data[and40000+1]&0x0F;
-    VF_raw_options_reg=0xFFFFFFFF;
+    g_raw_options_reg=0xFFFFFFFF;
     switch(andreg)
     {
     case 0:
-        VF_raw_options_reg=UE_EAX;
+        g_raw_options_reg=UE_EAX;
         break;
     case 1:
-        VF_raw_options_reg=UE_ECX;
+        g_raw_options_reg=UE_ECX;
         break;
     case 2:
-        VF_raw_options_reg=UE_EDX;
+        g_raw_options_reg=UE_EDX;
         break;
     case 3:
-        VF_raw_options_reg=UE_EBX;
+        g_raw_options_reg=UE_EBX;
         break;
     case 5:
-        VF_raw_options_reg=UE_EBP;
+        g_raw_options_reg=UE_EBP;
         break;
     case 6:
-        VF_raw_options_reg=UE_ESI;
+        g_raw_options_reg=UE_ESI;
         break;
     case 7:
-        VF_raw_options_reg=UE_EDI;
+        g_raw_options_reg=UE_EDI;
         break;
     }
-    if(VF_raw_options_reg==0xFFFFFFFF)
-        VF_FatalError("Could not determine raw options register");
-    SetBPX((and40000+VF_fdEntrySectionOffset), UE_BREAKPOINT, (void*)VF_cbRetrieveRawOptions);
+    if(g_raw_options_reg==0xFFFFFFFF)
+        VF_FatalError("Could not determine raw options register", g_ErrorMessageCallback);
+    SetBPX((and40000+g_fdEntrySectionOffset), UE_BREAKPOINT, (void*)VF_cbRetrieveRawOptions);
 }
+
 
 void VF_cbOpEntry()
 {
-    if(!VF_fdFileIsDll)
+    if(!g_fdFileIsDll)
         SetAPIBreakPoint((char*)"kernel32.dll", (char*)"OpenMutexA", UE_BREAKPOINT, UE_APISTART, (void*)VF_cbOpOpenMutexA);
     else
     {
@@ -108,60 +132,66 @@ void VF_cbOpEntry()
     }
 }
 
-bool VF_RawOptions()
+
+bool VF_RawOptions(char* szFileName, unsigned int* raw_options, bool* bIsMinimal, ErrMessageCallback ErrorMessageCallback)
 {
-    VF_fdFileIsDll = false;
-    VF_fdImageBase = NULL;
-    VF_fdEntryPoint = NULL;
-    VF_fdProcessInfo = NULL;
+    long fdImageBase=NULL;
+    long fdEntryPoint=NULL;
+    long fdEntrySectionNumber=0;
     FILE_STATUS_INFO inFileStatus = {0};
-    if(IsPE32FileValidEx(VF_szFileName, UE_DEPTH_SURFACE, &inFileStatus))
+
+    gPtrRawOptions = raw_options;
+	g_fdFileIsDll = false;
+    g_fdProcessInfo = NULL;
+    g_ErrorMessageCallback = ErrorMessageCallback;
+
+    if(IsPE32FileValidEx(szFileName, UE_DEPTH_SURFACE, &inFileStatus))
     {
         if(inFileStatus.FileIs64Bit)
         {
-            MessageBoxA(VF_shared, "64-bit files are not (yet) supported!", "Error!", MB_ICONERROR);
+        	ErrorMessageCallback((char*)"64-bit files are not (yet) supported!", (char*)"Error!");
             return 0;
         }
         HANDLE hFile, fileMap;
         ULONG_PTR va;
         DWORD bytes_read;
-        VF_fdImageBase = (long)GetPE32Data(VF_szFileName, NULL, UE_IMAGEBASE);
-        VF_fdEntryPoint = (long)GetPE32Data(VF_szFileName, NULL, UE_OEP);
-        StaticFileLoad(VF_szFileName, UE_ACCESS_READ, false, &hFile, &bytes_read, &fileMap, &va);
+        fdImageBase = (long)GetPE32Data(szFileName, NULL, UE_IMAGEBASE);
+        fdEntryPoint = (long)GetPE32Data(szFileName, NULL, UE_OEP);
+        StaticFileLoad(szFileName, UE_ACCESS_READ, false, &hFile, &bytes_read, &fileMap, &va);
         if(!IsArmadilloProtected(va))
         {
-            MessageBoxA(VF_shared, "Not armadillo protected...", "Error!", MB_ICONERROR);
+        	ErrorMessageCallback((char*)"Not armadillo protected...", (char*)"Error!");
         }
         else
         {
-            VF_fdEntrySectionNumber = GetPE32SectionNumberFromVA(va, VF_fdEntryPoint+VF_fdImageBase);
-            VF_fdEntrySectionOffset = (long)GetPE32Data(VF_szFileName, VF_fdEntrySectionNumber, UE_SECTIONVIRTUALOFFSET)+VF_fdImageBase;
-            VF_fdEntrySectionSize = (long)GetPE32Data(VF_szFileName, VF_fdEntrySectionNumber, UE_SECTIONVIRTUALSIZE);
+            fdEntrySectionNumber = GetPE32SectionNumberFromVA(va, fdEntryPoint+fdImageBase);
+            g_fdEntrySectionOffset = (long)GetPE32Data(szFileName, fdEntrySectionNumber, UE_SECTIONVIRTUALOFFSET)+fdImageBase;
+            g_fdEntrySectionSize = (long)GetPE32Data(szFileName, fdEntrySectionNumber, UE_SECTIONVIRTUALSIZE);
             StaticFileClose(hFile);
-            VF_minimal=VF_IsMinimalProtection(va);
-            VF_fdFileIsDll = inFileStatus.FileIsDLL;
-            if(!VF_fdFileIsDll)
+            *bIsMinimal=VF_IsMinimalProtection(szFileName, va, fdEntrySectionNumber);
+            g_fdFileIsDll = inFileStatus.FileIsDLL;
+            if(!g_fdFileIsDll)
             {
-                VF_fdProcessInfo = (LPPROCESS_INFORMATION)InitDebugEx(VF_szFileName, NULL, NULL, (void*)VF_cbOpEntry);
+            	g_fdProcessInfo = (LPPROCESS_INFORMATION)InitDebugEx(szFileName, NULL, NULL, (void*)VF_cbOpEntry);
             }
             else
             {
-                VF_fdProcessInfo = (LPPROCESS_INFORMATION)InitDLLDebug(VF_szFileName, false, NULL, NULL, (void*)VF_cbOpEntry);
+            	g_fdProcessInfo = (LPPROCESS_INFORMATION)InitDLLDebug(szFileName, false, NULL, NULL, (void*)VF_cbOpEntry);
             }
-            if(VF_fdProcessInfo)
+            if(g_fdProcessInfo)
             {
                 DebugLoop();
                 return true;
             }
             else
             {
-                MessageBoxA(VF_shared, "Something went wrong during initialization...", "Error!", MB_ICONERROR);
+            	ErrorMessageCallback((char*)"Something went wrong during initialization...", (char*)"Error!");
             }
         }
     }
     else
     {
-        MessageBoxA(VF_shared, "This is not a valid PE file...", "Error!", MB_ICONERROR);
+    	ErrorMessageCallback((char*)"This is not a valid PE file...", (char*)"Error!");
     }
     return false;
 }
