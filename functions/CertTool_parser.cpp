@@ -4,11 +4,18 @@
 bool CT_created_log=false; //bool for if our log was created
 bool CT_isparsing=false; //Is parsing certificate info?
 
+/*void listadd(const char* text)
+{
+    int sel=SendMessageA(list, LB_ADDSTRING, 0, (LPARAM)text);
+    SendMessageA(list, LB_SETCURSEL, sel, 0);
+}*/
+
 void CT_AddToLog(HWND list, const char* text)
 {
     //Add to the listbox
     if(list)
     {
+        //listadd(text);
         int sel=SendMessageA(list, LB_ADDSTRING, 0, (LPARAM)text);
         SendMessageA(list, LB_SETCURSEL, sel, 0);
     }
@@ -51,7 +58,6 @@ void CT_AddToLog(HWND list, const char* text)
         }
         free(new_text);
     }
-
 }
 
 void CT_AddLogMessage(HWND list, const char* text)
@@ -67,7 +73,7 @@ void CT_AddLogMessage(HWND list, const char* text)
             if(text[i]=='\r' and text[i+1]=='\n')
                 i++;
             CT_AddToLog(list, current_add);
-            current_add[0]=0;
+            j=0;
         }
     }
     CT_AddToLog(list, current_add);
@@ -93,6 +99,11 @@ void CT_ParseCerts()
     {
         something_done=true;
         CT_AddLogMessage(list, "Global Information:");
+        if(cd->timestamp)
+        {
+            sprintf(log_msg, "   TimeStamp : %.8X", cd->timestamp);
+            CT_AddLogMessage(list, log_msg);
+        }
         if(cd->first_dw)
         {
             sprintf(log_msg, " First DWORD : %.8X", cd->first_dw);
@@ -326,7 +337,7 @@ void CT_ParseCerts()
                             sprintf(log_msg, "  Pub.X : %s", byte_string);
                         CT_AddLogMessage(list, log_msg);
                         j++;
-                        byte_string[0]=0;
+                        k=0;
                     }
                 }
                 sprintf(log_msg, "  Pub.Y : %s", byte_string);

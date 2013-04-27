@@ -1,5 +1,5 @@
-#ifndef _CT_GLOBAL
-#define _CT_GLOBAL
+#ifndef _CT_GLOBAL_H
+#define _CT_GLOBAL_H
 
 #include "_global.h"
 
@@ -33,6 +33,7 @@ struct CERT_DATA
     unsigned int decrypt_addvals[4];
     bool checksumv8;
     bool zero_md5_symverify;
+    unsigned int timestamp;
 };
 
 extern CERT_DATA* CT_cert_data;

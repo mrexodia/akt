@@ -14,6 +14,9 @@ unsigned int salt_func_addr=0; //Address of the salt function
 unsigned int salt_register=0; //Register to retrieve salt from
 unsigned int tea_decrypt=0; //address of the tea decrypt function
 
+//version determination
+unsigned int timestamp=0;
+
 int cert_func_count=0; //Counter of passes on the NextDword function
 int return_counter=0; //arma9.6
 int other_seed_counter=0;//arma9.6
@@ -29,7 +32,6 @@ bool patched_magic_jump=false; //bool to ensure we can retrieve all certificates
 LPPROCESS_INFORMATION fdProcessInfo = NULL; //process info
 UINT register_magic_byte=0; //register (titsEngine form) to retrieve the current byte from
 BYTE salt_code[61]= {0}; //Bytes of the salt code (for disassembly)
-
 
 void CT_cbGetSalt()
 {
@@ -298,8 +300,15 @@ void CT_cbCertificateFunction()
     {
         DeleteHardwareBreakPoint(UE_DR0);
         long retn_eax=GetContextData(UE_EAX);
-        BYTE* certificate_code=(BYTE*)malloc(0x10000);
-        if(ReadProcessMemory(fdProcessInfo->hProcess, (void*)retn_eax, certificate_code, 0x10000, 0))
+        MEMORY_BASIC_INFORMATION mbi={0};
+        unsigned int mem_size=0x10000;
+        if(VirtualQueryEx(fdProcessInfo->hProcess, (void*)retn_eax, &mbi, sizeof(MEMORY_BASIC_INFORMATION)))
+            mem_size=mbi.RegionSize-(retn_eax-(unsigned int)mbi.BaseAddress);
+        char a[10]="";
+        sprintf(a,"%X",mbi.RegionSize);
+        MessageBoxA(0,a,0,0);
+        BYTE* certificate_code=(BYTE*)malloc(mem_size);
+        if(ReadProcessMemory(fdProcessInfo->hProcess, (void*)retn_eax, certificate_code, mem_size, 0))
         {
             //Arma 9.60 support
             unsigned int esp=GetContextData(UE_ESP);
@@ -328,17 +337,17 @@ void CT_cbCertificateFunction()
                     return_counter=0;
                     SetBPX(_stack+retn, UE_BREAKPOINT, (void*)CT_cbReturnSeed1);
                 }
-                CT_cert_data->raw_size=0x10000;
-                CT_cert_data->raw_data=(unsigned char*)malloc(0x10000);
-                memcpy(CT_cert_data->raw_data, certificate_code, 0x10000);
+                CT_cert_data->raw_size=mem_size;
+                CT_cert_data->raw_data=(unsigned char*)malloc(mem_size);
+                memcpy(CT_cert_data->raw_data, certificate_code, mem_size);
             }
             else
             {
                 free(return_bytes);
                 //Get raw certificate data
-                unsigned int cert_start=CT_FindCertificateMarkers(certificate_code, 0x10000);
+                unsigned int cert_start=CT_FindCertificateMarkers(certificate_code, mem_size);
                 if(!cert_start)
-                    cert_start=CT_FindCertificateMarkers2(certificate_code, 0x10000);
+                    cert_start=CT_FindCertificateMarkers2(certificate_code, mem_size);
                 if(!cert_start)
                 {
                     free(certificate_code);
@@ -353,7 +362,7 @@ void CT_cbCertificateFunction()
                 }
                 cert_start+=4;
                 CT_cert_data->initial_diff=cert_start+1;
-                unsigned int cert_end=CT_FindCertificateEndMarkers(certificate_code+cert_start, 0x10000-cert_start);
+                unsigned int cert_end=CT_FindCertificateEndMarkers(certificate_code+cert_start, mem_size-cert_start);
                 if(cert_end) //Unsigned/Default certificates are not stored here...
                 {
                     CT_cert_data->raw_size=cert_end;
@@ -397,7 +406,13 @@ void CT_cbVirtualProtect()
     ReadProcessMemory(fdProcessInfo->hProcess, (void*)(esp_addr+4), &security_code_base, 4, 0);
     ReadProcessMemory(fdProcessInfo->hProcess, (void*)(esp_addr+8), &security_code_size, 4, 0);
     BYTE* security_code=(BYTE*)malloc(security_code_size);
+    BYTE* header_code=(BYTE*)malloc(0x1000);
     ReadProcessMemory(fdProcessInfo->hProcess, (void*)security_code_base, security_code, security_code_size, 0);
+    ReadProcessMemory(fdProcessInfo->hProcess, (void*)(security_code_base-0x1000), header_code, 0x1000, 0);
+    IMAGE_DOS_HEADER *pdh=(IMAGE_DOS_HEADER*)((DWORD)header_code);
+    IMAGE_NT_HEADERS *pnth=(IMAGE_NT_HEADERS*)((DWORD)header_code+pdh->e_lfanew);
+    CT_cert_data->timestamp=pnth->FileHeader.TimeDateStamp;
+    free(header_code);
 
     //Certificate data
     unsigned int breakpoint_addr=CT_FindCertificateFunctionNew(security_code, security_code_size);

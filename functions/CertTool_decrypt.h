@@ -1,5 +1,5 @@
-#ifndef _CT_DECRYPT
-#define _CT_DECRYPT
+#ifndef _CT_DECRYPT_H
+#define _CT_DECRYPT_H
 
 #include "CertTool_global.h"
 

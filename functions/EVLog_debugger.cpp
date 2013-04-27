@@ -1,5 +1,11 @@
 #include "EVLog_debugger.h"
 
+bool EV_bpvp_set=false;
+bool EV_fdFileIsDll = false;
+LPPROCESS_INFORMATION EV_fdProcessInfo = NULL;
+char EV_guard_text[256]="Break!";
+ULONG_PTR EV_va;
+
 void RemoveListDuplicates(HWND hwndDlg, UINT id)
 {
     int total_unique=0;
@@ -119,6 +125,7 @@ void EV_FatalError(const char* msg)
 
 void EV_BreakDebugger() //TODO: never used
 {
+    DWORD EV_oldprotect=0;
     VirtualProtect(EV_guard_text, 256, PAGE_READWRITE|PAGE_GUARD, &EV_oldprotect);
     EV_guard_text[0]=0;
 }
@@ -273,6 +280,7 @@ void EV_cbOpenMutexA()
     }
     else
     {
+        char EV_log_message[256]="";
         sprintf(EV_log_message, "[Fail] Failed to create mutex %s", mutex_name);
         EV_FatalError(EV_log_message);
     }
@@ -292,21 +300,17 @@ void EV_cbEntry()
 DWORD WINAPI EV_DebugThread(LPVOID lpStartAddress)
 {
     EV_fdFileIsDll = false;
-    EV_fdImageBase = NULL;
-    EV_fdEntryPoint = NULL;
+    unsigned int EV_fdEntryPoint = NULL;
     EV_fdProcessInfo = NULL;
     EV_bpvp_set=false;
+    DWORD EV_bytes_read=0;
     FILE_STATUS_INFO inFileStatus = {0};
     if(IsPE32FileValidEx(EV_szFileName, UE_DEPTH_DEEP, &inFileStatus))
     {
         HANDLE hFile, fileMap;
-        EV_fdImageBase = (long)GetPE32Data(EV_szFileName, NULL, UE_IMAGEBASE);
         EV_fdEntryPoint = (long)GetPE32Data(EV_szFileName, NULL, UE_OEP);
         StaticFileLoad(EV_szFileName, UE_ACCESS_READ, false, &hFile, &EV_bytes_read, &fileMap, &EV_va);
-        EV_fdEntrySectionNumber = GetPE32SectionNumberFromVA(EV_va, EV_fdEntryPoint+EV_fdImageBase);
         StaticFileClose(hFile);
-        EV_fdEntrySectionSize= (long)GetPE32Data(EV_szFileName, EV_fdEntrySectionNumber, UE_SECTIONVIRTUALSIZE);
-        EV_fdEntrySectionOffset = (long)GetPE32Data(EV_szFileName, EV_fdEntrySectionNumber, UE_SECTIONVIRTUALOFFSET);
         EV_fdFileIsDll = inFileStatus.FileIsDLL;
         if(!EV_fdFileIsDll)
         {

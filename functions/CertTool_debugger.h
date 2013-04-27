@@ -1,5 +1,5 @@
-#ifndef _CT_DEBUGGER
-#define _CT_DEBUGGER
+#ifndef _CT_DEBUGGER_H
+#define _CT_DEBUGGER_H
 
 #include "CertTool_global.h"
 #include "CertTool_parser.h"

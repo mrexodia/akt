@@ -1,5 +1,7 @@
 #include "EVLog_maindlg.h"
 
+char EV_program_dir[256]=""; //program dir
+
 BOOL CALLBACK EV_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     switch(uMsg)
