@@ -12,14 +12,4 @@ obj/*
 .project
 .cproject
 Armadillo_KeyTool.cscope_file_list
-bin/plugins/ECDSA_Replace.dll
-bin/plugins/ECDSA_Replace.dll1
-bin/plugins/ECDSA_Replace_Old.dll
-bin/plugins/ECDSA_Replace_Old.dll1
-bin/plugins/ECDSA_Verify.dll
-bin/plugins/EnableRegister.dll
-bin/plugins/EnableRegister.dll1
-bin/plugins/FingerprintPatcher.dll
-bin/plugins/GetEnvA.dll
-bin/plugins/GetProcAdress.dll
-bin/plugins/ReEnableNGEN.dll
+bin/plugins/
