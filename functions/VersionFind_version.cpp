@@ -1,35 +1,60 @@
 #include "VersionFind_version.h"
 
+/**********************************************************************
+ *						Module Variables
+ *********************************************************************/
+// Debugging Variables
+static bool g_fdFileIsDll = false;
+static LPPROCESS_INFORMATION g_fdProcessInfo;
+
+// Output Pointers
+static char* g_szVersion;
+
+// Internal Use Variables
+static unsigned int g_version_decrypt_buffer = 0;
+static unsigned int g_version_decrypt_call = 0;
+static unsigned int g_version_decrypt_call_dest = 0;
+static unsigned int g_version_decrypt_neweip = 0;
+static ErrMessageCallback g_ErrorMessageCallback = NULL;
+
+
+/**********************************************************************
+ *						Functions
+ *********************************************************************/
 void VF_cbVerGetVersion()
 {
     DeleteBPX(GetContextData(UE_EIP));
-    ReadProcessMemory(VF_fdProcessInfo->hProcess, (void*)VF_version_decrypt_buffer, VF_version, 10, 0);
+    ReadProcessMemory(g_fdProcessInfo->hProcess, (void*)g_version_decrypt_buffer, g_szVersion, 10, 0);
     StopDebug();
 }
+
 
 void VF_cbVerOnDecryptVersion()
 {
     DeleteBPX(GetContextData(UE_EIP));
     unsigned int esp=GetContextData(UE_ESP);
-    ReadProcessMemory(VF_fdProcessInfo->hProcess, (void*)(esp+4), &VF_version_decrypt_buffer, 4, 0);
-    SetBPX((VF_version_decrypt_call+5), UE_BREAKPOINT, (void*)VF_cbVerGetVersion);
+    ReadProcessMemory(g_fdProcessInfo->hProcess, (void*)(esp+4), &g_version_decrypt_buffer, 4, 0);
+    SetBPX((g_version_decrypt_call+5), UE_BREAKPOINT, (void*)VF_cbVerGetVersion);
 }
+
 
 void VF_cbVerReturnDecryptCall()
 {
     DeleteBPX(GetContextData(UE_EIP));
-    SetBPX(VF_version_decrypt_call, UE_BREAKPOINT, (void*)VF_cbVerOnDecryptVersion);
-    SetContextData(UE_EIP, VF_version_decrypt_neweip);
+    SetBPX(g_version_decrypt_call, UE_BREAKPOINT, (void*)VF_cbVerOnDecryptVersion);
+    SetContextData(UE_EIP, g_version_decrypt_neweip);
 }
+
 
 void VF_cbVerDecryptCall()
 {
     DeleteBPX(GetContextData(UE_EIP));
     unsigned int esp=GetContextData(UE_ESP);
     unsigned int retn=0;
-    ReadProcessMemory(VF_fdProcessInfo->hProcess, (void*)esp, &retn, 4, 0);
+    ReadProcessMemory(g_fdProcessInfo->hProcess, (void*)esp, &retn, 4, 0);
     SetBPX(retn, UE_BREAKPOINT, (void*)VF_cbVerReturnDecryptCall);
 }
+
 
 void VF_cbVerVirtualProtect()
 {
@@ -41,19 +66,19 @@ void VF_cbVerVirtualProtect()
     unsigned int esp_addr=0;
     BYTE* sec_data=0;
     esp_addr=(long)GetContextData(UE_ESP);
-    ReadProcessMemory(VF_fdProcessInfo->hProcess, (const void*)((esp_addr)+4), &sec_addr, 4, 0);
+    ReadProcessMemory(g_fdProcessInfo->hProcess, (const void*)((esp_addr)+4), &sec_addr, 4, 0);
     sec_addr-=0x1000;
-    VirtualQueryEx(VF_fdProcessInfo->hProcess, (void*)sec_addr, &mbi, sizeof(MEMORY_BASIC_INFORMATION));
+    VirtualQueryEx(g_fdProcessInfo->hProcess, (void*)sec_addr, &mbi, sizeof(MEMORY_BASIC_INFORMATION));
     sec_size=mbi.RegionSize;
     sec_data=(BYTE*)malloc(sec_size);
-    ReadProcessMemory(VF_fdProcessInfo->hProcess, (const void*)sec_addr, sec_data, sec_size, 0);
+    ReadProcessMemory(g_fdProcessInfo->hProcess, (const void*)sec_addr, sec_data, sec_size, 0);
     unsigned int armversion_addr=VF_FindarmVersion(sec_data, sec_size);
     if(!armversion_addr)
-        VF_FatalError("Could not find '<armVersion'");
+        VF_FatalError("Could not find '<armVersion'", g_ErrorMessageCallback);
     armversion_addr+=sec_addr;
     unsigned int push_addr=VF_FindPushAddr(sec_data, sec_size, armversion_addr);
     if(!push_addr)
-        VF_FatalError("Could not find reference to '<armVersion'");
+        VF_FatalError("Could not find reference to '<armVersion'", g_ErrorMessageCallback);
     int call_decrypt=push_addr;
     while(sec_data[call_decrypt]!=0xE8)
         call_decrypt--;
@@ -70,16 +95,17 @@ void VF_cbVerVirtualProtect()
         }
     }
     if(!push100)
-        VF_FatalError("Could not find 'push 100'");
+        VF_FatalError("Could not find 'push 100'", g_ErrorMessageCallback);
     //push_addr+=sec_addr; //TODO: remove this
     call_decrypt+=sec_addr;
     push100+=sec_addr;
-    VF_version_decrypt_call=call_decrypt;
-    VF_version_decrypt_call_dest=call_dest;
-    VF_version_decrypt_neweip=push100;
-    SetBPX(VF_version_decrypt_call_dest, UE_BREAKPOINT, (void*)VF_cbVerDecryptCall);
+    g_version_decrypt_call=call_decrypt;
+    g_version_decrypt_call_dest=call_dest;
+    g_version_decrypt_neweip=push100;
+    SetBPX(g_version_decrypt_call_dest, UE_BREAKPOINT, (void*)VF_cbVerDecryptCall);
     free(sec_data);
 }
+
 
 void VF_cbVerOpenMutexA()
 {
@@ -90,9 +116,9 @@ void VF_cbVerOpenMutexA()
     unsigned int return_addr=0;
     DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"OpenMutexA", UE_APISTART);
     esp_addr=(long)GetContextData(UE_ESP);
-    ReadProcessMemory(VF_fdProcessInfo->hProcess, (const void*)esp_addr, &return_addr, 4, 0);
-    ReadProcessMemory(VF_fdProcessInfo->hProcess, (const void*)(esp_addr+12), &mutex_addr, 4, 0);
-    ReadProcessMemory(VF_fdProcessInfo->hProcess, (const void*)mutex_addr, &mutex_name, 20, 0);
+    ReadProcessMemory(g_fdProcessInfo->hProcess, (const void*)esp_addr, &return_addr, 4, 0);
+    ReadProcessMemory(g_fdProcessInfo->hProcess, (const void*)(esp_addr+12), &mutex_addr, 4, 0);
+    ReadProcessMemory(g_fdProcessInfo->hProcess, (const void*)mutex_addr, &mutex_name, 20, 0);
     CreateMutexA(0, FALSE, mutex_name);
     if(GetLastError()==ERROR_SUCCESS)
         SetAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_BREAKPOINT, UE_APISTART, (void*)VF_cbVerVirtualProtect);
@@ -100,60 +126,66 @@ void VF_cbVerOpenMutexA()
     {
         char log_message[256]="";
         sprintf(log_message, "[Fail] Failed to create mutex %s", mutex_name);
-        VF_FatalError(log_message);
+        VF_FatalError(log_message, g_ErrorMessageCallback);
     }
 }
 
+
 void VF_cbVerEntry()
 {
-    if(!VF_fdFileIsDll)
+    if(!g_fdFileIsDll)
         SetAPIBreakPoint((char*)"kernel32.dll", (char*)"OpenMutexA", UE_BREAKPOINT, UE_APISTART, (void*)VF_cbVerOpenMutexA);
     else
         SetAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_BREAKPOINT, UE_APISTART, (void*)VF_cbVerVirtualProtect);
 }
 
-void VF_Version()
+
+void VF_Version(char* szFileName, char* szVersion, ErrMessageCallback ErrorMessageCallback)
 {
-    VF_fdFileIsDll = false;
-    VF_fdProcessInfo = NULL;
     FILE_STATUS_INFO inFileStatus = {0};
-    if(IsPE32FileValidEx(VF_szFileName, UE_DEPTH_SURFACE, &inFileStatus))
+
+	g_szVersion = szVersion;
+	g_fdFileIsDll = false;
+	g_fdProcessInfo = NULL;
+	g_ErrorMessageCallback = ErrorMessageCallback;
+
+    if(IsPE32FileValidEx(szFileName, UE_DEPTH_SURFACE, &inFileStatus))
     {
         if(inFileStatus.FileIs64Bit)
         {
-            MessageBoxA(VF_shared, "64-bit files are not (yet) supported!", "Error!", MB_ICONERROR);
+        	ErrorMessageCallback((char*)"64-bit files are not (yet) supported!", (char*)"Error!");
             return;
         }
         HANDLE hFile, fileMap;
         ULONG_PTR va;
         DWORD bytes_read=0;
-        StaticFileLoad(VF_szFileName, UE_ACCESS_READ, false, &hFile, &bytes_read, &fileMap, &va);
+        StaticFileLoad(szFileName, UE_ACCESS_READ, false, &hFile, &bytes_read, &fileMap, &va);
         if(!IsArmadilloProtected(va))
         {
-            MessageBoxA(VF_shared, "Not armadillo protected...", "Error!", MB_ICONERROR);
+        	ErrorMessageCallback((char*)"Not armadillo protected...", (char*)"Error!");
             return;
         }
         StaticFileClose(hFile);
-        VF_fdFileIsDll = inFileStatus.FileIsDLL;
-        if(!VF_fdFileIsDll)
+        g_fdFileIsDll = inFileStatus.FileIsDLL;
+        if(!g_fdFileIsDll)
         {
-            VF_fdProcessInfo = (LPPROCESS_INFORMATION)InitDebugEx(VF_szFileName, NULL, NULL, (void*)VF_cbVerEntry);
+        	g_fdProcessInfo = (LPPROCESS_INFORMATION)InitDebugEx(szFileName, NULL, NULL, (void*)VF_cbVerEntry);
         }
         else
         {
-            VF_fdProcessInfo = (LPPROCESS_INFORMATION)InitDLLDebug(VF_szFileName, false, NULL, NULL, (void*)VF_cbVerEntry);
+        	g_fdProcessInfo = (LPPROCESS_INFORMATION)InitDLLDebug(szFileName, false, NULL, NULL, (void*)VF_cbVerEntry);
         }
-        if(VF_fdProcessInfo)
+        if(g_fdProcessInfo)
         {
             DebugLoop();
         }
         else
         {
-            MessageBoxA(VF_shared, "Something went wrong during initialization...", "Error!", MB_ICONERROR);
+        	ErrorMessageCallback((char*)"Something went wrong during initialization...", (char*)"Error!");
         }
     }
     else
     {
-        MessageBoxA(VF_shared, "This is not a valid PE file...", "Error!", MB_ICONERROR);
+    	ErrorMessageCallback((char*)"This is not a valid PE file...", (char*)"Error!");
     }
 }

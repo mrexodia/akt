@@ -1,31 +1,9 @@
 #include "VersionFind_global.h"
 
-//Version number
-HWND VF_shared;
-bool VF_fdFileIsDll = false;
-LPPROCESS_INFORMATION VF_fdProcessInfo = NULL;
-char VF_szFileName[256]="";
-char VF_version[20]="";
 
-unsigned int VF_version_decrypt_call_dest=0;
-unsigned int VF_version_decrypt_call=0;
-unsigned int VF_version_decrypt_neweip=0;
-unsigned int VF_version_decrypt_buffer=0;
-
-//Extra Options
-unsigned int VF_extra_options_reg=0;
-unsigned int VF_extra_options=0;
-
-//Raw Options
-bool VF_minimal=false;
-long VF_fdImageBase=0;
-long VF_fdEntryPoint=0;
-long VF_fdEntrySectionNumber=0;
-long VF_fdEntrySectionOffset=0;
-long VF_fdEntrySectionSize=0;
-unsigned int VF_raw_options=0;
-unsigned int VF_raw_options_reg=0;
-
+/**********************************************************************
+ *						Functions
+ *********************************************************************/
 unsigned int VF_FindUsbPattern(BYTE* d, unsigned int size)
 {
     for(unsigned int i=0; i<size; i++) //55534220646576696365
@@ -38,6 +16,7 @@ unsigned int VF_FindUsbPattern(BYTE* d, unsigned int size)
     return 0;
 }
 
+
 unsigned int VF_FindAnd20Pattern(BYTE* d, unsigned int size)
 {
     for(unsigned int i=0; i<size; i++) //83E?20
@@ -45,6 +24,7 @@ unsigned int VF_FindAnd20Pattern(BYTE* d, unsigned int size)
             return i;
     return 0;
 }
+
 
 unsigned int VF_FindAnd40000Pattern(BYTE* d, unsigned int size)
 {
@@ -54,10 +34,11 @@ unsigned int VF_FindAnd40000Pattern(BYTE* d, unsigned int size)
     return 0;
 }
 
-bool VF_IsMinimalProtection(ULONG_PTR va)
+
+bool VF_IsMinimalProtection(char* szFileName, ULONG_PTR va, long parSectionNumber)
 {
     OutputDebugStringA("IsMinimalProtection");
-    int offset=GetPE32Data(VF_szFileName, VF_fdEntrySectionNumber, UE_SECTIONRAWOFFSET);
+    int offset=GetPE32Data(szFileName, parSectionNumber, UE_SECTIONRAWOFFSET);
     BYTE firstbytes[2]= {0};
     memcpy(firstbytes, (void*)(va+offset), 2);
     if(firstbytes[0]==0x60 and firstbytes[1]==0xE8)
@@ -65,11 +46,13 @@ bool VF_IsMinimalProtection(ULONG_PTR va)
     return true;
 }
 
-void VF_FatalError(const char* msg)
+
+void VF_FatalError(const char* szMessage, ErrMessageCallback ErrorMessageCallback)
 {
-    MessageBoxA(VF_shared, msg, "Fatal Error!", MB_ICONERROR);
+	ErrorMessageCallback((char*)szMessage, (char*)"Fatal Error!");
     StopDebug();
 }
+
 
 unsigned int VF_FindarmVersion(BYTE* d, unsigned int size)
 {
@@ -82,6 +65,7 @@ unsigned int VF_FindarmVersion(BYTE* d, unsigned int size)
         }
     return 0;
 }
+
 
 unsigned int VF_FindPushAddr(BYTE* d, unsigned int size, unsigned int addr)
 {

@@ -1,52 +1,72 @@
 #include "VersionFind_extraoptions.h"
 
+/**********************************************************************
+ *						Module Variables
+ *********************************************************************/
+// Debugging Variables
+static bool g_fdFileIsDll = false;
+static LPPROCESS_INFORMATION g_fdProcessInfo;
+
+// Internal Use Variables
+static unsigned int g_extra_options_reg=0;
+static ErrMessageCallback g_ErrorMessageCallback = NULL;
+
+// Output Pointers
+static unsigned int* gPtrExtraOptions=0;
+
+
+/**********************************************************************
+ *						Functions
+ *********************************************************************/
 void VF_cbExtraDwordRetrieve()
 {
     DeleteBPX(GetContextData(UE_EIP));
-    VF_extra_options=GetContextData(VF_extra_options_reg);
+    *gPtrExtraOptions=GetContextData(g_extra_options_reg);
     StopDebug();
 }
+
 
 void VF_cbExtraDw()
 {
     unsigned int eip=GetContextData(UE_EIP);
     DeleteBPX(eip);
     BYTE* eip_data=(BYTE*)malloc(0x1000);
-    ReadProcessMemory(VF_fdProcessInfo->hProcess, (void*)eip, eip_data, 0x1000, 0);
+    ReadProcessMemory(g_fdProcessInfo->hProcess, (void*)eip, eip_data, 0x1000, 0);
     unsigned int and20=VF_FindAnd20Pattern(eip_data, 0x1000);
     if(!and20)
-        VF_FatalError("Could not find 'and [reg],20");
+        VF_FatalError("Could not find 'and [reg],20", g_ErrorMessageCallback);
     unsigned int andreg=eip_data[and20+1]&0x0F;
-    VF_extra_options_reg=0xFFFFFFFF;
+    g_extra_options_reg=0xFFFFFFFF;
     switch(andreg)
     {
     case 0:
-        VF_extra_options_reg=UE_EAX;
+        g_extra_options_reg=UE_EAX;
         break;
     case 1:
-        VF_extra_options_reg=UE_ECX;
+        g_extra_options_reg=UE_ECX;
         break;
     case 2:
-        VF_extra_options_reg=UE_EDX;
+        g_extra_options_reg=UE_EDX;
         break;
     case 3:
-        VF_extra_options_reg=UE_EBX;
+        g_extra_options_reg=UE_EBX;
         break;
     case 5:
-        VF_extra_options_reg=UE_EBP;
+        g_extra_options_reg=UE_EBP;
         break;
     case 6:
-        VF_extra_options_reg=UE_ESI;
+        g_extra_options_reg=UE_ESI;
         break;
     case 7:
-        VF_extra_options_reg=UE_EDI;
+        g_extra_options_reg=UE_EDI;
         break;
     }
-    if(VF_extra_options_reg==0xFFFFFFFF)
-        VF_FatalError("Could not determine the register (extradw)");
+    if(g_extra_options_reg==0xFFFFFFFF)
+        VF_FatalError("Could not determine the register (extradw)", g_ErrorMessageCallback);
     free(eip_data);
     SetBPX(and20+eip, UE_BREAKPOINT, (void*)VF_cbExtraDwordRetrieve);
 }
+
 
 void VF_cbExtraVirtualProtect()
 {
@@ -59,12 +79,12 @@ void VF_cbExtraVirtualProtect()
     unsigned int esp_addr=0;
     BYTE* sec_data=0;
     esp_addr=(long)GetContextData(UE_ESP);
-    ReadProcessMemory(VF_fdProcessInfo->hProcess, (const void*)((esp_addr)+4), &sec_addr, 4, 0);
+    ReadProcessMemory(g_fdProcessInfo->hProcess, (const void*)((esp_addr)+4), &sec_addr, 4, 0);
     sec_addr-=0x1000;
-    VirtualQueryEx(VF_fdProcessInfo->hProcess, (void*)sec_addr, &mbi, sizeof(MEMORY_BASIC_INFORMATION));
+    VirtualQueryEx(g_fdProcessInfo->hProcess, (void*)sec_addr, &mbi, sizeof(MEMORY_BASIC_INFORMATION));
     sec_size=mbi.RegionSize;
     sec_data=(BYTE*)malloc(sec_size);
-    ReadProcessMemory(VF_fdProcessInfo->hProcess, (const void*)sec_addr, sec_data, sec_size, 0);
+    ReadProcessMemory(g_fdProcessInfo->hProcess, (const void*)sec_addr, sec_data, sec_size, 0);
 
     OutputDebugStringA("usbdevice");
     unsigned int usbdevice=VF_FindUsbPattern(sec_data, sec_size);
@@ -73,7 +93,7 @@ void VF_cbExtraVirtualProtect()
         usbdevice+=sec_addr;
         unsigned int usb_push=VF_FindPushAddr(sec_data, sec_size, usbdevice);
         if(!usb_push)
-            VF_FatalError("Could not find reference to 'USB Device'");
+            VF_FatalError("Could not find reference to 'USB Device'", g_ErrorMessageCallback);
         unsigned int invalidkey=0;
         for(int i=usb_push; i>0; i--)
         {
@@ -84,7 +104,7 @@ void VF_cbExtraVirtualProtect()
             }
         }
         if(!invalidkey)
-            VF_FatalError("Could not find InvalidKey pushes");
+            VF_FatalError("Could not find InvalidKey pushes", g_ErrorMessageCallback);
 
         unsigned int extradw_call=0;
         unsigned int dw_extracall=0;
@@ -125,6 +145,7 @@ void VF_cbExtraVirtualProtect()
     free(sec_data);
 }
 
+
 void VF_cbExtraOpenMutexA()
 {
     char mutex_name[20]="";
@@ -133,9 +154,9 @@ void VF_cbExtraOpenMutexA()
     unsigned int return_addr=0;
     DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"OpenMutexA", UE_APISTART);
     esp_addr=(long)GetContextData(UE_ESP);
-    ReadProcessMemory(VF_fdProcessInfo->hProcess, (const void*)esp_addr, &return_addr, 4, 0);
-    ReadProcessMemory(VF_fdProcessInfo->hProcess, (const void*)(esp_addr+12), &mutex_addr, 4, 0);
-    ReadProcessMemory(VF_fdProcessInfo->hProcess, (const void*)mutex_addr, &mutex_name, 20, 0);
+    ReadProcessMemory(g_fdProcessInfo->hProcess, (const void*)esp_addr, &return_addr, 4, 0);
+    ReadProcessMemory(g_fdProcessInfo->hProcess, (const void*)(esp_addr+12), &mutex_addr, 4, 0);
+    ReadProcessMemory(g_fdProcessInfo->hProcess, (const void*)mutex_addr, &mutex_name, 20, 0);
     CreateMutexA(0, FALSE, mutex_name);
     if(GetLastError()==ERROR_SUCCESS)
     {
@@ -145,13 +166,14 @@ void VF_cbExtraOpenMutexA()
     {
         char log_message[256]="";
         sprintf(log_message, "[Fail] Failed to create mutex %s", mutex_name);
-        VF_FatalError(log_message);
+        VF_FatalError(log_message, g_ErrorMessageCallback);
     }
 }
 
+
 void VF_cbEntry()
 {
-    if(!VF_fdFileIsDll)
+    if(!g_fdFileIsDll)
     {
         SetAPIBreakPoint((char*)"kernel32.dll", (char*)"OpenMutexA", UE_BREAKPOINT, UE_APISTART, (void*)VF_cbExtraOpenMutexA);
     }
@@ -159,49 +181,55 @@ void VF_cbEntry()
         SetAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_BREAKPOINT, UE_APISTART, (void*)VF_cbExtraVirtualProtect);
 }
 
-void VF_ExtraOptions()
+
+void VF_ExtraOptions(char* szFileName, unsigned int* extra_options, ErrMessageCallback ErrorMessageCallback)
 {
-    OutputDebugStringA("VF_ExtraOptions");
-    VF_fdFileIsDll = false;
-    VF_fdProcessInfo = NULL;
     FILE_STATUS_INFO inFileStatus = {0};
-    if(IsPE32FileValidEx(VF_szFileName, UE_DEPTH_SURFACE, &inFileStatus))
+
+	gPtrExtraOptions = extra_options;
+    g_fdFileIsDll = false;
+    g_fdProcessInfo = NULL;
+    g_ErrorMessageCallback = ErrorMessageCallback;
+
+    OutputDebugStringA("VF_ExtraOptions");
+
+    if(IsPE32FileValidEx(szFileName, UE_DEPTH_SURFACE, &inFileStatus))
     {
         if(inFileStatus.FileIs64Bit)
         {
-            MessageBoxA(VF_shared, "64-bit files are not (yet) supported!", "Error!", MB_ICONERROR);
+        	ErrorMessageCallback((char*)"64-bit files are not (yet) supported!", (char*)"Error!");
             return;
         }
         HANDLE hFile, fileMap;
         ULONG_PTR va;
         DWORD bytes_read;
-        StaticFileLoad(VF_szFileName, UE_ACCESS_READ, false, &hFile, &bytes_read, &fileMap, &va);
+        StaticFileLoad(szFileName, UE_ACCESS_READ, false, &hFile, &bytes_read, &fileMap, &va);
         if(!IsArmadilloProtected(va))
         {
-            MessageBoxA(VF_shared, "Not armadillo protected...", "Error!", MB_ICONERROR);
+        	ErrorMessageCallback((char*)"Not armadillo protected...", (char*)"Error!");
             return;
         }
         StaticFileClose(hFile);
-        VF_fdFileIsDll = inFileStatus.FileIsDLL;
-        if(!VF_fdFileIsDll)
+        g_fdFileIsDll = inFileStatus.FileIsDLL;
+        if(!g_fdFileIsDll)
         {
-            VF_fdProcessInfo = (LPPROCESS_INFORMATION)InitDebugEx(VF_szFileName, NULL, NULL, (void*)VF_cbEntry);
+        	g_fdProcessInfo = (LPPROCESS_INFORMATION)InitDebugEx(szFileName, NULL, NULL, (void*)VF_cbEntry);
         }
         else
         {
-            VF_fdProcessInfo = (LPPROCESS_INFORMATION)InitDLLDebug(VF_szFileName, false, NULL, NULL, (void*)VF_cbEntry);
+        	g_fdProcessInfo = (LPPROCESS_INFORMATION)InitDLLDebug(szFileName, false, NULL, NULL, (void*)VF_cbEntry);
         }
-        if(VF_fdProcessInfo)
+        if(g_fdProcessInfo)
         {
             DebugLoop();
         }
         else
         {
-            MessageBoxA(VF_shared, "Something went wrong during initialization...", "Error!", MB_ICONERROR);
+        	ErrorMessageCallback((char*)"Something went wrong during initialization...", (char*)"Error!");
         }
     }
     else
     {
-        MessageBoxA(VF_shared, "This is not a valid PE file...", "Error!", MB_ICONERROR);
+    	ErrorMessageCallback((char*)"This is not a valid PE file...", (char*)"Error!");
     }
 }
