@@ -26,7 +26,7 @@ FONT 8, "Courier New"
 {
     ICON            IDI_ICON1, IDC_STATIC, 6, 8, 9, 9, SS_ICON
     DEFPUSHBUTTON   "&OK", IDC_BTN_OK, 128, 33, 42, 13, NOT WS_TABSTOP
-    LTEXT           "Created by Mr. eXoDia", IDC_STATIC, 30, 19, 141, 8, WS_TABSTOP | SS_LEFT
+    LTEXT           "Created by Mr. eXoDia && Sigma", IDC_STATIC, 30, 19, 141, 8, WS_TABSTOP | SS_LEFT
     LTEXT           "", IDC_STC_TITLE, 30, 6, 141, 8, SS_LEFT
 }
 

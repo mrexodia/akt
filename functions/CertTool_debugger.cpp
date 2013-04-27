@@ -304,9 +304,6 @@ void CT_cbCertificateFunction()
         unsigned int mem_size=0x10000;
         if(VirtualQueryEx(fdProcessInfo->hProcess, (void*)retn_eax, &mbi, sizeof(MEMORY_BASIC_INFORMATION)))
             mem_size=mbi.RegionSize-(retn_eax-(unsigned int)mbi.BaseAddress);
-        char a[10]="";
-        sprintf(a,"%X",mbi.RegionSize);
-        MessageBoxA(0,a,0,0);
         BYTE* certificate_code=(BYTE*)malloc(mem_size);
         if(ReadProcessMemory(fdProcessInfo->hProcess, (void*)retn_eax, certificate_code, mem_size, 0))
         {
