@@ -141,7 +141,7 @@ bool VF_RawOptions(char* szFileName, unsigned int* raw_options, bool* bIsMinimal
     FILE_STATUS_INFO inFileStatus = {0};
 
     gPtrRawOptions = raw_options;
-	g_fdFileIsDll = false;
+    g_fdFileIsDll = false;
     g_fdProcessInfo = NULL;
     g_ErrorMessageCallback = ErrorMessageCallback;
 
@@ -149,7 +149,7 @@ bool VF_RawOptions(char* szFileName, unsigned int* raw_options, bool* bIsMinimal
     {
         if(inFileStatus.FileIs64Bit)
         {
-        	ErrorMessageCallback((char*)"64-bit files are not (yet) supported!", (char*)"Error!");
+            ErrorMessageCallback((char*)"64-bit files are not (yet) supported!", (char*)"Error!");
             return 0;
         }
         HANDLE hFile, fileMap;
@@ -160,7 +160,7 @@ bool VF_RawOptions(char* szFileName, unsigned int* raw_options, bool* bIsMinimal
         StaticFileLoad(szFileName, UE_ACCESS_READ, false, &hFile, &bytes_read, &fileMap, &va);
         if(!IsArmadilloProtected(va))
         {
-        	ErrorMessageCallback((char*)"Not armadillo protected...", (char*)"Error!");
+            ErrorMessageCallback((char*)"Not armadillo protected...", (char*)"Error!");
         }
         else
         {
@@ -172,11 +172,11 @@ bool VF_RawOptions(char* szFileName, unsigned int* raw_options, bool* bIsMinimal
             g_fdFileIsDll = inFileStatus.FileIsDLL;
             if(!g_fdFileIsDll)
             {
-            	g_fdProcessInfo = (LPPROCESS_INFORMATION)InitDebugEx(szFileName, NULL, NULL, (void*)VF_cbOpEntry);
+                g_fdProcessInfo = (LPPROCESS_INFORMATION)InitDebugEx(szFileName, NULL, NULL, (void*)VF_cbOpEntry);
             }
             else
             {
-            	g_fdProcessInfo = (LPPROCESS_INFORMATION)InitDLLDebug(szFileName, false, NULL, NULL, (void*)VF_cbOpEntry);
+                g_fdProcessInfo = (LPPROCESS_INFORMATION)InitDLLDebug(szFileName, false, NULL, NULL, (void*)VF_cbOpEntry);
             }
             if(g_fdProcessInfo)
             {
@@ -185,13 +185,13 @@ bool VF_RawOptions(char* szFileName, unsigned int* raw_options, bool* bIsMinimal
             }
             else
             {
-            	ErrorMessageCallback((char*)"Something went wrong during initialization...", (char*)"Error!");
+                ErrorMessageCallback((char*)"Something went wrong during initialization...", (char*)"Error!");
             }
         }
     }
     else
     {
-    	ErrorMessageCallback((char*)"This is not a valid PE file...", (char*)"Error!");
+        ErrorMessageCallback((char*)"This is not a valid PE file...", (char*)"Error!");
     }
     return false;
 }

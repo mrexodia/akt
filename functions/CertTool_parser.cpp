@@ -37,7 +37,8 @@ void CT_AddToLog(HWND list, const char* text)
                 if(MessageBoxA(CT_shared, "Could not create log file, continue?", CT_szLogFile, MB_ICONERROR|MB_YESNO)==IDNO)
                 {
                     free(new_text);
-                    TerminateThread(GetCurrentThread(), 0); return;
+                    TerminateThread(GetCurrentThread(), 0);
+                    return;
                 }
             }
             else

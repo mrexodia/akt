@@ -101,7 +101,7 @@ DWORD WINAPI VF_DebugThread(void* lpVoid)
 
 void ErrorMessageCallback(char* szMessage, char* szTitle)
 {
-	MessageBoxA(g_shared_hwnd, szMessage, szTitle, MB_ICONERROR);
+    MessageBoxA(g_shared_hwnd, szMessage, szTitle, MB_ICONERROR);
 }
 
 BOOL CALLBACK VF_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -276,8 +276,7 @@ void ResetContent(bool clear_all)
     UncheckButton(IDC_CHK_ENHANCEDHWID);
 }
 
-
-void PrintArmaOptionsStruct(ARMA_OPTIONS* op, char* log, unsigned int raw_options, unsigned int extra_options)
+void PrintArmaOptionsStructGui(ARMA_OPTIONS* op)
 {
     bool set_other_options_log=false;
     if(op->raw_options)
@@ -304,13 +303,11 @@ void PrintArmaOptionsStruct(ARMA_OPTIONS* op, char* log, unsigned int raw_option
         EnableWin(IDC_CHK_OTHERDIGITALRIVER, 1);
         EnableWin(IDC_CHK_OTHERDONTFALLBACK, 1);
 
-        sprintf(log, "%s\r\nProtection Options:\r\n", log);
         if(op->debug_blocker)
         {
             if(!op->copymem2)
             {
                 CheckButton(IDC_RADIO_DEBUGBLOCKER);
-                sprintf(log, "%s>Debug-Blocker\r\n", log);
             }
         }
         else
@@ -318,122 +315,99 @@ void PrintArmaOptionsStruct(ARMA_OPTIONS* op, char* log, unsigned int raw_option
             if(op->nosectioncrypt)
             {
                 CheckButton(IDC_RADIO_MINIMAL);
-                sprintf(log, "%s>Minimal Protection\r\n", log);
             }
             else
             {
                 CheckButton(IDC_RADIO_STANDARD);
-                sprintf(log, "%s>Standard Protection\r\n", log);
             }
         }
         if(op->copymem2)
         {
             CheckButton(IDC_RADIO_COPYMEM2);
-            sprintf(log, "%s>Debug-Blocker + CopyMem2\r\n", log);
         }
         if(op->iat_elimination)
         {
             CheckButton(IDC_CHK_IATELIMINATION);
-            sprintf(log, "%s>Enable Import Table Elimination\r\n", log);
         }
         if(op->code_splicing)
         {
             CheckButton(IDC_CHK_CODESPLICING);
-            sprintf(log, "%s>Enable Strategic Code Splicing\r\n", log);
         }
         if(op->nanomites)
         {
             CheckButton(IDC_CHK_NANOMITES);
-            sprintf(log, "%s>Enable Nanomites Processing\r\n", log);
         }
         if(op->mem_patch_protection)
         {
             CheckButton(IDC_CHK_MEMPROTECTION);
-            sprintf(log, "%s>Enable Memory-Patching Protections\r\n", log);
         }
-        sprintf(log, "%s\r\nBackup Key Options:\r\n", log);
         switch(op->backupkey)
         {
         case BACKUPKEY_NOKEYS:
         {
             CheckButton(IDC_RADIO_BACKUPNOKEYS);
-            sprintf(log, "%s>No Registry Keys at All\r\n", log);
         }
         break;
         case BACKUPKEY_NOBACKUP:
         {
             CheckButton(IDC_RADIO_BACKUPMAIN);
-            sprintf(log, "%s>Main Key Only, No Backup Keys\r\n", log);
         }
         break;
         case BACKUPKEY_FIXED:
         {
             CheckButton(IDC_RADIO_BACKUPFIXED);
-            sprintf(log, "%s>Fixed Backup Keys\r\n", log);
         }
         break;
         case BACKUPKEY_VARIABLE:
         {
             CheckButton(IDC_RADIO_BACKUPVARIABLE);
-            sprintf(log, "%s>Variable Backup Keys\r\n", log);
         }
         break;
         }
-        sprintf(log, "%s\r\nCompression Options:\r\n", log);
         switch(op->compression)
         {
         case COMPRESSION_MINIMAL:
         {
             CheckButton(IDC_RADIO_COMPRESSIONMINIMAL);
-            sprintf(log, "%s>Minimal/Fastest Compression\r\n", log);
         }
         break;
         case COMPRESSION_BETTER:
         {
             CheckButton(IDC_RADIO_COMPRESSIONBETTER);
-            sprintf(log, "%s>Better/Slower Compression\r\n", log);
         }
         break;
         case COMPRESSION_BEST:
         {
             CheckButton(IDC_RADIO_COMPRESSIONBEST);
-            sprintf(log, "%s>Best/Slowest Compression\r\n", log);
         }
         break;
         }
         if(op->has_other_options)
         {
-            sprintf(log, "%s\r\nOther Options:\r\n", log);
             set_other_options_log=true;
             if(op->external_envvars)
             {
                 CheckButton(IDC_CHK_OTHEREXTERNALENV);
-                sprintf(log, "%s>Store Environment Variables Externally\r\n", log);
             }
             if(op->allow_one_copy)
             {
                 CheckButton(IDC_CHK_OTHERALLOWONE);
-                sprintf(log, "%s>Allow Only One Copy\r\n", log);
             }
             if(op->disable_monitor)
             {
                 CheckButton(IDC_CHK_OTHERDISABLEMONITOR);
-                sprintf(log, "%s>Disable Monitoring Thread\r\n", log);
             }
             if(op->esellerate)
             {
                 CheckButton(IDC_CHK_OTHERESELLERATE);
-                sprintf(log, "%s>Use eSellerate Edition Keys\r\n", log);
             }
             if(op->digital_river)
             {
                 CheckButton(IDC_CHK_OTHERDIGITALRIVER);
-                sprintf(log, "%s>Use Digital River Edition Keys\r\n", log);
             }
             if(op->dontfallback)
             {
                 CheckButton(IDC_CHK_OTHERDONTFALLBACK);
-                sprintf(log, "%s>Don't Fall Back to Stand-Alone Mode (Server)\r\n", log);
             }
         }
     }
@@ -480,88 +454,69 @@ void PrintArmaOptionsStruct(ARMA_OPTIONS* op, char* log, unsigned int raw_option
         EnableWin(IDC_CHK_STANDARDHWID, 1);
         EnableWin(IDC_CHK_ENHANCEDHWID, 1);
 
-        if(!set_other_options_log and op->extra_options->has_other_options)
-            sprintf(log, "%s\r\nOther Options:\r\n", log);
         if(op->extra_options->no_clockback)
         {
             CheckButton(IDC_CHK_OTHERNOCLOCKBACK);
-            sprintf(log, "%s>Don't Report Clock-Back\r\n", log);
         }
         if(op->extra_options->no_clockforward)
         {
             CheckButton(IDC_CHK_OTHERNOCLOCKFORWARD);
-            sprintf(log, "%s>Don't Report Clock-Forward\r\n", log);
         }
         if(op->extra_options->screensaver_protocols)
         {
             CheckButton(IDC_CHK_OTHERSCREENSAVER);
-            sprintf(log, "%s>Use Screen Saver Protocols\r\n", log);
         }
         if(op->extra_options->disable_info)
         {
             CheckButton(IDC_CHK_OTHERDISABLEINFO);
-            sprintf(log, "%s>Disable INFO command\r\n", log);
         }
         if(op->extra_options->ignore_info)
         {
             CheckButton(IDC_CHK_OTHERIGNOREINFO);
-            sprintf(log, "%s>Ignore INFO command\r\n", log);
         }
         if(op->extra_options->disable_register)
         {
             CheckButton(IDC_CHK_OTHERDISABLEREGISTER);
-            sprintf(log, "%s>Disable REGISTER command\r\n", log);
         }
         if(op->extra_options->disable_unregister)
         {
             CheckButton(IDC_CHK_OTHERDISABLEUNREGISTER);
-            sprintf(log, "%s>Disable UNREGISTER command\r\n", log);
         }
         if(op->extra_options->autorevert)
         {
             CheckButton(IDC_CHK_OTHERAUTOREVERT);
-            sprintf(log, "%s>Auto-Revert On Invalid Key\r\n", log);
         }
         if(op->extra_options->standard_hwid)
         {
             CheckButton(IDC_CHK_STANDARDHWID);
-            sprintf(log, "%s>Standard Fingerprint in RegDlg\r\n", log);
         }
         if(op->extra_options->enhanced_hwid)
         {
             CheckButton(IDC_CHK_ENHANCEDHWID);
-            sprintf(log, "%s>Enhanced Fingerprint in RegDlg\r\n", log);
         }
-        sprintf(log, "%s\r\nSoftICE Detection:\r\n", log);
         if(op->extra_options->enhanced_softice)
         {
             CheckButton(IDC_RADIO_ENHANCEDSOFTICE);
-            sprintf(log, "%s>Enhanced SoftICE Protection\r\n", log);
         }
         else
         {
             CheckButton(IDC_RADIO_NORMALNOSOFTICE);
-            sprintf(log, "%s>Normal/No SoftICE Protection\r\n", log);
         }
-        sprintf(log, "%s\r\nSplash Screen:\r\n", log);
         switch(op->extra_options->splash_type)
         {
         case SPLASH_NONE:
         {
             CheckButton(IDC_RADIO_SPLASHNONE);
-            sprintf(log, "%s>No Splash Screen\r\n", log);
         }
         break;
         case SPLASH_DEFAULT:
         {
             CheckButton(IDC_RADIO_SPLASHDEFAULT);
-            sprintf(log, "%s>Default Splash Screen\r\n", log);
         }
         break;
         case SPLASH_BITMAP:
         {
             CheckButton(IDC_RADIO_SPLASHBITMAP);
-            sprintf(log, "%s>Bitmap Splash Screen\r\n", log);
         }
         break;
         }
@@ -584,12 +539,10 @@ void PrintArmaOptionsStruct(ARMA_OPTIONS* op, char* log, unsigned int raw_option
         EnableWin(IDC_CHK_STANDARDHWID, 0);
         EnableWin(IDC_CHK_ENHANCEDHWID, 0);
     }
-    if(op->version[0])
-        sprintf(log, "%s\r\nVersion Number:\r\n>%s\r\n", log, op->version);
-    if(extra_options or raw_options)
-        sprintf(log, "%s\r\nRaw Values:", log);
-    if(raw_options)
-        sprintf(log, "%s\r\n>%.8X (Raw Options)", log, op->raw_options);
-    if(extra_options)
-        sprintf(log, "%s\r\n>%.8X (Extra Options)", log, op->extra_options->raw_extra_options);
+}
+
+void PrintArmaOptionsStruct(ARMA_OPTIONS* op, char* log, unsigned int raw_options, unsigned int extra_options)
+{
+    VF_PrintArmaOptionsStructLog(op, log, raw_options, extra_options);
+    PrintArmaOptionsStructGui(op);
 }

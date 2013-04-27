@@ -35,12 +35,12 @@ BYTE MSC_salt_code[61]= {0}; //Bytes of the salt code (for disassembly)
 ///arma960 (checksum)
 int MSC_CHK_return_counter=0;
 int MSC_CHK_other_seed_counter=0;
-unsigned int MSC_CHK_seeds[5]={0};
+unsigned int MSC_CHK_seeds[5]= {0};
 unsigned char* MSC_CHK_raw_data=0;
 ///arma960 (projectid)
 int MSC_return_counter=0;
 int MSC_other_seed_counter=0;
-unsigned int MSC_seeds[5]={0};
+unsigned int MSC_seeds[5]= {0};
 unsigned char* MSC_raw_data=0;
 
 //VerifySym

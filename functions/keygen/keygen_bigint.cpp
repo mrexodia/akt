@@ -366,7 +366,8 @@ void BigInt_Multiply(BigInt a, BigInt b, BigInt answer)
 }
 
 int BigInt_Divide(BigInt a, BigInt b, BigInt answer, BigInt remainder)
-{ //TODO: fix something here (memleak temp1 or t)
+{
+    //TODO: fix something here (memleak temp1 or t)
     int compare, i, signa, signb;
     WORKING_DIGIT high, low, t;
     BigInt temp1, temp2;

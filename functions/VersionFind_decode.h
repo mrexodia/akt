@@ -74,5 +74,6 @@ typedef struct _ARMA_OPTIONS
  *********************************************************************/
 void FillArmaExtraOptionsStruct(unsigned int raw, EXTRA_OPTIONS* eo);
 void FillArmaOptionsStruct(unsigned int raw, const char* ver, ARMA_OPTIONS* op, EXTRA_OPTIONS* eo, bool bIsMinimal);
+void VF_PrintArmaOptionsStructLog(ARMA_OPTIONS* op, char* log, unsigned int raw_options, unsigned int extra_options);
 
 #endif

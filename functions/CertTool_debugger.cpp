@@ -300,7 +300,7 @@ void CT_cbCertificateFunction()
     {
         DeleteHardwareBreakPoint(UE_DR0);
         long retn_eax=GetContextData(UE_EAX);
-        MEMORY_BASIC_INFORMATION mbi={0};
+        MEMORY_BASIC_INFORMATION mbi= {0};
         unsigned int mem_size=0x10000;
         if(VirtualQueryEx(fdProcessInfo->hProcess, (void*)retn_eax, &mbi, sizeof(MEMORY_BASIC_INFORMATION)))
             mem_size=mbi.RegionSize-(retn_eax-(unsigned int)mbi.BaseAddress);

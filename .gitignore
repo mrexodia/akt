@@ -11,3 +11,4 @@ obj/*
 # Ignore Eclipse Project
 .project
 .cproject
+Armadillo_KeyTool.cscope_file_list

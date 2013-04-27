@@ -38,9 +38,9 @@ extern "C"
 {
 #endif
 
-    void DLL_EXPORT InitVariables(char* var0, CT_DATA* var1, STOPDEBUG var2, int var3, HWND var4);
-    void DLL_EXPORT RemoveExceptionHandler();
-    void DLL_EXPORT AddExceptionHandler();
+void DLL_EXPORT InitVariables(char* var0, CT_DATA* var1, STOPDEBUG var2, int var3, HWND var4);
+void DLL_EXPORT RemoveExceptionHandler();
+void DLL_EXPORT AddExceptionHandler();
 
 #ifdef __cplusplus
 }

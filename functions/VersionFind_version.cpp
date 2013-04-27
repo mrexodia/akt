@@ -144,16 +144,16 @@ void VF_Version(char* szFileName, char* szVersion, ErrMessageCallback ErrorMessa
 {
     FILE_STATUS_INFO inFileStatus = {0};
 
-	g_szVersion = szVersion;
-	g_fdFileIsDll = false;
-	g_fdProcessInfo = NULL;
-	g_ErrorMessageCallback = ErrorMessageCallback;
+    g_szVersion = szVersion;
+    g_fdFileIsDll = false;
+    g_fdProcessInfo = NULL;
+    g_ErrorMessageCallback = ErrorMessageCallback;
 
     if(IsPE32FileValidEx(szFileName, UE_DEPTH_SURFACE, &inFileStatus))
     {
         if(inFileStatus.FileIs64Bit)
         {
-        	ErrorMessageCallback((char*)"64-bit files are not (yet) supported!", (char*)"Error!");
+            ErrorMessageCallback((char*)"64-bit files are not (yet) supported!", (char*)"Error!");
             return;
         }
         HANDLE hFile, fileMap;
@@ -162,18 +162,18 @@ void VF_Version(char* szFileName, char* szVersion, ErrMessageCallback ErrorMessa
         StaticFileLoad(szFileName, UE_ACCESS_READ, false, &hFile, &bytes_read, &fileMap, &va);
         if(!IsArmadilloProtected(va))
         {
-        	ErrorMessageCallback((char*)"Not armadillo protected...", (char*)"Error!");
+            ErrorMessageCallback((char*)"Not armadillo protected...", (char*)"Error!");
             return;
         }
         StaticFileClose(hFile);
         g_fdFileIsDll = inFileStatus.FileIsDLL;
         if(!g_fdFileIsDll)
         {
-        	g_fdProcessInfo = (LPPROCESS_INFORMATION)InitDebugEx(szFileName, NULL, NULL, (void*)VF_cbVerEntry);
+            g_fdProcessInfo = (LPPROCESS_INFORMATION)InitDebugEx(szFileName, NULL, NULL, (void*)VF_cbVerEntry);
         }
         else
         {
-        	g_fdProcessInfo = (LPPROCESS_INFORMATION)InitDLLDebug(szFileName, false, NULL, NULL, (void*)VF_cbVerEntry);
+            g_fdProcessInfo = (LPPROCESS_INFORMATION)InitDLLDebug(szFileName, false, NULL, NULL, (void*)VF_cbVerEntry);
         }
         if(g_fdProcessInfo)
         {
@@ -181,11 +181,11 @@ void VF_Version(char* szFileName, char* szVersion, ErrMessageCallback ErrorMessa
         }
         else
         {
-        	ErrorMessageCallback((char*)"Something went wrong during initialization...", (char*)"Error!");
+            ErrorMessageCallback((char*)"Something went wrong during initialization...", (char*)"Error!");
         }
     }
     else
     {
-    	ErrorMessageCallback((char*)"This is not a valid PE file...", (char*)"Error!");
+        ErrorMessageCallback((char*)"This is not a valid PE file...", (char*)"Error!");
     }
 }
