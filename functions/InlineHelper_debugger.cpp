@@ -74,9 +74,7 @@ void IH_GetImportTableAddresses() //Retrieve basic import data
 
     DeleteFile("loaded_binary.mem");
     DumpProcess(IH_fdProcessInfo->hProcess, (void*)IH_fdImageBase, (char*)"loaded_binary.mem", IH_fdEntryPoint);
-    kernel32=GetModuleHandleA("kernelbase"); //TODO: better windows 7 support
-    if(!kernel32)
-        kernel32=GetModuleHandleA("kernel32");
+    kernel32=GetModuleHandleA("kernel32");
 
     IH_addr_VirtualProtect=(unsigned int)GetProcAddress(kernel32, "VirtualProtect");
     IH_addr_OutputDebugStringA=(unsigned int)GetProcAddress(kernel32, "OutputDebugStringA");
