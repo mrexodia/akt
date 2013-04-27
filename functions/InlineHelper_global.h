@@ -16,16 +16,12 @@ extern char IH_code_text[2048];
 extern char IH_debugProgramDir[256];
 extern char IH_security_addr_register[4];
 
-extern int IH_outputdebugcount;
+//extern int IH_outputdebugcount;
 extern int IH_outputdebugcount_total;
 extern int IH_crc_base;
 
 extern unsigned int IH_addr_VirtualProtect;
 extern unsigned int IH_addr_OutputDebugStringA;
-extern unsigned int IH_addr_GetEnvironmentVariableA;
-extern unsigned int IH_addr_SetEnvironmentVariableA;
-extern unsigned int IH_addr_LoadLibraryA;
-extern unsigned int IH_addr_GetProcAddress;
 extern unsigned int IH_addr_WriteProcessMemory;
 extern unsigned int IH_empty_entry;
 extern unsigned int IH_crc_original_vals[5];
@@ -33,7 +29,6 @@ extern unsigned int IH_OEP;
 
 extern bool IH_fdFileIsDll;
 
-extern DWORD IH_bytes_read;
 extern HWND IH_shared;
 extern LPPROCESS_INFORMATION IH_fdProcessInfo;
 

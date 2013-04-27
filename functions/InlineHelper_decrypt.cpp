@@ -150,6 +150,7 @@ DWORD WINAPI IHD_DebugThread(LPVOID lpStartAddress) //TODO: never used
     IHD_fdEntryPoint = NULL;
     IHD_fdSizeOfImage = NULL;
     IHD_fdProcessInfo = NULL;
+    DWORD IH_bytes_read = NULL;
     FILE_STATUS_INFO inFileStatus = {0};
     if(IsPE32FileValidEx(IHD_szFileName, UE_DEPTH_DEEP, &inFileStatus))
     {

@@ -14,16 +14,12 @@ char IH_code_text[2048]=""; //String for the inline asm code
 char IH_debugProgramDir[256]=""; //String for the directory of the debugged program
 char IH_security_addr_register[4]=""; //Register that contains a pointer to security.dll
 
-int IH_outputdebugcount=0; //Counter for correct hits on OutputDebugStringA
+
 int IH_outputdebugcount_total=0; //Total count of hits on OutputDebugStringA
 int IH_crc_base=0; //Stack difference for retrieving the CRC values
 
 unsigned int IH_addr_VirtualProtect; //ptr VirtualProtect
 unsigned int IH_addr_OutputDebugStringA; //ptr OutputDebugStringA
-unsigned int IH_addr_GetEnvironmentVariableA; //ptr GetEnvA
-unsigned int IH_addr_SetEnvironmentVariableA; //ptr SetEnvA
-unsigned int IH_addr_LoadLibraryA; //ptr LLA
-unsigned int IH_addr_GetProcAddress; //ptr GPA
 unsigned int IH_addr_WriteProcessMemory; //ptr WPM
 unsigned int IH_empty_entry=0; //Start of free space
 unsigned int IH_crc_original_vals[5]= {0}; //Original CRC values array
@@ -32,7 +28,6 @@ unsigned int IH_OEP=0; //Old entrypoint (for inline code)
 bool IH_fdFileIsDll=false; //Flag for DLL
 
 //Debugger
-DWORD IH_bytes_read=0; //Global variable for rpm and rf
 HWND IH_shared; //hwnd of the main window
 LPPROCESS_INFORMATION IH_fdProcessInfo; //Process information structure
 
@@ -41,10 +36,6 @@ HINSTANCE PLUGIN_INST;
 PLUGINFO PluginInfo;
 PLUGFUNC PluginFunction;
 char IH_plugin_ini_file[256]="";
-
-//Dialog
-HBRUSH hb=CreateSolidBrush(GetSysColor(15));
-RECT rc;
 
 //Decrypt
 HWND IHD_shared;

@@ -1,5 +1,7 @@
 #include "InlineHelper_debugger.h"
 
+int IH_outputdebugcount=0; //Counter for correct hits on OutputDebugStringA
+
 BYTE IH_FindCrcStart(BYTE* data) //Find the start of the CRC array
 {
     for(unsigned int i=0; i<1024; i++)
@@ -54,7 +56,7 @@ unsigned int IH_FindFreeSpace(BYTE* d, unsigned int size)
 void IH_GetFreeSpaceAddr(void) //Retrieve address for free space
 {
     BYTE* dump_addr=(BYTE*)VirtualAlloc(VirtualAlloc(0, IH_fdEntrySectionSize, MEM_RESERVE, PAGE_EXECUTE_READWRITE), IH_fdEntrySectionSize, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
-    ReadProcessMemory(IH_fdProcessInfo->hProcess, (void*)(IH_fdEntrySectionOffset+IH_fdImageBase), dump_addr, IH_fdEntrySectionSize, &IH_bytes_read);
+    ReadProcessMemory(IH_fdProcessInfo->hProcess, (void*)(IH_fdEntrySectionOffset+IH_fdImageBase), dump_addr, IH_fdEntrySectionSize, 0);
     unsigned int free_addr=IH_FindFreeSpace(dump_addr, (unsigned int)IH_fdEntrySectionSize)+IH_fdEntrySectionOffset+IH_fdImageBase+5;
     char result_temp[10]="";
     sprintf(result_temp, "%08X", free_addr);
@@ -65,9 +67,17 @@ void IH_GetFreeSpaceAddr(void) //Retrieve address for free space
 void IH_GetImportTableAddresses() //Retrieve basic import data
 {
     HINSTANCE kernel32; //Handle to kernel32
+    unsigned int IH_addr_GetEnvironmentVariableA; //ptr GetEnvA
+    unsigned int IH_addr_SetEnvironmentVariableA; //ptr SetEnvA
+    unsigned int IH_addr_LoadLibraryA; //ptr LLA
+    unsigned int IH_addr_GetProcAddress; //ptr GPA
+
     DeleteFile("loaded_binary.mem");
     DumpProcess(IH_fdProcessInfo->hProcess, (void*)IH_fdImageBase, (char*)"loaded_binary.mem", IH_fdEntryPoint);
-    kernel32=GetModuleHandleA("kernel32");
+    kernel32=GetModuleHandleA("kernelbase"); //TODO: better windows 7 support
+    if(!kernel32)
+        kernel32=GetModuleHandleA("kernel32");
+
     IH_addr_VirtualProtect=(unsigned int)GetProcAddress(kernel32, "VirtualProtect");
     IH_addr_OutputDebugStringA=(unsigned int)GetProcAddress(kernel32, "OutputDebugStringA");
     IH_addr_GetEnvironmentVariableA=(unsigned int)GetProcAddress(kernel32, "GetEnvironmentVariableA");
@@ -152,8 +162,8 @@ void IH_cbOutputDebugStringA() //Callback for OutputDebugStringA
     ///Check if we landed on the correct place.
     char debug_string[256]="";
     unsigned int esp_addr=(long)GetContextData(UE_ESP), string_addr;
-    ReadProcessMemory(IH_fdProcessInfo->hProcess, (void*)(esp_addr+4), &string_addr, 4, &IH_bytes_read);
-    ReadProcessMemory(IH_fdProcessInfo->hProcess, (void*)string_addr, &debug_string, 255, &IH_bytes_read);
+    ReadProcessMemory(IH_fdProcessInfo->hProcess, (void*)(esp_addr+4), &string_addr, 4, 0);
+    ReadProcessMemory(IH_fdProcessInfo->hProcess, (void*)string_addr, &debug_string, 255, 0);
     if(debug_string[16]=='%' and debug_string[17]=='s')
         IH_outputdebugcount++;
 
@@ -166,8 +176,8 @@ void IH_cbOutputDebugStringA() //Callback for OutputDebugStringA
         BYTE search_bytes[1024]= {0xFF};
 
         ///Read the executable code to obtain the CRC base
-        ReadProcessMemory(IH_fdProcessInfo->hProcess, (void*)esp_addr, &bp_addr, 4, &IH_bytes_read); ///Get the return address.
-        ReadProcessMemory(IH_fdProcessInfo->hProcess, (void*)bp_addr, search_bytes, 1024, &IH_bytes_read); ///Read the actual disassembly.
+        ReadProcessMemory(IH_fdProcessInfo->hProcess, (void*)esp_addr, &bp_addr, 4, 0); ///Get the return address.
+        ReadProcessMemory(IH_fdProcessInfo->hProcess, (void*)bp_addr, search_bytes, 1024, 0); ///Read the actual disassembly.
         IH_crc_base=0x100-IH_FindCrcStart(search_bytes); ///Use a pattern to find the CRC base and NEG this base.
 
         unsigned int crc_check_call=IH_FindEB6APattern(search_bytes, 1024);
@@ -195,13 +205,13 @@ void IH_cbOutputDebugStringA() //Callback for OutputDebugStringA
         }
 
         ///Read the CRC values from the variable stack.
-        ReadProcessMemory(IH_fdProcessInfo->hProcess, (void*)(ebp_addr-IH_crc_base), &IH_crc_original_vals[0], 4, &IH_bytes_read);
+        ReadProcessMemory(IH_fdProcessInfo->hProcess, (void*)(ebp_addr-IH_crc_base), &IH_crc_original_vals[0], 4, 0);
         if(!arma960)
         {
-            ReadProcessMemory(IH_fdProcessInfo->hProcess, (void*)(ebp_addr-IH_crc_base-8), &IH_crc_original_vals[1], 4, &IH_bytes_read);
-            ReadProcessMemory(IH_fdProcessInfo->hProcess, (void*)(ebp_addr-IH_crc_base-12), &IH_crc_original_vals[2], 4, &IH_bytes_read);
-            ReadProcessMemory(IH_fdProcessInfo->hProcess, (void*)(ebp_addr-IH_crc_base-16), &IH_crc_original_vals[3], 4, &IH_bytes_read);
-            ReadProcessMemory(IH_fdProcessInfo->hProcess, (void*)(ebp_addr-IH_crc_base-20), &IH_crc_original_vals[4], 4, &IH_bytes_read);
+            ReadProcessMemory(IH_fdProcessInfo->hProcess, (void*)(ebp_addr-IH_crc_base-8), &IH_crc_original_vals[1], 4, 0);
+            ReadProcessMemory(IH_fdProcessInfo->hProcess, (void*)(ebp_addr-IH_crc_base-12), &IH_crc_original_vals[2], 4, 0);
+            ReadProcessMemory(IH_fdProcessInfo->hProcess, (void*)(ebp_addr-IH_crc_base-16), &IH_crc_original_vals[3], 4, 0);
+            ReadProcessMemory(IH_fdProcessInfo->hProcess, (void*)(ebp_addr-IH_crc_base-20), &IH_crc_original_vals[4], 4, 0);
         }
         else
         {
@@ -246,8 +256,8 @@ void IH_cbVirtualProtect() //Callback for VirtualProtect
 
     long security_addr=0,esp_addr=0,code_size=0;
     esp_addr=(long)GetContextData(UE_ESP);
-    ReadProcessMemory(IH_fdProcessInfo->hProcess, (const void*)(esp_addr+4), &security_addr, 4, &IH_bytes_read);
-    ReadProcessMemory(IH_fdProcessInfo->hProcess, (const void*)(esp_addr+8), &code_size, 4, &IH_bytes_read);
+    ReadProcessMemory(IH_fdProcessInfo->hProcess, (const void*)(esp_addr+4), &security_addr, 4, 0);
+    ReadProcessMemory(IH_fdProcessInfo->hProcess, (const void*)(esp_addr+8), &code_size, 4, 0);
 
     DumpMemory(IH_fdProcessInfo->hProcess, (void*)security_addr, code_size, (char*)"security_code.mem");
 
@@ -281,11 +291,10 @@ void IH_cbOpenMutexA() //Callback for OpenMutexA
     char mutex_name[20]="";
     long mutex_addr=0;
     long esp_addr=0;
-    DWORD bytes_read=0;
     DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"OpenMutexA", UE_APISTART);
     esp_addr=(long)GetContextData(UE_ESP)+12;
-    ReadProcessMemory(IH_fdProcessInfo->hProcess, (const void*)esp_addr, &mutex_addr, 4, &bytes_read);
-    ReadProcessMemory(IH_fdProcessInfo->hProcess, (const void*)mutex_addr, &mutex_name, 20, &bytes_read);
+    ReadProcessMemory(IH_fdProcessInfo->hProcess, (const void*)esp_addr, &mutex_addr, 4, 0);
+    ReadProcessMemory(IH_fdProcessInfo->hProcess, (const void*)mutex_addr, &mutex_name, 20, 0);
     CreateMutexA(0, FALSE, mutex_name);
     if(GetLastError()==ERROR_SUCCESS)
     {
@@ -333,7 +342,7 @@ DWORD WINAPI IH_DebugThread(LPVOID lpStartAddress) //Thread for debugging
     IH_fdProcessInfo = NULL;
     IH_outputdebugcount=0;
     IH_outputdebugcount_total=0;
-    IH_bytes_read=0;
+    DWORD IH_bytes_read=0;
     IH_crc_original_vals[0]=0;
     IH_crc_original_vals[1]=0;
     IH_crc_original_vals[2]=0;
