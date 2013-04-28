@@ -82,7 +82,6 @@ void MSC_SALT_cbOpenMutexA2()
 
 void MSC_SALT_cbVirtualProtect()
 {
-    OutputDebugStringA("cbVirtualProtect (GetSalt)");
     DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_APISTART);
 
     long esp_addr=GetContextData(UE_ESP);
@@ -227,7 +226,6 @@ unsigned char* MSC_CHK_Decrypt(unsigned char** data, unsigned char** rand, unsig
 
 bool MSC_CHK_DecryptCerts(unsigned int* seed, unsigned char* raw_data, unsigned int raw_size)
 {
-    OutputDebugStringA("MSC_DECRYPT");
     if(!raw_data or !raw_size or !seed)
         return 0;
     unsigned int real_cert_size=FindBAADF00DPattern(raw_data, raw_size);
@@ -280,7 +278,6 @@ bool MSC_CHK_DecryptCerts(unsigned int* seed, unsigned char* raw_data, unsigned 
 
 void MSC_CHK_cbGetOtherSeed()
 {
-    OutputDebugStringA("arma960");
     MSC_CHK_other_seed_counter++;
     unsigned int eip=GetContextData(UE_EIP);
     DeleteBPX(eip);
@@ -450,7 +447,6 @@ void MSC_CHK_cbCertificateFunction()
 
 void MSC_CHK_cbVirtualProtect()
 {
-    OutputDebugStringA("cbVirtualProtect (ChecksumFind)");
     DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_APISTART);
 
     long esp_addr=GetContextData(UE_ESP);

@@ -37,7 +37,6 @@ unsigned int VF_FindAnd40000Pattern(BYTE* d, unsigned int size)
 
 bool VF_IsMinimalProtection(char* szFileName, ULONG_PTR va, long parSectionNumber)
 {
-    OutputDebugStringA("IsMinimalProtection");
     int offset=GetPE32Data(szFileName, parSectionNumber, UE_SECTIONRAWOFFSET);
     BYTE firstbytes[2]= {0};
     memcpy(firstbytes, (void*)(va+offset), 2);

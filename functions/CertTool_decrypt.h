@@ -9,6 +9,6 @@ unsigned long CT_mult(long p, long q);
 unsigned long CT_NextRandomRange(long range);
 unsigned char* CT_GetCryptBytes(unsigned int seed, unsigned int size);
 unsigned char* CT_Decrypt(unsigned char** data, unsigned char** rand, unsigned int size);
-unsigned char* CT_DecryptCerts();
+void CT_DecryptCerts();
 
 #endif

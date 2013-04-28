@@ -70,7 +70,6 @@ void VF_cbExtraDw()
 
 void VF_cbExtraVirtualProtect()
 {
-    OutputDebugStringA("ExtraVirtualProtect");
     DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_APISTART);
     MEMORY_BASIC_INFORMATION mbi= {0};
 
@@ -86,7 +85,6 @@ void VF_cbExtraVirtualProtect()
     sec_data=(BYTE*)malloc(sec_size);
     ReadProcessMemory(g_fdProcessInfo->hProcess, (const void*)sec_addr, sec_data, sec_size, 0);
 
-    OutputDebugStringA("usbdevice");
     unsigned int usbdevice=VF_FindUsbPattern(sec_data, sec_size);
     if(usbdevice)
     {
@@ -190,8 +188,6 @@ void VF_ExtraOptions(char* szFileName, unsigned int* extra_options, ErrMessageCa
     g_fdFileIsDll = false;
     g_fdProcessInfo = NULL;
     g_ErrorMessageCallback = ErrorMessageCallback;
-
-    OutputDebugStringA("VF_ExtraOptions");
 
     if(IsPE32FileValidEx(szFileName, UE_DEPTH_SURFACE, &inFileStatus))
     {
