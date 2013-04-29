@@ -30,7 +30,7 @@ DWORD WINAPI VF_DebugThread(void* lpVoid)
     char filename_nopath[256]="";
     memset(log_text, 0, 4096);
 
-    if(!VF_RawOptions(g_szFileName, &g_raw_options, &g_minimal, ErrorMessageCallback))
+    if(!VF_RawOptions(g_szFileName, &g_raw_options, &g_minimal, VF_ErrorMessageCallback))
     {
         free(log_text);
         return 0;
@@ -39,10 +39,10 @@ DWORD WINAPI VF_DebugThread(void* lpVoid)
     sprintf(temp, "%.8X", g_raw_options);
     SetDlgItemTextA(hwndDlg, IDC_EDT_RAWOPTIONS, temp);
 
-    VF_Version(g_szFileName, g_version, ErrorMessageCallback);
+    VF_Version(g_szFileName, g_version, VF_ErrorMessageCallback);
     SetDlgItemTextA(hwndDlg, IDC_EDT_VERSIONNUM, g_version);
 
-    VF_ExtraOptions(g_szFileName, &g_extra_options, ErrorMessageCallback);
+    VF_ExtraOptions(g_szFileName, &g_extra_options, VF_ErrorMessageCallback);
     sprintf(temp, "%.8X", g_extra_options);
     SetDlgItemTextA(hwndDlg, IDC_EDT_EXTRAOPTIONS, temp);
 
@@ -99,7 +99,7 @@ DWORD WINAPI VF_DebugThread(void* lpVoid)
     return 0;
 }
 
-void ErrorMessageCallback(char* szMessage, char* szTitle)
+void VF_ErrorMessageCallback(char* szMessage, char* szTitle)
 {
     MessageBoxA(g_shared_hwnd, szMessage, szTitle, MB_ICONERROR);
 }

@@ -1,7 +1,13 @@
 #include "InlineHelper_plugins.h"
 
+/**********************************************************************
+ *						Functions
+ *********************************************************************/
 void IH_GetPluginList(void)
 {
+	PLUGFUNC PluginFunction;
+	PLUGINFO PluginInfo;
+	HINSTANCE PLUGIN_INST;
     char plugin_search[256]="";
     char plugin_name[1024]="";
     char plugin_counter_s[10]="";
@@ -10,7 +16,7 @@ void IH_GetPluginList(void)
     WIN32_FIND_DATA find_struct;
     HANDLE search_handle;
 
-    strcpy(plugin_search, IH_current_dir);
+    strcpy(plugin_search, sg_szAKTDirectory);
     strcat(plugin_search, "\\plugins");
     SetCurrentDirectoryA(plugin_search);
     strcat(plugin_search, "\\*.dll");
@@ -36,9 +42,9 @@ void IH_GetPluginList(void)
                 plugin_counter++;
                 strcpy(plugin_name, PluginInfo());
                 sprintf(plugin_counter_s, "%d", plugin_counter);
-                WritePrivateProfileStringA("Plugins", "total_found", plugin_counter_s, IH_plugin_ini_file);
-                WritePrivateProfileStringA(plugin_counter_s, "plugin_dll", find_struct.cFileName, IH_plugin_ini_file);
-                WritePrivateProfileStringA(plugin_counter_s, "plugin_name", plugin_name, IH_plugin_ini_file);
+                WritePrivateProfileStringA("Plugins", "total_found", plugin_counter_s, sg_szPluginIniFilePath);
+                WritePrivateProfileStringA(plugin_counter_s, "plugin_dll", find_struct.cFileName, sg_szPluginIniFilePath);
+                WritePrivateProfileStringA(plugin_counter_s, "plugin_name", plugin_name, sg_szPluginIniFilePath);
             }
             FreeLibrary(PLUGIN_INST);
         }
@@ -63,9 +69,9 @@ void IH_GetPluginList(void)
                     plugin_counter++;
                     strcpy(plugin_name, PluginInfo());
                     sprintf(plugin_counter_s, "%d", plugin_counter);
-                    WritePrivateProfileStringA("Plugins", "total_found", plugin_counter_s, IH_plugin_ini_file);
-                    WritePrivateProfileStringA(plugin_counter_s, "plugin_dll", find_struct.cFileName, IH_plugin_ini_file);
-                    WritePrivateProfileStringA(plugin_counter_s, "plugin_name", plugin_name, IH_plugin_ini_file);
+                    WritePrivateProfileStringA("Plugins", "total_found", plugin_counter_s, sg_szPluginIniFilePath);
+                    WritePrivateProfileStringA(plugin_counter_s, "plugin_dll", find_struct.cFileName, sg_szPluginIniFilePath);
+                    WritePrivateProfileStringA(plugin_counter_s, "plugin_name", plugin_name, sg_szPluginIniFilePath);
                 }
                 FreeLibrary(PLUGIN_INST);
             }
@@ -93,9 +99,9 @@ void IH_GetPluginList(void)
                             plugin_counter++;
                             strcpy(plugin_name, PluginInfo());
                             sprintf(plugin_counter_s, "%d", plugin_counter);
-                            WritePrivateProfileStringA("Plugins", "total_found", plugin_counter_s, IH_plugin_ini_file);
-                            WritePrivateProfileStringA(plugin_counter_s, "plugin_dll", find_struct.cFileName, IH_plugin_ini_file);
-                            WritePrivateProfileStringA(plugin_counter_s, "plugin_name", plugin_name, IH_plugin_ini_file);
+                            WritePrivateProfileStringA("Plugins", "total_found", plugin_counter_s, sg_szPluginIniFilePath);
+                            WritePrivateProfileStringA(plugin_counter_s, "plugin_dll", find_struct.cFileName, sg_szPluginIniFilePath);
+                            WritePrivateProfileStringA(plugin_counter_s, "plugin_name", plugin_name, sg_szPluginIniFilePath);
                         }
                         FreeLibrary(PLUGIN_INST);
                     }
@@ -110,6 +116,6 @@ void IH_GetPluginList(void)
         FindClose(search_handle);
         return;
     }
-    WritePrivateProfileStringA("Plugins", "total_found", "0", IH_plugin_ini_file);
+    WritePrivateProfileStringA("Plugins", "total_found", "0", sg_szPluginIniFilePath);
     return;
 }

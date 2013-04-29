@@ -1,54 +1,57 @@
 #include "InlineHelper_codegen.h"
 
-void IH_GenerateAsmCode()
+/**********************************************************************
+ *						Functions
+ *********************************************************************/
+void IH_GenerateAsmCode(char* codeText, bool fileIsDll, IH_InlineHelperData_t targetData)
 {
     char crc_replace_code[2048]="";
-    if(IH_arma960)
+    if(targetData.Arma960)
     {
         sprintf(crc_replace_code, "mov dword ptr ds:[ebp-0%X],0%X\r\nmov eax,dword ptr ds:[esp]\r\nmov eax,dword ptr ds:[eax+0%X]\r\nmov dword ptr ds:[eax],0%X\r\nmov dword ptr ds:[eax+4],0%X\r\nmov dword ptr ds:[eax+8],0%X\r\nmov dword ptr ds:[eax+0C],0%X",
-                IH_crc_base,
-                IH_crc_original_vals[0],
-                IH_arma960_add,
-                IH_crc_original_vals[1],
-                IH_crc_original_vals[2],
-                IH_crc_original_vals[3],
-                IH_crc_original_vals[4]);
+        		targetData.CRCBase,
+                targetData.CrcOriginalVals[0],
+                targetData.Arma960_add,
+                targetData.CrcOriginalVals[1],
+                targetData.CrcOriginalVals[2],
+                targetData.CrcOriginalVals[3],
+                targetData.CrcOriginalVals[4]);
     }
     else
     {
         sprintf(crc_replace_code, "mov dword ptr ds:[ebp-0%X],0%X\r\nmov dword ptr ds:[ebp-%X],0%X\r\nmov dword ptr ds:[ebp-%X],0%X\r\nmov dword ptr ds:[ebp-%X],0%X\r\nmov dword ptr ds:[ebp-%X],0%X\r\n",
-                IH_crc_base,
-                IH_crc_original_vals[0],
-                IH_crc_base+8,
-                IH_crc_original_vals[1],
-                IH_crc_base+12,
-                IH_crc_original_vals[2],
-                IH_crc_base+16,
-                IH_crc_original_vals[3],
-                IH_crc_base+20,
-                IH_crc_original_vals[4]);
+        		targetData.CRCBase,
+                targetData.CrcOriginalVals[0],
+                targetData.CRCBase+8,
+                targetData.CrcOriginalVals[1],
+                targetData.CRCBase+12,
+                targetData.CrcOriginalVals[2],
+                targetData.CRCBase+16,
+                targetData.CrcOriginalVals[3],
+                targetData.CRCBase+20,
+                targetData.CrcOriginalVals[4]);
     }
-    if(!IH_fdFileIsDll)
+    if(!fileIsDll)
     {
-        sprintf(IH_code_text, template_text+1,
-                IH_empty_entry,
-                IH_addr_OutputDebugStringA,
-                IH_addr_VirtualProtect,
-                IH_OEP,
-                IH_outputdebugcount_total,
+        sprintf(codeText, template_text+1,
+        		targetData.EmptyEntry,
+        		targetData.OutputDebugStringA_Addr,
+        		targetData.VirtualProtect_Addr,
+        		targetData.OEP,
+        		targetData.OutputDebugCount,
                 crc_replace_code,
-                IH_security_addr_register);
+                targetData.SecurityAddrRegister);
     }
     else
     {
-        sprintf(IH_code_text, dll_template_text+1,
-                IH_empty_entry,
-                IH_addr_OutputDebugStringA,
-                IH_addr_VirtualProtect,
-                IH_addr_WriteProcessMemory,
-                IH_OEP,
-                IH_outputdebugcount_total,
+        sprintf(codeText, dll_template_text+1,
+        		targetData.EmptyEntry,
+        		targetData.OutputDebugStringA_Addr,
+        		targetData.VirtualProtect_Addr,
+        		targetData.WriteProcessMemory_Addr,
+        		targetData.OEP,
+        		targetData.OutputDebugCount,
                 crc_replace_code,
-                IH_security_addr_register);
+                targetData.SecurityAddrRegister);
     }
 }

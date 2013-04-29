@@ -1,5 +1,8 @@
 #include "_global.h"
 
+char sg_szAKTDirectory[256]=""; //Current directory
+char sg_szPluginIniFilePath[256]="";
+
 HINSTANCE hInst;
 bool log_version=true; //Log version...
 //bool help_open=false; //Prevent double help screens.

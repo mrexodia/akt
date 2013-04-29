@@ -4,6 +4,10 @@
 #include "InlineHelper_global.h"
 #include "InlineHelper_codegen.h"
 
+
+/**********************************************************************
+ *						Prototypes
+ *********************************************************************/
 BYTE IH_FindCrcStart(BYTE* data);
 unsigned int IH_FindFreeSpace(BYTE* d, unsigned int size);
 void IH_GetFreeSpaceAddr(void);
@@ -14,5 +18,6 @@ void IH_cbOpenMutexA();
 void IH_cbEntryPoint();
 void IH_cbDllEntryPoint();
 DWORD WINAPI IH_DebugThread(LPVOID lpStartAddress);
+bool IH_Debugger(char* szFileName, IH_InlineHelperData_t* ptrTargetData, StdCallback EndingCallback, ErrMessageCallback ErrorMessageCallback);
 
 #endif

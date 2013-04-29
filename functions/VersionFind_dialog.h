@@ -14,7 +14,7 @@
  *********************************************************************/
 BOOL CALLBACK VF_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 DWORD WINAPI VF_DebugThread(void* lpVoid);
-void ErrorMessageCallback(char* szMessage, char* szTitle);
+void VF_ErrorMessageCallback(char* szMessage, char* szTitle);
 void CheckButton(int id);
 void UncheckButton(int id);
 void EnableWin(int id, bool a);

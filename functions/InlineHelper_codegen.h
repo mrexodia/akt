@@ -4,6 +4,9 @@
 #include "InlineHelper_global.h"
 #include "..\template.h"
 
-void IH_GenerateAsmCode();
+/**********************************************************************
+ *						Prototypes
+ *********************************************************************/
+void IH_GenerateAsmCode(char* codeText, bool fileIsDll, IH_InlineHelperData_t TargetData);
 
 #endif

@@ -93,21 +93,20 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
     LoadLibrary("riched20.dll");
     DeleteFile("loaded_binary.mem");
     DeleteFile("security_code.mem");
-    GetModuleFileNameA(hInst, IH_current_dir, 256);
-    int i=strlen(IH_current_dir);
-    while(IH_current_dir[i]!='\\')
+    GetModuleFileNameA(hInst, sg_szAKTDirectory, 256);
+    int i=strlen(sg_szAKTDirectory);
+    while(sg_szAKTDirectory[i]!='\\')
         i--;
-    IH_current_dir[i]=0;
-    strcpy(program_dir, IH_current_dir);
-    strcpy(IH_program_dir, IH_current_dir);
-    strcpy(IH_plugin_ini_file, IH_current_dir);
-    strcat(IH_plugin_ini_file, "\\plugins\\plugins.ini");
-    DeleteFileA(IH_plugin_ini_file);
+    sg_szAKTDirectory[i]=0;
+    strcpy(program_dir, sg_szAKTDirectory);
+    strcpy(sg_szPluginIniFilePath, sg_szAKTDirectory);
+    strcat(sg_szPluginIniFilePath, "\\plugins\\plugins.ini");
+    DeleteFileA(sg_szPluginIniFilePath);
     IH_GetPluginList();
-    SetCurrentDirectoryA(IH_current_dir);
+    SetCurrentDirectoryA(sg_szAKTDirectory);
 
     char setting[10]="";
-    sprintf(settings_ini, "%s\\Armadillo_KeyTool.ini", IH_program_dir);
+    sprintf(settings_ini, "%s\\Armadillo_KeyTool.ini", sg_szAKTDirectory);
     GetPrivateProfileStringA("Settings", "ontop", "", setting, 10, settings_ini);
     if(setting[0]=='1')
         start_ontop=true;
@@ -140,7 +139,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
     else
         setting[0]='0';
     WritePrivateProfileStringA("Settings", "nologversion", setting, settings_ini);
-    DeleteFile(IH_plugin_ini_file);
+    DeleteFile(sg_szPluginIniFilePath);
     DeleteFile("loaded_binary.mem");
     DeleteFile("security_code.mem");
     return retn;

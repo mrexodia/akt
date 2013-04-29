@@ -15,6 +15,11 @@
 
 #include "keygen\keygen_main.h"
 
+#include "Basics.h"
+
+
+extern char sg_szAKTDirectory[256];
+extern char sg_szPluginIniFilePath[256];
 
 extern HINSTANCE hInst;
 extern bool log_version;
