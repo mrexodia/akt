@@ -35,13 +35,12 @@ unsigned char* CT_Decrypt(unsigned char** data, unsigned char** rand, unsigned i
     return data[0]-size;
 }
 
-unsigned char* CT_DecryptCerts()
+void CT_DecryptCerts()
 {
-    OutputDebugStringA("CT_DecryptCerts");
     CERT_DATA* cd=CT_cert_data;
 
     if(!cd->raw_data or !cd->raw_size)
-        return 0;
+        return;
 
     unsigned int real_cert_size=FindBAADF00DPattern(cd->raw_data, cd->raw_size);
     if(!real_cert_size)
@@ -52,8 +51,8 @@ unsigned char* CT_DecryptCerts()
     unsigned char* decr_start=decr;
     memcpy(decr, cd->raw_data, real_cert_size);
     free(cd->raw_data);
-    memcpy(&cd->first_dw, decr, 4);
-    CT_Decrypt(&decr, &rand, 4*4);
+    memcpy(&cd->first_dw, decr, sizeof(unsigned int));
+    CT_Decrypt(&decr, &rand, 4*sizeof(unsigned int));
     decr+=2+4; //Skipped bytes
 
     cd->projectid_diff=decr-decr_start+sizeof(unsigned short); //pointer + word for size, 0x18
@@ -63,7 +62,7 @@ unsigned char* CT_DecryptCerts()
     cd->decrypt_seed[1]=CT_a;
 
     //Project ID
-    unsigned short* projectID_size=(unsigned short*)CT_Decrypt(&decr, &rand, 2);
+    unsigned short* projectID_size=(unsigned short*)CT_Decrypt(&decr, &rand, sizeof(unsigned short));
     if(*projectID_size)
     {
         cd->projectid=(char*)malloc(*projectID_size+1);
@@ -71,40 +70,69 @@ unsigned char* CT_DecryptCerts()
         memcpy(cd->projectid, CT_Decrypt(&decr, &rand, *projectID_size), *projectID_size);
     }
     //Customer Service
-    unsigned short* customerSER_size=(unsigned short*)CT_Decrypt(&decr, &rand, 2);
+    unsigned short* customerSER_size=(unsigned short*)CT_Decrypt(&decr, &rand, sizeof(unsigned short));
     if(*customerSER_size)
     {
-        //TODO: add this (v4.x +)
-        CT_Decrypt(&decr, &rand, *customerSER_size);
+        cd->customer_service=(char*)malloc(*customerSER_size+1);
+        memset(cd->customer_service, 0, *customerSER_size+1);
+        memcpy(cd->customer_service, CT_Decrypt(&decr, &rand, *customerSER_size), *customerSER_size);
     }
     //Website
-    unsigned short* website_size=(unsigned short*)CT_Decrypt(&decr, &rand, 2);
+    unsigned short* website_size=(unsigned short*)CT_Decrypt(&decr, &rand, sizeof(unsigned short));
     if(*website_size)
     {
-        //TODO: add this
-        CT_Decrypt(&decr, &rand, *website_size);
+        cd->website=(char*)malloc(*website_size+1);
+        memset(cd->website, 0, *website_size+1);
+        memcpy(cd->website, CT_Decrypt(&decr, &rand, *website_size), *website_size);
     }
 
     decr+=cd->decrypt_addvals[0]; //add the first seed
 
     //Stolen Codes KeyBytes
-    unsigned char* stolen_size=CT_Decrypt(&decr, &rand, 1);
+    cd->stolen_keys_diff=decr-decr_start;
+    CT_a=cd->decrypt_seed[0];
+    for(unsigned int i=0; i<cd->stolen_keys_diff; i++)
+        CT_NextRandomRange(256);
+    cd->decrypt_seed[3]=CT_a;
+
+    unsigned char* stolen_size=CT_Decrypt(&decr, &rand, sizeof(unsigned char));
+    unsigned int total_size=0;
+    unsigned char* decrypted_codes=0;
+    unsigned char* temp=0;
     while(*stolen_size)
     {
-        //TODO: add this
-        CT_Decrypt(&decr, &rand, *stolen_size);
+        if(decrypted_codes)
+        {
+            if(temp)
+                free(temp);
+            temp=(unsigned char*)malloc(total_size);
+            memcpy(temp, decrypted_codes, total_size);
+            free(decrypted_codes);
+        }
+        decrypted_codes=(unsigned char*)malloc(total_size+*stolen_size+2);
+        if(temp)
+            memcpy(decrypted_codes, temp, total_size);
+        memcpy(decrypted_codes+total_size, stolen_size, sizeof(unsigned char));
+        memcpy(decrypted_codes+total_size+1, CT_Decrypt(&decr, &rand, *stolen_size), *stolen_size);
+        total_size+=*stolen_size+1;
         stolen_size=CT_Decrypt(&decr, &rand, 1);
     }
+    if(temp)
+        free(temp);
+    memcpy(decrypted_codes+total_size, stolen_size, 1); //write last key
+    cd->stolen_keys=decrypted_codes;
     decr+=cd->decrypt_addvals[1]; //add second seed
 
     //Intercepted libraries
     unsigned short* libs_size=(unsigned short*)CT_Decrypt(&decr, &rand, 2);
     if(*libs_size)
     {
-        //TODO: add this
-        CT_Decrypt(&decr, &rand, *libs_size);
+        cd->intercepted_libs_size=*libs_size;
+        cd->intercepted_libs=(unsigned char*)malloc(*libs_size);
+        memset(cd->intercepted_libs, 0, *libs_size);
+        memcpy(cd->intercepted_libs, CT_Decrypt(&decr, &rand, *libs_size), *libs_size);
     }
-    decr+=cd->decrypt_addvals[2];; //add third seed
+    decr+=cd->decrypt_addvals[2]; //add third seed
 
     //Certificates
     unsigned char* decr_cert=decr;
@@ -138,5 +166,4 @@ unsigned char* CT_DecryptCerts()
         cd->raw_size=0;
     }
     free(rand);
-    return 0;
 }

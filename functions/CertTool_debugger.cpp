@@ -14,9 +14,6 @@ unsigned int salt_func_addr=0; //Address of the salt function
 unsigned int salt_register=0; //Register to retrieve salt from
 unsigned int tea_decrypt=0; //address of the tea decrypt function
 
-//version determination
-unsigned int timestamp=0;
-
 int cert_func_count=0; //Counter of passes on the NextDword function
 int return_counter=0; //arma9.6
 int other_seed_counter=0;//arma9.6
@@ -357,7 +354,10 @@ void CT_cbCertificateFunction()
                         StopDebug();
                     return;
                 }
-                cert_start+=4;
+                CT_cert_data->raw_size=mem_size;
+                CT_cert_data->raw_data=(unsigned char*)malloc(mem_size);
+                memcpy(CT_cert_data->raw_data, certificate_code, mem_size);
+                /*cert_start+=4;
                 CT_cert_data->initial_diff=cert_start+1;
                 unsigned int cert_end=CT_FindCertificateEndMarkers(certificate_code+cert_start, mem_size-cert_start);
                 if(cert_end) //Unsigned/Default certificates are not stored here...
@@ -379,7 +379,7 @@ void CT_cbCertificateFunction()
                 memset(CT_cert_data->projectid, 0, projectid_size+1);
                 memcpy(CT_cert_data->projectid, certificate_code+2, projectid_size);
 
-                free(certificate_code);
+                free(certificate_code);*/
 
                 if(!magic_value_addr)
                     CT_RetrieveSaltValue();
@@ -530,6 +530,16 @@ DWORD WINAPI CT_FindCertificates(void* lpvoid)
     {
         if(CT_cert_data->projectid)
             free(CT_cert_data->projectid);
+        if(CT_cert_data->customer_service)
+            free(CT_cert_data->customer_service);
+        if(CT_cert_data->website)
+            free(CT_cert_data->website);
+        if(CT_cert_data->unknown_string)
+            free(CT_cert_data->unknown_string);
+        if(CT_cert_data->stolen_keys)
+            free(CT_cert_data->stolen_keys);
+        if(CT_cert_data->intercepted_libs)
+            free(CT_cert_data->intercepted_libs);
         if(CT_cert_data->raw_data)
             free(CT_cert_data->raw_data);
         if(CT_cert_data->encrypted_data)

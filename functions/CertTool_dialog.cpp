@@ -53,10 +53,14 @@ BOOL CALLBACK CT_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
         strcpy(CT_szAktLogFile, CT_szLogFile);
         strcpy(CT_szCryptCertFile, CT_szLogFile);
         strcpy(CT_szRawCertFile, CT_szLogFile);
+        strcpy(CT_szStolenKeysRaw, CT_szLogFile);
+        strcpy(CT_szStolenKeysLog, CT_szLogFile);
         strcat(CT_szLogFile, "_cert.log");
         strcat(CT_szAktLogFile, "_cert.akt");
         strcat(CT_szCryptCertFile, "_cert.bin");
         strcat(CT_szRawCertFile, "_raw.cert");
+        strcat(CT_szStolenKeysRaw, "_stolen.keys");
+        strcat(CT_szStolenKeysLog, "_stolenkeys.log");
         SetDlgItemTextA(hwndDlg, IDC_EDT_FILE, CT_szFileName);
     }
     return TRUE;

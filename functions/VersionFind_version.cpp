@@ -58,7 +58,6 @@ void VF_cbVerDecryptCall()
 
 void VF_cbVerVirtualProtect()
 {
-    OutputDebugStringA("cbVirtualProtect");
     DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_APISTART);
     MEMORY_BASIC_INFORMATION mbi= {0};
     unsigned int sec_addr=0;
@@ -109,7 +108,6 @@ void VF_cbVerVirtualProtect()
 
 void VF_cbVerOpenMutexA()
 {
-    OutputDebugStringA("cbOpenMutexA");
     char mutex_name[20]="";
     long mutex_addr=0;
     long esp_addr=0;

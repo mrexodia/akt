@@ -32,7 +32,6 @@ void MSC_cbSymGet()
 
 void MSC_cbVirtualProtect()
 {
-    OutputDebugStringA("cbVirtualProtect (CurSymGet)");
     DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_APISTART);
 
     long esp_addr=GetContextData(UE_ESP);

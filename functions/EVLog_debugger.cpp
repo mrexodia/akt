@@ -132,7 +132,6 @@ void EV_BreakDebugger() //TODO: never used
 
 void EV_cbEndLog()
 {
-    OutputDebugStringA("cbEndLog");
     unsigned int esp_addr=(long)GetContextData(UE_ESP)+4;
     unsigned int return_eip=0;
     ReadProcessMemory(EV_fdProcessInfo->hProcess, (const void*)esp_addr, &return_eip, 4, 0);
@@ -180,7 +179,6 @@ void EV_log_var_valA(const char* varname, const char* varvalue)
 
 void EV_cbSetEnvW()
 {
-    OutputDebugStringA("cbSetEnvW");
     if(!EV_bpvp_set) //Set VirtualProtect breakpoint
     {
         SetAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_BREAKPOINT, UE_APISTART, (void*)EV_cbEndLog);
@@ -202,7 +200,6 @@ void EV_cbSetEnvW()
 
 void EV_cbSetEnvA()
 {
-    OutputDebugStringA("cbSetEnvA");
     if(!EV_bpvp_set) //Set VirtualProtect breakpoint
     {
         SetAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_BREAKPOINT, UE_APISTART, (void*)EV_cbEndLog);
@@ -224,7 +221,6 @@ void EV_cbSetEnvA()
 
 void EV_cbVirtualProtect()
 {
-    OutputDebugStringA("cbVirtualProtect");
     DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_APISTART);
     unsigned int sec_addr=0;
     unsigned int sec_size=0;
@@ -265,7 +261,6 @@ void EV_cbVirtualProtect()
 
 void EV_cbOpenMutexA()
 {
-    OutputDebugStringA("cbOpenMutexA");
     char mutex_name[20]="";
     long mutex_addr=0;
     long esp_addr=0;

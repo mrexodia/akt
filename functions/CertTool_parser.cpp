@@ -80,11 +80,158 @@ void CT_AddLogMessage(HWND list, const char* text)
     CT_AddToLog(list, current_add);
 }
 
+unsigned char* nextptr(unsigned char** data, unsigned int size)
+{
+    if(!size)
+        return data[0];
+    data[0]+=size;
+    return data[0]-size;
+}
+
+unsigned int GetFlagsFromTimeStamp(unsigned int a)
+{
+    if(a<v400h)
+        return 0;
+    else if(a>v410420l && a<v410420h)
+        return fcustomerservice;
+    else if(a>v430604l && a<v430604h)
+        return fcustomerservice|fwebsite;
+    else if(a>v620740l && a<v620740h)
+        return fcustomerservice|fwebsite|funknown;
+    else if(a>v800h)
+        return fcustomerservice|fwebsite;
+    return 0xFFFFFFFF;
+}
+
+void CT_DecodeCerts()
+{
+    OutputDebugStringA("CT_DecodeCerts");
+
+    CERT_DATA* cd=CT_cert_data;
+
+    if(!cd->raw_data or !cd->raw_size)
+        return;
+
+    unsigned int flags=GetFlagsFromTimeStamp(cd->timestamp);
+    if(flags==0xFFFFFFFF)
+        return;
+    unsigned char* dec=(unsigned char*)malloc(cd->raw_size);
+    unsigned char* dec_start=dec;
+    memcpy(dec, cd->raw_data, cd->raw_size);
+    free(cd->raw_data);
+
+    //First DWORD
+    memcpy(&cd->first_dw, dec, sizeof(unsigned int));
+    //Project ID
+    unsigned short* projectID_size=(unsigned short*)nextptr(&dec, sizeof(unsigned short));
+    if(*projectID_size)
+    {
+        cd->projectid=(char*)malloc(*projectID_size+1);
+        memset(cd->projectid, 0, *projectID_size+1);
+        memcpy(cd->projectid, nextptr(&dec, *projectID_size), *projectID_size);
+    }
+    //Customer Service
+    if(flags&fcustomerservice)
+    {
+        unsigned short* customerSER_size=(unsigned short*)nextptr(&dec, sizeof(unsigned short));
+        if(*customerSER_size)
+        {
+            cd->customer_service=(char*)malloc(*customerSER_size+1);
+            memset(cd->customer_service, 0, *customerSER_size+1);
+            memcpy(cd->customer_service, nextptr(&dec, *customerSER_size), *customerSER_size);
+        }
+    }
+    //Website
+    if(flags&fwebsite)
+    {
+        unsigned short* website_size=(unsigned short*)nextptr(&dec, sizeof(unsigned short));
+        if(*website_size)
+        {
+            cd->website=(char*)malloc(*website_size+1);
+            memset(cd->website, 0, *website_size+1);
+            memcpy(cd->website, nextptr(&dec, *website_size), *website_size);
+        }
+    }
+    //Unknown string
+    if(flags&funknown)
+    {
+        unsigned short* unknown_size=(unsigned short*)nextptr(&dec, sizeof(unsigned short));
+        if(*unknown_size)
+        {
+            cd->unknown_string=(char*)malloc(*unknown_size+1);
+            memset(cd->unknown_string, 0, *unknown_size+1);
+            memcpy(cd->unknown_string, nextptr(&dec, *unknown_size), *unknown_size);
+        }
+    }
+    //Stolen Codes KeyBytes
+    cd->stolen_keys_diff=dec-dec_start;
+    unsigned char* stolen_size=nextptr(&dec, sizeof(unsigned char));
+    unsigned int total_size=0;
+    unsigned char* codes=0;
+    unsigned char* temp=0;
+    while(*stolen_size)
+    {
+        if(codes)
+        {
+            if(temp)
+                free(temp);
+            temp=(unsigned char*)malloc(total_size);
+            memcpy(temp, codes, total_size);
+            free(codes);
+        }
+        codes=(unsigned char*)malloc(total_size+*stolen_size+2);
+        if(temp)
+            memcpy(codes, temp, total_size);
+        memcpy(codes+total_size, stolen_size, sizeof(unsigned char));
+        memcpy(codes+total_size+1, nextptr(&dec, *stolen_size), *stolen_size);
+        total_size+=*stolen_size+1;
+        stolen_size=nextptr(&dec, 1);
+    }
+    if(temp)
+        free(temp);
+    memcpy(codes+total_size, stolen_size, 1); //write last key
+    cd->stolen_keys_size=total_size;
+    cd->stolen_keys=codes;
+    //Intercepted libraries
+    unsigned short* libs_size=(unsigned short*)nextptr(&dec, 2);
+    if(*libs_size)
+    {
+        cd->intercepted_libs_size=*libs_size;
+        cd->intercepted_libs=(unsigned char*)malloc(*libs_size);
+        memset(cd->intercepted_libs, 0, *libs_size);
+        memcpy(cd->intercepted_libs, nextptr(&dec, *libs_size), *libs_size);
+    }
+    //Certificates
+    unsigned char* dec_cert=dec;
+    cd->initial_diff=dec-dec_start;
+    unsigned int real_size=0;
+
+    nextptr(&dec, 1);
+    unsigned char* signature_size=nextptr(&dec, 1);
+    while(*signature_size)
+    {
+        real_size+=(*signature_size)+4+1+1; //chk+lvl+pubsize
+        nextptr(&dec, (*signature_size)+4);
+        nextptr(&dec, 1);
+        signature_size=nextptr(&dec, 1);
+    }
+    if(real_size)
+    {
+        cd->raw_data=dec_cert;
+        cd->raw_size=real_size;
+    }
+    else
+    {
+        cd->raw_data=0;
+        cd->raw_size=0;
+    }
+}
+
 void CT_ParseCerts()
 {
     CT_isparsing=true;
     bool something_done=false;
-    char log_msg[256]="";
+    char log_msg[65536]="";
     char byte_string[256]="";
     CERT_DATA* cd=CT_cert_data;
     HWND hwndDlg=CT_shared;
@@ -94,6 +241,8 @@ void CT_ParseCerts()
 
     if(cd->decrypt_seed[0])
         CT_DecryptCerts();
+    else
+        CT_DecodeCerts();
 
     //Global Information
     if(cd->first_dw or cd->magic1 or cd->magic2 or cd->salt or cd->projectid or cd->decrypt_seed[0])
@@ -113,6 +262,21 @@ void CT_ParseCerts()
         if(cd->projectid)
         {
             sprintf(log_msg, "  Project ID : %s", cd->projectid);
+            CT_AddLogMessage(list, log_msg);
+        }
+        if(cd->customer_service)
+        {
+            sprintf(log_msg, " CustService : %s", cd->customer_service);
+            CT_AddLogMessage(list, log_msg);
+        }
+        if(cd->website)
+        {
+            sprintf(log_msg, "     Website : %s", cd->website);
+            CT_AddLogMessage(list, log_msg);
+        }
+        if(cd->unknown_string)
+        {
+            sprintf(log_msg, "     Unknown : %s (please report if encountered)", cd->unknown_string);
             CT_AddLogMessage(list, log_msg);
         }
         if(cd->magic1 or cd->magic2)
@@ -147,6 +311,24 @@ void CT_ParseCerts()
                 something_done=true;
             CloseHandle(hFile);
         }
+    }
+
+    //Stolen Keys
+    if(cd->stolen_keys)
+    {
+        DeleteFileA(CT_szStolenKeysRaw);
+        HANDLE hFile=CreateFileA(CT_szStolenKeysRaw, GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+        if(hFile==INVALID_HANDLE_VALUE)
+            MessageBoxA(hwndDlg, "Failed to create file...", CT_szCryptCertFile, MB_ICONERROR);
+        else
+        {
+            DWORD written=0;
+            if(WriteFile(hFile, cd->stolen_keys, cd->stolen_keys_size, &written, 0))
+                something_done=true;
+            CloseHandle(hFile);
+        }
+        //TODO: parse stolen keys & write to log file
+        //DeleteFileA(CT_szStolenKeysLog);
     }
 
     //Public certificate information
@@ -373,11 +555,38 @@ void CT_ParseCerts()
             data+=pub_size;
             cert_num++;
         }
-        //Remove the last (always empty) line
-        int listcount=SendMessageA(list, LB_GETCOUNT, 0, 0);
-        SendMessageA(list, LB_DELETESTRING, listcount-1, 0);
-        SendMessageA(list, LB_SETCURSEL, listcount-2, 0);
+        if(!cd->intercepted_libs)
+        {
+            //Remove the last (always empty) line
+            int listcount=SendMessageA(list, LB_GETCOUNT, 0, 0);
+            SendMessageA(list, LB_DELETESTRING, listcount-1, 0);
+            SendMessageA(list, LB_SETCURSEL, listcount-2, 0);
+        }
     }
+
+    //Intercepted libraries
+    if(cd->intercepted_libs)
+    {
+        something_done=true;
+        char currentlib[256]="";
+        int j=0;
+        j+=sprintf(log_msg, "Intercepted Libraries:\n");
+        for(unsigned int i=0; i<cd->intercepted_libs_size; i++)
+        {
+            if(!cd->intercepted_libs[i])
+                break;
+            i+=sprintf(currentlib, "%s", (const char*)cd->intercepted_libs+i);
+            j+=sprintf(log_msg+j, "  %s\n", currentlib);
+        }
+        log_msg[strlen(log_msg)-1]=0;
+        CT_AddLogMessage(list, log_msg);
+        CT_AddLogMessage(0, "");
+        //Remove the last (always empty) line
+        //int listcount=SendMessageA(list, LB_GETCOUNT, 0, 0);
+        //SendMessageA(list, LB_DELETESTRING, listcount-1, 0);
+        //SendMessageA(list, LB_SETCURSEL, listcount-2, 0);
+    }
+
     if(!something_done)
         return;
     //Elapsed time

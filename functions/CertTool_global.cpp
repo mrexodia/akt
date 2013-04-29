@@ -7,6 +7,8 @@ char CT_szLogFile[256]=""; //_cert.log file
 char CT_szAktLogFile[256]=""; //_cert.tpodt file
 char CT_szCryptCertFile[256]=""; //_cert.bin file
 char CT_szRawCertFile[256]=""; //_raw.cert file
+char CT_szStolenKeysRaw[256]=""; //_stolen.keys file
+char CT_szStolenKeysLog[256]=""; //_stolenkeys.log
 
 bool CT_logtofile=true; //Create log files?
 unsigned int CT_time1=0; //For duration calculation.

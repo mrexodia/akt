@@ -31,7 +31,6 @@ void MSC_cbMagicValue()
 
 void MSC_VR_cbVirtualProtect()
 {
-    OutputDebugStringA("cbVirtualProtect (Magic)");
     DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_APISTART);
 
     long esp_addr=GetContextData(UE_ESP);

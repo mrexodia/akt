@@ -96,7 +96,6 @@ char* MSC_DecryptCerts(unsigned int* seed, unsigned char* raw_data, unsigned int
 
 void MSC_cbGetOtherSeed()
 {
-    OutputDebugStringA("arma960");
     MSC_other_seed_counter++;
     unsigned int eip=GetContextData(UE_EIP);
     DeleteBPX(eip);
@@ -197,7 +196,6 @@ void MSC_cbSeed1()
 
 void MSC_cbCertificateFunction()
 {
-    OutputDebugStringA("projectid_960");
     if(!MSC_cert_func_count)
         MSC_cert_func_count++;
     else if(MSC_cert_func_count==1)
@@ -279,7 +277,6 @@ void MSC_cbCertificateFunction()
 
 void MSC_PRJ_cbVirtualProtect()
 {
-    OutputDebugStringA("cbVirtualProtect (ProjectID)");
     DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_APISTART);
 
     long esp_addr=GetContextData(UE_ESP);
