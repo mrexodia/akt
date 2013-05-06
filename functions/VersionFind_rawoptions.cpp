@@ -11,7 +11,7 @@ static LPPROCESS_INFORMATION g_fdProcessInfo;
 static long g_fdEntrySectionOffset=0;
 static long g_fdEntrySectionSize=0;
 static unsigned int g_raw_options_reg=0;
-static ErrMessageCallback g_ErrorMessageCallback = NULL;
+static cbErrorMessage g_ErrorMessageCallback = NULL;
 
 // Output Pointers
 static unsigned int* gPtrRawOptions=0;
@@ -133,7 +133,7 @@ void VF_cbOpEntry()
 }
 
 
-bool VF_RawOptions(char* szFileName, unsigned int* raw_options, bool* bIsMinimal, ErrMessageCallback ErrorMessageCallback)
+bool VF_RawOptions(char* szFileName, unsigned int* raw_options, bool* bIsMinimal, cbErrorMessage ErrorMessageCallback)
 {
     long fdImageBase=NULL;
     long fdEntryPoint=NULL;

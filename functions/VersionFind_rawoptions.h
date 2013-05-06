@@ -12,6 +12,6 @@ void VF_cbMutexReturn();
 void VF_cbOpOpenMutexA();
 void VF_cbOpGetCommandLine();
 void VF_cbOpEntry();
-bool VF_RawOptions(char* szFileName, unsigned int* raw_options, bool* bIsMinimal, ErrMessageCallback ErrorMessageCallback);
+bool VF_RawOptions(char* szFileName, unsigned int* raw_options, bool* bIsMinimal, cbErrorMessage ErrorMessageCallback);
 
 #endif

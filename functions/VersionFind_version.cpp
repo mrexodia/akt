@@ -15,7 +15,7 @@ static unsigned int g_version_decrypt_buffer = 0;
 static unsigned int g_version_decrypt_call = 0;
 static unsigned int g_version_decrypt_call_dest = 0;
 static unsigned int g_version_decrypt_neweip = 0;
-static ErrMessageCallback g_ErrorMessageCallback = NULL;
+static cbErrorMessage g_ErrorMessageCallback = NULL;
 
 
 /**********************************************************************
@@ -138,7 +138,7 @@ void VF_cbVerEntry()
 }
 
 
-void VF_Version(char* szFileName, char* szVersion, ErrMessageCallback ErrorMessageCallback)
+void VF_Version(char* szFileName, char* szVersion, cbErrorMessage ErrorMessageCallback)
 {
     FILE_STATUS_INFO inFileStatus = {0};
 

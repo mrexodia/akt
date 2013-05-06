@@ -96,31 +96,34 @@ void CT_DecryptCerts()
     cd->decrypt_seed[3]=CT_a;
 
     unsigned char* stolen_size=CT_Decrypt(&decr, &rand, sizeof(unsigned char));
-    unsigned int total_size=0;
-    unsigned char* decrypted_codes=0;
-    unsigned char* temp=0;
-    while(*stolen_size)
+    if(*stolen_size)
     {
-        if(decrypted_codes)
+        unsigned int total_size=0;
+        unsigned char* decrypted_codes=0;
+        unsigned char* temp=0;
+        while(*stolen_size)
         {
+            if(decrypted_codes)
+            {
+                if(temp)
+                    free(temp);
+                temp=(unsigned char*)malloc(total_size);
+                memcpy(temp, decrypted_codes, total_size);
+                free(decrypted_codes);
+            }
+            decrypted_codes=(unsigned char*)malloc(total_size+*stolen_size+2);
             if(temp)
-                free(temp);
-            temp=(unsigned char*)malloc(total_size);
-            memcpy(temp, decrypted_codes, total_size);
-            free(decrypted_codes);
+                memcpy(decrypted_codes, temp, total_size);
+            memcpy(decrypted_codes+total_size, stolen_size, sizeof(unsigned char));
+            memcpy(decrypted_codes+total_size+1, CT_Decrypt(&decr, &rand, *stolen_size), *stolen_size);
+            total_size+=*stolen_size+1;
+            stolen_size=CT_Decrypt(&decr, &rand, 1);
         }
-        decrypted_codes=(unsigned char*)malloc(total_size+*stolen_size+2);
         if(temp)
-            memcpy(decrypted_codes, temp, total_size);
-        memcpy(decrypted_codes+total_size, stolen_size, sizeof(unsigned char));
-        memcpy(decrypted_codes+total_size+1, CT_Decrypt(&decr, &rand, *stolen_size), *stolen_size);
-        total_size+=*stolen_size+1;
-        stolen_size=CT_Decrypt(&decr, &rand, 1);
+            free(temp);
+        memcpy(decrypted_codes+total_size, stolen_size, 1); //write last key
+        cd->stolen_keys=decrypted_codes;
     }
-    if(temp)
-        free(temp);
-    memcpy(decrypted_codes+total_size, stolen_size, 1); //write last key
-    cd->stolen_keys=decrypted_codes;
     decr+=cd->decrypt_addvals[1]; //add second seed
 
     //Intercepted libraries

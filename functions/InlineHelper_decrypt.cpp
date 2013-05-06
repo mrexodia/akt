@@ -14,7 +14,7 @@
  *						Module Variables
  *********************************************************************/
 static char* g_szFileName = NULL;
-static ErrMessageCallback g_ErrorMessageCallback = NULL;
+static cbErrorMessage g_ErrorMessageCallback = NULL;
 
 static bool g_fdFileIsDll = false;
 
@@ -226,7 +226,7 @@ DWORD WINAPI IHD_DebugThread(LPVOID lpStartAddress) //TODO: never used
 }
 
 
-void IHD_Debugger(char* szFileName, ErrMessageCallback ErrorMessageCallback)
+void IHD_Debugger(char* szFileName, cbErrorMessage ErrorMessageCallback)
 {
     g_ErrorMessageCallback = ErrorMessageCallback;
     g_szFileName = szFileName;

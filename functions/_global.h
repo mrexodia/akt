@@ -15,8 +15,11 @@
 
 #include "keygen\keygen_main.h"
 
-//#include "Basics.h"
-
+/**********************************************************************
+ *						Standard Callbacks
+ *********************************************************************/
+typedef void (*cbErrorMessage)(char*, char*);
+typedef void (*cbStd)();
 
 extern char sg_szAKTDirectory[256];
 extern char sg_szPluginIniFilePath[256];

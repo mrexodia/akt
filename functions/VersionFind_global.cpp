@@ -46,7 +46,7 @@ bool VF_IsMinimalProtection(char* szFileName, ULONG_PTR va, long parSectionNumbe
 }
 
 
-void VF_FatalError(const char* szMessage, ErrMessageCallback ErrorMessageCallback)
+void VF_FatalError(const char* szMessage, cbErrorMessage ErrorMessageCallback)
 {
     ErrorMessageCallback((char*)szMessage, (char*)"Fatal Error!");
     StopDebug();

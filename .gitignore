@@ -13,3 +13,4 @@ obj/*
 .cproject
 Armadillo_KeyTool.cscope_file_list
 bin/plugins/
+bin/exception_*.log

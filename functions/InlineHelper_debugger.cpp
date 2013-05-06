@@ -5,8 +5,8 @@
  *********************************************************************/
 static char* g_szFileName = NULL;
 static IH_InlineHelperData_t* g_PtrTargetData = NULL;
-static StdCallback g_EndingCallback;
-static ErrMessageCallback g_ErrorMessageCallback = NULL;
+static cbStd g_EndingCallback;
+static cbErrorMessage g_ErrorMessageCallback = NULL;
 
 static bool g_bFileIsDll;
 static LPPROCESS_INFORMATION IH_fdProcessInfo; 		// Process information structure
@@ -452,7 +452,7 @@ DWORD WINAPI IH_DebugThread(LPVOID lpStartAddress) //Thread for debugging
 }
 
 
-bool IH_Debugger(char* szFileName, IH_InlineHelperData_t* ptrTargetData, StdCallback EndingCallback, ErrMessageCallback ErrorMessageCallback)
+bool IH_Debugger(char* szFileName, IH_InlineHelperData_t* ptrTargetData, cbStd EndingCallback, cbErrorMessage ErrorMessageCallback)
 {
     FILE_STATUS_INFO fileStatus = {0};
     bool bFileIsDll;

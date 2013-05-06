@@ -105,8 +105,6 @@ unsigned int GetFlagsFromTimeStamp(unsigned int a)
 
 void CT_DecodeCerts()
 {
-    OutputDebugStringA("CT_DecodeCerts");
-
     CERT_DATA* cd=CT_cert_data;
 
     if(!cd->raw_data or !cd->raw_size)

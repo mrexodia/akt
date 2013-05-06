@@ -57,7 +57,6 @@
 		<Unit filename="functions/EVLog_global.h" />
 		<Unit filename="functions/EVLog_maindlg.cpp" />
 		<Unit filename="functions/EVLog_maindlg.h" />
-		<Unit filename="functions/GlobalCustomTypes.h" />
 		<Unit filename="functions/InlineHelper_codegen.cpp" />
 		<Unit filename="functions/InlineHelper_codegen.h" />
 		<Unit filename="functions/InlineHelper_debugger.cpp" />

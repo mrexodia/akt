@@ -2,7 +2,6 @@
 #define _IH_GLOBAL_H
 
 #include "_global.h"
-#include "GlobalCustomTypes.h"
 
 
 /**********************************************************************

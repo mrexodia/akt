@@ -9,7 +9,7 @@ static LPPROCESS_INFORMATION g_fdProcessInfo;
 
 // Internal Use Variables
 static unsigned int g_extra_options_reg=0;
-static ErrMessageCallback g_ErrorMessageCallback = NULL;
+static cbErrorMessage g_ErrorMessageCallback = NULL;
 
 // Output Pointers
 static unsigned int* gPtrExtraOptions=0;
@@ -180,7 +180,7 @@ void VF_cbEntry()
 }
 
 
-void VF_ExtraOptions(char* szFileName, unsigned int* extra_options, ErrMessageCallback ErrorMessageCallback)
+void VF_ExtraOptions(char* szFileName, unsigned int* extra_options, cbErrorMessage ErrorMessageCallback)
 {
     FILE_STATUS_INFO inFileStatus = {0};
 

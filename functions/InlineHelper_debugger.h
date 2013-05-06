@@ -18,6 +18,6 @@ void IH_cbOpenMutexA();
 void IH_cbEntryPoint();
 void IH_cbDllEntryPoint();
 DWORD WINAPI IH_DebugThread(LPVOID lpStartAddress);
-bool IH_Debugger(char* szFileName, IH_InlineHelperData_t* ptrTargetData, StdCallback EndingCallback, ErrMessageCallback ErrorMessageCallback);
+bool IH_Debugger(char* szFileName, IH_InlineHelperData_t* ptrTargetData, cbStd EndingCallback, cbErrorMessage ErrorMessageCallback);
 
 #endif
