@@ -5,9 +5,9 @@
  *********************************************************************/
 void IH_GetPluginList(void)
 {
-	PLUGFUNC PluginFunction;
-	PLUGINFO PluginInfo;
-	HINSTANCE PLUGIN_INST;
+    PLUGFUNC PluginFunction;
+    PLUGINFO PluginInfo;
+    HINSTANCE PLUGIN_INST;
     char plugin_search[256]="";
     char plugin_name[1024]="";
     char plugin_counter_s[10]="";

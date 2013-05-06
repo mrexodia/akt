@@ -487,7 +487,6 @@ unsigned int FindCallPattern(BYTE* d, unsigned int size)
     return 0;
 }
 
-
 unsigned int FindEB6APattern(BYTE* d, unsigned int size)
 {
     for(unsigned int i=0; i<size; i++) //EB??6A
@@ -495,7 +494,6 @@ unsigned int FindEB6APattern(BYTE* d, unsigned int size)
             return i;
     return 0;
 }
-
 
 unsigned int Find960Pattern(BYTE* d, unsigned int size)
 {

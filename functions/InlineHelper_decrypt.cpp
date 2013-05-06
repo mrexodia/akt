@@ -145,7 +145,7 @@ void IHD_cbGuardPage()
     unsigned int bp_addr=IHD_FindJump(data, size_read, &g_reg);
     if(!bp_addr)
     {
-    	g_ErrorMessageCallback((char*)"Could not find:\n\npushad\njmp [register]\n\nPlease contact Mr. eXoDia.", (char*)"Error!");
+        g_ErrorMessageCallback((char*)"Could not find:\n\npushad\njmp [register]\n\nPlease contact Mr. eXoDia.", (char*)"Error!");
         StopDebug();
     }
     free(data);
@@ -170,7 +170,7 @@ void IHD_cbEntry()
 
 DWORD WINAPI IHD_DebugThread(LPVOID lpStartAddress) //TODO: never used
 {
-	long fdSizeOfImage = NULL;
+    long fdSizeOfImage = NULL;
     FILE_STATUS_INFO inFileStatus = {0};
 
     g_fdFileIsDll = false;
@@ -183,7 +183,7 @@ DWORD WINAPI IHD_DebugThread(LPVOID lpStartAddress) //TODO: never used
     {
         if(inFileStatus.FileIs64Bit)
         {
-        	g_ErrorMessageCallback((char*)"64-bit files are not (yet) supported!", (char*)"Error!");
+            g_ErrorMessageCallback((char*)"64-bit files are not (yet) supported!", (char*)"Error!");
             return 0;
         }
         HANDLE hFile, fileMap;
@@ -214,13 +214,13 @@ DWORD WINAPI IHD_DebugThread(LPVOID lpStartAddress) //TODO: never used
         }
         else
         {
-        	g_ErrorMessageCallback((char*)"Something went wrong during initialization...", (char*)"Error!");
+            g_ErrorMessageCallback((char*)"Something went wrong during initialization...", (char*)"Error!");
             return 0;
         }
     }
     else
     {
-    	g_ErrorMessageCallback((char*)"This is not a valid PE file...", (char*)"Error!");
+        g_ErrorMessageCallback((char*)"This is not a valid PE file...", (char*)"Error!");
     }
     return 1;
 }
