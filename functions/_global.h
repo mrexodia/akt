@@ -15,7 +15,7 @@
 
 #include "keygen\keygen_main.h"
 
-#include "Basics.h"
+//#include "Basics.h"
 
 
 extern char sg_szAKTDirectory[256];
@@ -43,5 +43,8 @@ unsigned int FindBAADF00DPattern(BYTE* d, unsigned int size);
 unsigned int FindSalt1Pattern(BYTE* d, unsigned int size);
 unsigned int FindSalt2Pattern(BYTE* d, unsigned int size);
 bool IsArmadilloProtected(ULONG_PTR va);
+unsigned int Find960Pattern(BYTE* d, unsigned int size);
+unsigned int FindEB6APattern(BYTE* d, unsigned int size);
+unsigned int FindCallPattern(BYTE* d, unsigned int size);
 
 #endif
