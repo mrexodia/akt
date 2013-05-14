@@ -50,7 +50,7 @@ unsigned long MSC_NextRandomRange(long range)
 unsigned char* MSC_GetCryptBytes(unsigned int seed, unsigned int size)
 {
     MSC_a=seed;
-    unsigned char* arry=(unsigned char*)malloc(size+4);
+    unsigned char* arry=(unsigned char*)malloc2(size+4);
     memset(arry, 0, size+4);
     for(unsigned int x=0; x<size+4; x++)
         arry[x]=MSC_NextRandomRange(256);
@@ -74,23 +74,22 @@ char* MSC_DecryptCerts(unsigned int* seed, unsigned char* raw_data, unsigned int
     if(!raw_data or !raw_size or !seed)
         return 0;
     unsigned int real_cert_size=FindBAADF00DPattern(raw_data, raw_size);
-    raw_size=real_cert_size;
     if(!real_cert_size)
-        real_cert_size=0x10000;
+        real_cert_size=raw_size;
     unsigned char* rand=MSC_GetCryptBytes(seed[0], real_cert_size);
-    unsigned char* decr=(unsigned char*)malloc(raw_size);
-    memcpy(decr, raw_data, raw_size);
-    free(raw_data);
+    unsigned char* decr=(unsigned char*)malloc2(real_cert_size);
+    memcpy(decr, raw_data, real_cert_size);
+    free2(raw_data);
     MSC_Decrypt(&decr, &rand, 16);
     decr+=6;
     unsigned short* projectID_size=(unsigned short*)MSC_Decrypt(&decr, &rand, 2);
     if(*projectID_size)
         MSC_Decrypt(&decr, &rand, *projectID_size);
-    projectid=(char*)malloc(*projectID_size+1);
+    projectid=(char*)malloc2(*projectID_size+1);
     memset(projectid, 0, *projectID_size+1);
     memcpy(projectid, decr-*projectID_size, *projectID_size);
-    free(decr);
-    free(rand);
+    free2(decr);
+    free2(rand);
     return projectid;
 }
 
@@ -109,15 +108,15 @@ void MSC_cbGetOtherSeed()
         MSC_other_seed_counter=0;
         char* projid=MSC_DecryptCerts(MSC_seeds, MSC_raw_data, 0x10000);
         SetDlgItemTextA(MSC_shared, IDC_EDT_PROJECTID, projid);
-        free(projid);
-        free(MSC_raw_data);
+        free2(projid);
+        free2(MSC_raw_data);
     }
 }
 
 void MSC_cbOtherSeeds()
 {
     unsigned int eip=GetContextData(UE_EIP);
-    unsigned char* eip_data=(unsigned char*)malloc(0x10000);
+    unsigned char* eip_data=(unsigned char*)malloc2(0x10000);
     ReadProcessMemory(MSC_fdProcessInfo->hProcess, (void*)eip, eip_data, 0x10000, 0);
     unsigned int stdcall=MSC_FindStdcallPattern(eip_data, 0x10000);
     if(!stdcall)
@@ -156,7 +155,7 @@ void MSC_cbOtherSeeds()
     MSC_other_seed_counter=0;
     for(int i=0; i<4; i++)
         SetBPX(and_addrs[i]+eip+stdcall, UE_BREAKPOINT, (void*)MSC_cbGetOtherSeed);
-    free(eip_data);
+    free2(eip_data);
 }
 
 void MSC_cbReturnSeed1()
@@ -168,10 +167,10 @@ void MSC_cbReturnSeed1()
     MSC_return_counter++;
     if(MSC_return_counter!=2)
     {
-        unsigned char* return_bytes=(unsigned char*)malloc(0x1000);
+        unsigned char* return_bytes=(unsigned char*)malloc2(0x1000);
         ReadProcessMemory(MSC_fdProcessInfo->hProcess, (void*)_stack, return_bytes, 0x1000, 0);
         unsigned int retn=MSC_FindReturnPattern(return_bytes, 0x1000);
-        free(return_bytes);
+        free2(return_bytes);
         if(!retn)
         {
             MSC_FatalError("Could not find return");
@@ -203,7 +202,7 @@ void MSC_cbCertificateFunction()
         DeleteHardwareBreakPoint(UE_DR0);
         MSC_cert_func_count=0;
         long retn_eax=GetContextData(UE_EAX);
-        BYTE* certificate_code=(BYTE*)malloc(0x10000);
+        BYTE* certificate_code=(BYTE*)malloc2(0x10000);
         if(ReadProcessMemory(MSC_fdProcessInfo->hProcess, (void*)retn_eax, certificate_code, 0x10000, 0))
         {
             //TODO: Decrypt
@@ -211,7 +210,7 @@ void MSC_cbCertificateFunction()
             unsigned int esp=GetContextData(UE_ESP);
             unsigned int _stack=0;
             ReadProcessMemory(MSC_fdProcessInfo->hProcess, (void*)esp, &_stack, 4, 0);
-            unsigned char* return_bytes=(unsigned char*)malloc(0x1000);
+            unsigned char* return_bytes=(unsigned char*)malloc2(0x1000);
             ReadProcessMemory(MSC_fdProcessInfo->hProcess, (void*)_stack, return_bytes, 0x1000, 0);
             unsigned int push100=MSC_FindPush100Pattern(return_bytes, 0x1000);
             unsigned int retn=MSC_FindReturnPattern(return_bytes, 0x1000);
@@ -220,7 +219,7 @@ void MSC_cbCertificateFunction()
             if(!retn)
             {
                 MSC_FatalError("Could not find return...");
-                free(certificate_code);
+                free2(certificate_code);
                 return;
             }
             if(push100<retn)
@@ -231,7 +230,7 @@ void MSC_cbCertificateFunction()
                 if(!call)
                 {
                     MSC_FatalError("Could not find call...");
-                    free(certificate_code);
+                    free2(certificate_code);
                     return;
                 }
                 else
@@ -253,20 +252,20 @@ void MSC_cbCertificateFunction()
                     WORD project_name_size=0;
                     memcpy(&project_name_size, certificate_code, 2);
                     memcpy(project_name, (certificate_code+2), project_name_size);
-                    free(certificate_code);
+                    free2(certificate_code);
                     SetDlgItemTextA(MSC_shared, IDC_EDT_PROJECTID, project_name);
                     StopDebug();
                 }
                 else
                 {
-                    free(certificate_code);
+                    free2(certificate_code);
                     MSC_FatalError("Failed to locate project ID...");
                 }
             }
         }
         else
         {
-            free(certificate_code);
+            free2(certificate_code);
             MSC_FatalError("Failed to read process memory...");
         }
     }
@@ -283,7 +282,7 @@ void MSC_PRJ_cbVirtualProtect()
     unsigned int security_code_base=0,security_code_size=0;
     ReadProcessMemory(MSC_fdProcessInfo->hProcess, (void*)(esp_addr+4), &security_code_base, 4, 0);
     ReadProcessMemory(MSC_fdProcessInfo->hProcess, (void*)(esp_addr+8), &security_code_size, 4, 0);
-    BYTE* security_code=(BYTE*)malloc(security_code_size);
+    BYTE* security_code=(BYTE*)malloc2(security_code_size);
     ReadProcessMemory(MSC_fdProcessInfo->hProcess, (void*)security_code_base, security_code, security_code_size, 0);
 
     unsigned int breakpoint_addr=MSC_FindCertificateFunctionNew(security_code, security_code_size);
@@ -295,7 +294,7 @@ void MSC_PRJ_cbVirtualProtect()
         return;
     }
     SetHardwareBreakPoint((security_code_base+breakpoint_addr), UE_DR0, UE_HARDWARE_EXECUTE, UE_HARDWARE_SIZE_1, (void*)MSC_cbCertificateFunction);
-    free(security_code);
+    free2(security_code);
 }
 
 void MSC_PRJ_cbOpenMutexA()
@@ -322,6 +321,7 @@ void MSC_PRJ_cbOpenMutexA()
 
 void MSC_PRJ_cbEntry()
 {
+    FixIsDebuggerPresent(MSC_fdProcessInfo->hProcess, true);
     if(!MSC_fdFileIsDll)
         SetAPIBreakPoint((char*)"kernel32.dll", (char*)"OpenMutexA", UE_BREAKPOINT, UE_APISTART, (void*)MSC_PRJ_cbOpenMutexA);
     else

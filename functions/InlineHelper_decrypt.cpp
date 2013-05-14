@@ -154,7 +154,8 @@ void IHD_cbGuardPage()
 
 void IHD_cbEntry()
 {
-    HideDebugger(g_fdProcessInfo->hProcess, UE_HIDE_BASIC);
+    FixIsDebuggerPresent(g_fdProcessInfo->hProcess, true);
+    g_fdImageBase=GetDebuggedFileBaseAddress();
     BYTE entry_byte=0;
     ReadProcessMemory(g_fdProcessInfo->hProcess, (void*)(g_fdEntryPoint+g_fdImageBase), &entry_byte, 1, 0);
     if(entry_byte!=0x60)
@@ -187,11 +188,10 @@ DWORD WINAPI IHD_DebugThread(LPVOID lpStartAddress) //TODO: never used
             return 0;
         }
         HANDLE hFile, fileMap;
-        g_fdImageBase = (long)GetPE32Data(g_szFileName, NULL, UE_IMAGEBASE);
         g_fdEntryPoint = (long)GetPE32Data(g_szFileName, NULL, UE_OEP);
         fdSizeOfImage = (long)GetPE32Data(g_szFileName, NULL, UE_SIZEOFIMAGE);
         StaticFileLoad(g_szFileName, UE_ACCESS_READ, false, &hFile, &bytes_read, &fileMap, &IHD_va);
-        g_fdEntrySectionNumber = GetPE32SectionNumberFromVA(IHD_va, g_fdEntryPoint+g_fdImageBase);
+        g_fdEntrySectionNumber = GetPE32SectionNumberFromVA(IHD_va, g_fdEntryPoint+GetPE32Data(g_szFileName, NULL, UE_IMAGEBASE));
         CloseHandle(hFile);
         CloseHandle(fileMap);
         g_fdEntrySectionSize= (long)GetPE32Data(g_szFileName, g_fdEntrySectionNumber, UE_SECTIONVIRTUALSIZE);

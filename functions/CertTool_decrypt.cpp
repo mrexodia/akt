@@ -17,7 +17,7 @@ unsigned long CT_NextRandomRange(long range)
 unsigned char* CT_GetCryptBytes(unsigned int seed, unsigned int size)
 {
     CT_a=seed;
-    unsigned char* arry=(unsigned char*)malloc(size+4);
+    unsigned char* arry=(unsigned char*)malloc2(size+4);
     memset(arry, 0, size+4);
     for(unsigned int x=0; x<size+4; x++)
         arry[x]=CT_NextRandomRange(256);
@@ -44,13 +44,13 @@ void CT_DecryptCerts()
 
     unsigned int real_cert_size=FindBAADF00DPattern(cd->raw_data, cd->raw_size);
     if(!real_cert_size)
-        real_cert_size=0x10000;
+        real_cert_size=cd->raw_size;
     unsigned char* rand=CT_GetCryptBytes(cd->decrypt_seed[0], real_cert_size);
     unsigned char* rand_start=rand;
-    unsigned char* decr=(unsigned char*)malloc(real_cert_size);
+    unsigned char* decr=(unsigned char*)malloc2(real_cert_size);
     unsigned char* decr_start=decr;
     memcpy(decr, cd->raw_data, real_cert_size);
-    free(cd->raw_data);
+    free2(cd->raw_data);
     memcpy(&cd->first_dw, decr, sizeof(unsigned int));
     CT_Decrypt(&decr, &rand, 4*sizeof(unsigned int));
     decr+=2+4; //Skipped bytes
@@ -65,7 +65,7 @@ void CT_DecryptCerts()
     unsigned short* projectID_size=(unsigned short*)CT_Decrypt(&decr, &rand, sizeof(unsigned short));
     if(*projectID_size)
     {
-        cd->projectid=(char*)malloc(*projectID_size+1);
+        cd->projectid=(char*)malloc2(*projectID_size+1);
         memset(cd->projectid, 0, *projectID_size+1);
         memcpy(cd->projectid, CT_Decrypt(&decr, &rand, *projectID_size), *projectID_size);
     }
@@ -73,7 +73,7 @@ void CT_DecryptCerts()
     unsigned short* customerSER_size=(unsigned short*)CT_Decrypt(&decr, &rand, sizeof(unsigned short));
     if(*customerSER_size)
     {
-        cd->customer_service=(char*)malloc(*customerSER_size+1);
+        cd->customer_service=(char*)malloc2(*customerSER_size+1);
         memset(cd->customer_service, 0, *customerSER_size+1);
         memcpy(cd->customer_service, CT_Decrypt(&decr, &rand, *customerSER_size), *customerSER_size);
     }
@@ -81,7 +81,7 @@ void CT_DecryptCerts()
     unsigned short* website_size=(unsigned short*)CT_Decrypt(&decr, &rand, sizeof(unsigned short));
     if(*website_size)
     {
-        cd->website=(char*)malloc(*website_size+1);
+        cd->website=(char*)malloc2(*website_size+1);
         memset(cd->website, 0, *website_size+1);
         memcpy(cd->website, CT_Decrypt(&decr, &rand, *website_size), *website_size);
     }
@@ -106,12 +106,12 @@ void CT_DecryptCerts()
             if(decrypted_codes)
             {
                 if(temp)
-                    free(temp);
-                temp=(unsigned char*)malloc(total_size);
+                    free2(temp);
+                temp=(unsigned char*)malloc2(total_size);
                 memcpy(temp, decrypted_codes, total_size);
-                free(decrypted_codes);
+                free2(decrypted_codes);
             }
-            decrypted_codes=(unsigned char*)malloc(total_size+*stolen_size+2);
+            decrypted_codes=(unsigned char*)malloc2(total_size+*stolen_size+2);
             if(temp)
                 memcpy(decrypted_codes, temp, total_size);
             memcpy(decrypted_codes+total_size, stolen_size, sizeof(unsigned char));
@@ -120,7 +120,7 @@ void CT_DecryptCerts()
             stolen_size=CT_Decrypt(&decr, &rand, 1);
         }
         if(temp)
-            free(temp);
+            free2(temp);
         memcpy(decrypted_codes+total_size, stolen_size, 1); //write last key
         cd->stolen_keys=decrypted_codes;
     }
@@ -131,7 +131,7 @@ void CT_DecryptCerts()
     if(*libs_size)
     {
         cd->intercepted_libs_size=*libs_size;
-        cd->intercepted_libs=(unsigned char*)malloc(*libs_size);
+        cd->intercepted_libs=(unsigned char*)malloc2(*libs_size);
         memset(cd->intercepted_libs, 0, *libs_size);
         memcpy(cd->intercepted_libs, CT_Decrypt(&decr, &rand, *libs_size), *libs_size);
     }
@@ -168,5 +168,5 @@ void CT_DecryptCerts()
         cd->raw_data=0;
         cd->raw_size=0;
     }
-    free(rand);
+    free2(rand);
 }

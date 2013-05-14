@@ -502,3 +502,35 @@ unsigned int Find960Pattern(BYTE* d, unsigned int size)
             return i;
     return 0;
 }
+
+bool FixIsDebuggerPresent(HANDLE hProcess, bool hide)
+{
+    if(!hProcess)
+        return false;
+    unsigned int peb_addr=(unsigned int)GetPEBLocation(hProcess);
+    if(!peb_addr)
+        return false;
+    NTPEB myPeb= {0};
+    if(!ReadProcessMemory(hProcess, (void*)peb_addr, &myPeb, sizeof(NTPEB), 0))
+        return false;
+    if(hide)
+    {
+        myPeb.BeingDebugged=false;
+        myPeb.NtGlobalFlag=0;
+    }
+    else
+        myPeb.BeingDebugged=true;
+    if(!WriteProcessMemory(hProcess, (void*)peb_addr, &myPeb, sizeof(NTPEB), 0))
+        return false;
+    return true;
+}
+
+void* malloc2(size_t size)
+{
+    return VirtualAlloc(NULL, size, MEM_COMMIT, PAGE_READWRITE);
+}
+
+void free2(void *address)
+{
+    VirtualFree(address, NULL, MEM_RELEASE);
+}

@@ -21,7 +21,7 @@ static cbErrorMessage g_ErrorMessageCallback = NULL;
 /**********************************************************************
  *						Functions
  *********************************************************************/
-void VF_cbVerGetVersion()
+static void cbGetVersion()
 {
     DeleteBPX(GetContextData(UE_EIP));
     ReadProcessMemory(g_fdProcessInfo->hProcess, (void*)g_version_decrypt_buffer, g_szVersion, 10, 0);
@@ -29,34 +29,34 @@ void VF_cbVerGetVersion()
 }
 
 
-void VF_cbVerOnDecryptVersion()
+static void cbOnDecryptVersion()
 {
     DeleteBPX(GetContextData(UE_EIP));
     unsigned int esp=GetContextData(UE_ESP);
     ReadProcessMemory(g_fdProcessInfo->hProcess, (void*)(esp+4), &g_version_decrypt_buffer, 4, 0);
-    SetBPX((g_version_decrypt_call+5), UE_BREAKPOINT, (void*)VF_cbVerGetVersion);
+    SetBPX((g_version_decrypt_call+5), UE_BREAKPOINT, (void*)cbGetVersion);
 }
 
 
-void VF_cbVerReturnDecryptCall()
+static void cbReturnDecryptCall()
 {
     DeleteBPX(GetContextData(UE_EIP));
-    SetBPX(g_version_decrypt_call, UE_BREAKPOINT, (void*)VF_cbVerOnDecryptVersion);
+    SetBPX(g_version_decrypt_call, UE_BREAKPOINT, (void*)cbOnDecryptVersion);
     SetContextData(UE_EIP, g_version_decrypt_neweip);
 }
 
 
-void VF_cbVerDecryptCall()
+static void cbDecryptCall()
 {
     DeleteBPX(GetContextData(UE_EIP));
     unsigned int esp=GetContextData(UE_ESP);
     unsigned int retn=0;
     ReadProcessMemory(g_fdProcessInfo->hProcess, (void*)esp, &retn, 4, 0);
-    SetBPX(retn, UE_BREAKPOINT, (void*)VF_cbVerReturnDecryptCall);
+    SetBPX(retn, UE_BREAKPOINT, (void*)cbReturnDecryptCall);
 }
 
 
-void VF_cbVerVirtualProtect()
+static void cbVirtualProtect()
 {
     DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_APISTART);
     MEMORY_BASIC_INFORMATION mbi= {0};
@@ -101,12 +101,12 @@ void VF_cbVerVirtualProtect()
     g_version_decrypt_call=call_decrypt;
     g_version_decrypt_call_dest=call_dest;
     g_version_decrypt_neweip=push100;
-    SetBPX(g_version_decrypt_call_dest, UE_BREAKPOINT, (void*)VF_cbVerDecryptCall);
+    SetBPX(g_version_decrypt_call_dest, UE_BREAKPOINT, (void*)cbDecryptCall);
     free(sec_data);
 }
 
 
-void VF_cbVerOpenMutexA()
+static void cbOpenMutexA()
 {
     char mutex_name[20]="";
     long mutex_addr=0;
@@ -119,7 +119,7 @@ void VF_cbVerOpenMutexA()
     ReadProcessMemory(g_fdProcessInfo->hProcess, (const void*)mutex_addr, &mutex_name, 20, 0);
     CreateMutexA(0, FALSE, mutex_name);
     if(GetLastError()==ERROR_SUCCESS)
-        SetAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_BREAKPOINT, UE_APISTART, (void*)VF_cbVerVirtualProtect);
+        SetAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_BREAKPOINT, UE_APISTART, (void*)cbVirtualProtect);
     else
     {
         char log_message[256]="";
@@ -129,12 +129,13 @@ void VF_cbVerOpenMutexA()
 }
 
 
-void VF_cbVerEntry()
+static void cbEntry()
 {
+    FixIsDebuggerPresent(g_fdProcessInfo->hProcess, true);
     if(!g_fdFileIsDll)
-        SetAPIBreakPoint((char*)"kernel32.dll", (char*)"OpenMutexA", UE_BREAKPOINT, UE_APISTART, (void*)VF_cbVerOpenMutexA);
+        SetAPIBreakPoint((char*)"kernel32.dll", (char*)"OpenMutexA", UE_BREAKPOINT, UE_APISTART, (void*)cbOpenMutexA);
     else
-        SetAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_BREAKPOINT, UE_APISTART, (void*)VF_cbVerVirtualProtect);
+        SetAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_BREAKPOINT, UE_APISTART, (void*)cbVirtualProtect);
 }
 
 
@@ -166,24 +167,14 @@ void VF_Version(char* szFileName, char* szVersion, cbErrorMessage ErrorMessageCa
         StaticFileClose(hFile);
         g_fdFileIsDll = inFileStatus.FileIsDLL;
         if(!g_fdFileIsDll)
-        {
-            g_fdProcessInfo = (LPPROCESS_INFORMATION)InitDebugEx(szFileName, NULL, NULL, (void*)VF_cbVerEntry);
-        }
+            g_fdProcessInfo=(LPPROCESS_INFORMATION)InitDebugEx(szFileName, NULL, NULL, (void*)cbEntry);
         else
-        {
-            g_fdProcessInfo = (LPPROCESS_INFORMATION)InitDLLDebug(szFileName, false, NULL, NULL, (void*)VF_cbVerEntry);
-        }
+            g_fdProcessInfo=(LPPROCESS_INFORMATION)InitDLLDebug(szFileName, false, NULL, NULL, (void*)cbEntry);
         if(g_fdProcessInfo)
-        {
             DebugLoop();
-        }
         else
-        {
             ErrorMessageCallback((char*)"Something went wrong during initialization...", (char*)"Error!");
-        }
     }
     else
-    {
         ErrorMessageCallback((char*)"This is not a valid PE file...", (char*)"Error!");
-    }
 }

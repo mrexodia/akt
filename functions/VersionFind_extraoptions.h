@@ -7,11 +7,6 @@
 /**********************************************************************
  *						Prototypes
  *********************************************************************/
-void VF_cbExtraDwordRetrieve();
-void VF_cbExtraDw();
-void VF_cbExtraVirtualProtect();
-void VF_cbExtraOpenMutexA();
-void VF_cbEntry();
 void VF_ExtraOptions(char* szFileName, unsigned int* extra_options, cbErrorMessage errorCallback);
 
 #endif

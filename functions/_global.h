@@ -49,5 +49,70 @@ bool IsArmadilloProtected(ULONG_PTR va);
 unsigned int Find960Pattern(BYTE* d, unsigned int size);
 unsigned int FindEB6APattern(BYTE* d, unsigned int size);
 unsigned int FindCallPattern(BYTE* d, unsigned int size);
+bool FixIsDebuggerPresent(HANDLE hProcess, bool hide);
+void* malloc2(size_t size);
+void free2(void *address);
+
+/**
+Structures
+*/
+typedef struct _NTPEB
+{
+    BOOLEAN InheritedAddressSpace;
+    BOOLEAN ReadImageFileExecOptions;
+    BOOLEAN BeingDebugged;
+    BOOLEAN Spare;
+    HANDLE Mutant;
+    PVOID ImageBaseAddress;
+    VOID* LoaderData;
+    VOID* ProcessParameters;
+    PVOID SubSystemData;
+    PVOID ProcessHeap;
+    PVOID FastPebLock;
+    void* FastPebLockRoutine;
+    void* FastPebUnlockRoutine;
+    ULONG EnvironmentUpdateCount;
+    PVOID* KernelCallbackTable;
+    PVOID EventLogSection;
+    PVOID EventLog;
+    void* FreeList;
+    ULONG TlsExpansionCounter;
+    PVOID TlsBitmap;
+    ULONG TlsBitmapBits[0x2];
+    PVOID ReadOnlySharedMemoryBase;
+    PVOID ReadOnlySharedMemoryHeap;
+    PVOID* ReadOnlyStaticServerData;
+    PVOID AnsiCodePageData;
+    PVOID OemCodePageData;
+    PVOID UnicodeCaseTableData;
+    ULONG NumberOfProcessors;
+    ULONG NtGlobalFlag;
+    BYTE  Spare2[0x4];
+    LARGE_INTEGER CriticalSectionTimeout;
+    ULONG HeapSegmentReserve;
+    ULONG HeapSegmentCommit;
+    ULONG HeapDeCommitTotalFreeThreshold;
+    ULONG HeapDeCommitFreeBlockThreshold;
+    ULONG NumberOfHeaps;
+    ULONG MaximumNumberOfHeaps;
+    PVOID* *ProcessHeaps;
+    PVOID diSharedHandleTable;
+    PVOID ProcessStarterHelper;
+    PVOID GdiDCAttributeList;
+    PVOID  LoaderLock;
+    ULONG OSMajorVersion;
+    ULONG OSMinorVersion;
+    ULONG OSBuildNumber;
+    ULONG OSPlatformId;
+    ULONG ImageSubSystem;
+    ULONG ImageSubSystemMajorVersion;
+    ULONG ImageSubSystemMinorVersion;
+    ULONG  GdiHandleBuffer[0x22];
+    ULONG PostProcessInitRoutine;
+    ULONG TlsExpansionBitmap;
+    BYTE TlsExpansionBitmapBits[0x80];
+    ULONG SessionId;
+} NTPEB, *PNTPEB;
+
 
 #endif

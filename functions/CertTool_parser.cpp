@@ -24,7 +24,7 @@ void CT_AddToLog(HWND list, const char* text)
     if(CT_logtofile)
     {
         int len=strlen(text)+3;
-        char* new_text=(char*)malloc(len);
+        char* new_text=(char*)malloc2(len);
         memset(new_text, 0, len);
         HANDLE hFile;
         if(!CT_created_log)
@@ -36,7 +36,7 @@ void CT_AddToLog(HWND list, const char* text)
             {
                 if(MessageBoxA(CT_shared, "Could not create log file, continue?", CT_szLogFile, MB_ICONERROR|MB_YESNO)==IDNO)
                 {
-                    free(new_text);
+                    free2(new_text);
                     TerminateThread(GetCurrentThread(), 0);
                     return;
                 }
@@ -57,7 +57,7 @@ void CT_AddToLog(HWND list, const char* text)
             WriteFile(hFile, new_text, strlen(new_text), 0, &ovrl);
             CloseHandle(hFile);
         }
-        free(new_text);
+        free2(new_text);
     }
 }
 
@@ -113,10 +113,10 @@ void CT_DecodeCerts()
     unsigned int flags=GetFlagsFromTimeStamp(cd->timestamp);
     if(flags==0xFFFFFFFF)
         return;
-    unsigned char* dec=(unsigned char*)malloc(cd->raw_size);
+    unsigned char* dec=(unsigned char*)malloc2(cd->raw_size);
     unsigned char* dec_start=dec;
     memcpy(dec, cd->raw_data, cd->raw_size);
-    free(cd->raw_data);
+    free2(cd->raw_data);
 
     //First DWORD
     memcpy(&cd->first_dw, dec, sizeof(unsigned int));
@@ -124,7 +124,7 @@ void CT_DecodeCerts()
     unsigned short* projectID_size=(unsigned short*)nextptr(&dec, sizeof(unsigned short));
     if(*projectID_size)
     {
-        cd->projectid=(char*)malloc(*projectID_size+1);
+        cd->projectid=(char*)malloc2(*projectID_size+1);
         memset(cd->projectid, 0, *projectID_size+1);
         memcpy(cd->projectid, nextptr(&dec, *projectID_size), *projectID_size);
     }
@@ -134,7 +134,7 @@ void CT_DecodeCerts()
         unsigned short* customerSER_size=(unsigned short*)nextptr(&dec, sizeof(unsigned short));
         if(*customerSER_size)
         {
-            cd->customer_service=(char*)malloc(*customerSER_size+1);
+            cd->customer_service=(char*)malloc2(*customerSER_size+1);
             memset(cd->customer_service, 0, *customerSER_size+1);
             memcpy(cd->customer_service, nextptr(&dec, *customerSER_size), *customerSER_size);
         }
@@ -145,7 +145,7 @@ void CT_DecodeCerts()
         unsigned short* website_size=(unsigned short*)nextptr(&dec, sizeof(unsigned short));
         if(*website_size)
         {
-            cd->website=(char*)malloc(*website_size+1);
+            cd->website=(char*)malloc2(*website_size+1);
             memset(cd->website, 0, *website_size+1);
             memcpy(cd->website, nextptr(&dec, *website_size), *website_size);
         }
@@ -156,7 +156,7 @@ void CT_DecodeCerts()
         unsigned short* unknown_size=(unsigned short*)nextptr(&dec, sizeof(unsigned short));
         if(*unknown_size)
         {
-            cd->unknown_string=(char*)malloc(*unknown_size+1);
+            cd->unknown_string=(char*)malloc2(*unknown_size+1);
             memset(cd->unknown_string, 0, *unknown_size+1);
             memcpy(cd->unknown_string, nextptr(&dec, *unknown_size), *unknown_size);
         }
@@ -164,38 +164,42 @@ void CT_DecodeCerts()
     //Stolen Codes KeyBytes
     cd->stolen_keys_diff=dec-dec_start;
     unsigned char* stolen_size=nextptr(&dec, sizeof(unsigned char));
-    unsigned int total_size=0;
-    unsigned char* codes=0;
-    unsigned char* temp=0;
-    while(*stolen_size)
+    if(stolen_size)
     {
-        if(codes)
+        unsigned int total_size=0;
+        unsigned char* codes=0;
+        unsigned char* temp=0;
+        while(*stolen_size)
         {
+            if(codes)
+            {
+                if(temp)
+                    free2(temp);
+                temp=(unsigned char*)malloc2(total_size);
+                memcpy(temp, codes, total_size);
+                free2(codes);
+            }
+            codes=(unsigned char*)malloc2(total_size+*stolen_size+2);
             if(temp)
-                free(temp);
-            temp=(unsigned char*)malloc(total_size);
-            memcpy(temp, codes, total_size);
-            free(codes);
+                memcpy(codes, temp, total_size);
+            memcpy(codes+total_size, stolen_size, sizeof(unsigned char));
+            memcpy(codes+total_size+1, nextptr(&dec, *stolen_size), *stolen_size);
+            total_size+=*stolen_size+1;
+            stolen_size=nextptr(&dec, 1);
         }
-        codes=(unsigned char*)malloc(total_size+*stolen_size+2);
         if(temp)
-            memcpy(codes, temp, total_size);
-        memcpy(codes+total_size, stolen_size, sizeof(unsigned char));
-        memcpy(codes+total_size+1, nextptr(&dec, *stolen_size), *stolen_size);
-        total_size+=*stolen_size+1;
-        stolen_size=nextptr(&dec, 1);
+            free2(temp);
+        if(codes)
+            memcpy(codes+total_size, stolen_size, 1); //write last key
+        cd->stolen_keys_size=total_size;
+        cd->stolen_keys=codes;
     }
-    if(temp)
-        free(temp);
-    memcpy(codes+total_size, stolen_size, 1); //write last key
-    cd->stolen_keys_size=total_size;
-    cd->stolen_keys=codes;
     //Intercepted libraries
     unsigned short* libs_size=(unsigned short*)nextptr(&dec, 2);
     if(*libs_size)
     {
         cd->intercepted_libs_size=*libs_size;
-        cd->intercepted_libs=(unsigned char*)malloc(*libs_size);
+        cd->intercepted_libs=(unsigned char*)malloc2(*libs_size);
         memset(cd->intercepted_libs, 0, *libs_size);
         memcpy(cd->intercepted_libs, nextptr(&dec, *libs_size), *libs_size);
     }
@@ -432,7 +436,7 @@ void CT_ParseCerts()
                 //Fill the SymVerify struct
                 if(CT_brute_symverify)
                 {
-                    CT_current_brute=(BRUTE_DATA*)malloc(sizeof(BRUTE_DATA));
+                    CT_current_brute=(BRUTE_DATA*)malloc2(sizeof(BRUTE_DATA));
                     memset(CT_current_brute, 0, sizeof(BRUTE_DATA));
                     CT_current_brute->encrypted_data=cd->encrypted_data;
                     CT_current_brute->encrypted_size=cd->encrypted_size;
@@ -463,7 +467,7 @@ void CT_ParseCerts()
                 if(CT_brute_symverify)
                 {
                     if(CT_current_brute)
-                        free(CT_current_brute);
+                        free2(CT_current_brute);
                     CT_current_brute=0;
                 }
 

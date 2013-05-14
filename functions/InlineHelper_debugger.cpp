@@ -351,9 +351,10 @@ void IH_cbOpenMutexA() //Callback for OpenMutexA
 
 void IH_cbEntryPoint() //Entry callback
 {
-    g_PtrTargetData->OEP = (unsigned int)(g_fdImageBase+g_fdEntryPoint);
+    g_fdImageBase = GetDebuggedFileBaseAddress();
+    g_PtrTargetData->ImageBase = g_fdImageBase;
 
-    HideDebugger(IH_fdProcessInfo->hProcess, UE_HIDE_BASIC);
+    g_PtrTargetData->OEP = (unsigned int)(g_fdImageBase+g_fdEntryPoint);
 
     // Retrieve useful data from IAT
     IH_GetImportTableAddresses();
@@ -367,9 +368,9 @@ void IH_cbEntryPoint() //Entry callback
 
 void IH_cbDllEntryPoint() //DLL Entry callback
 {
+    g_fdImageBase = GetDebuggedDLLBaseAddress();
+    g_PtrTargetData->ImageBase = g_fdImageBase;
     g_PtrTargetData->OEP = (unsigned int)(g_fdImageBase+g_fdEntryPoint);
-
-    HideDebugger(IH_fdProcessInfo->hProcess, UE_HIDE_BASIC);
 
     // Retrieve useful data from IAT
     IH_GetImportTableAddresses();
@@ -407,14 +408,14 @@ DWORD WINAPI IH_DebugThread(LPVOID lpStartAddress) //Thread for debugging
         HANDLE hFile, fileMap;
         ULONG_PTR va;
 
-        g_fdImageBase = (long)GetPE32Data(g_szFileName, NULL, UE_IMAGEBASE);
-        g_PtrTargetData->ImageBase = g_fdImageBase;
+        //g_fdImageBase = (long)GetPE32Data(g_szFileName, NULL, UE_IMAGEBASE);
+        //g_PtrTargetData->ImageBase = g_fdImageBase;
 
         g_fdEntryPoint = (long)GetPE32Data(g_szFileName, NULL, UE_OEP);
 
         StaticFileLoad(g_szFileName, UE_ACCESS_READ, false, &hFile, &IH_bytes_read, &fileMap, &va);
 
-        g_fdEntrySectionNumber = GetPE32SectionNumberFromVA(va, g_fdEntryPoint+g_fdImageBase);
+        g_fdEntrySectionNumber = GetPE32SectionNumberFromVA(va, g_fdEntryPoint+GetPE32Data(g_szFileName, NULL, UE_IMAGEBASE));
         g_PtrTargetData->EntrySectionNumber = g_fdEntrySectionNumber;
 
         StaticFileClose(hFile);

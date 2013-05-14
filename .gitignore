@@ -1,5 +1,3 @@
-Armadillo_KeyTool.depend
-Armadillo_KeyTool.layout
 bin/Armadillo_KeyTool.exe
 .f
 CppCheckResults.xml
@@ -14,3 +12,5 @@ obj/*
 Armadillo_KeyTool.cscope_file_list
 bin/plugins/
 bin/exception_*.log
+*.layout
+*.depend
