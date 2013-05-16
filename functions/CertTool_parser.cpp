@@ -163,36 +163,19 @@ void CT_DecodeCerts()
     }
     //Stolen Codes KeyBytes
     cd->stolen_keys_diff=dec-dec_start;
+    unsigned char* stolen_keys=dec;
     unsigned char* stolen_size=nextptr(&dec, sizeof(unsigned char));
-    if(stolen_size)
+    while(*stolen_size)
     {
-        unsigned int total_size=0;
-        unsigned char* codes=0;
-        unsigned char* temp=0;
-        while(*stolen_size)
-        {
-            if(codes)
-            {
-                if(temp)
-                    free2(temp);
-                temp=(unsigned char*)malloc2(total_size);
-                memcpy(temp, codes, total_size);
-                free2(codes);
-            }
-            codes=(unsigned char*)malloc2(total_size+*stolen_size+2);
-            if(temp)
-                memcpy(codes, temp, total_size);
-            memcpy(codes+total_size, stolen_size, sizeof(unsigned char));
-            memcpy(codes+total_size+1, nextptr(&dec, *stolen_size), *stolen_size);
-            total_size+=*stolen_size+1;
-            stolen_size=nextptr(&dec, 1);
-        }
-        if(temp)
-            free2(temp);
-        if(codes)
-            memcpy(codes+total_size, stolen_size, 1); //write last key
-        cd->stolen_keys_size=total_size;
-        cd->stolen_keys=codes;
+        nextptr(&dec, *stolen_size);
+        stolen_size=nextptr(&dec, sizeof(unsigned char));
+    }
+    unsigned int total_stolen_size=0;
+    total_stolen_size=dec-stolen_keys;
+    if(total_stolen_size)
+    {
+        cd->stolen_keys_size=total_stolen_size;
+        cd->stolen_keys=stolen_keys;
     }
     //Intercepted libraries
     unsigned short* libs_size=(unsigned short*)nextptr(&dec, 2);
