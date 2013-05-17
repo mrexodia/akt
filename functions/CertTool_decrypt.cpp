@@ -94,35 +94,19 @@ void CT_DecryptCerts()
     for(unsigned int i=0; i<cd->stolen_keys_diff; i++)
         CT_NextRandomRange(256);
     cd->decrypt_seed[3]=CT_a;
-
+    unsigned char* stolen_keys=decr;
     unsigned char* stolen_size=CT_Decrypt(&decr, &rand, sizeof(unsigned char));
-    if(*stolen_size)
+    while(*stolen_size)
     {
-        unsigned int total_size=0;
-        unsigned char* decrypted_codes=0;
-        unsigned char* temp=0;
-        while(*stolen_size)
-        {
-            if(decrypted_codes)
-            {
-                if(temp)
-                    free2(temp);
-                temp=(unsigned char*)malloc2(total_size);
-                memcpy(temp, decrypted_codes, total_size);
-                free2(decrypted_codes);
-            }
-            decrypted_codes=(unsigned char*)malloc2(total_size+*stolen_size+2);
-            if(temp)
-                memcpy(decrypted_codes, temp, total_size);
-            memcpy(decrypted_codes+total_size, stolen_size, sizeof(unsigned char));
-            memcpy(decrypted_codes+total_size+1, CT_Decrypt(&decr, &rand, *stolen_size), *stolen_size);
-            total_size+=*stolen_size+1;
-            stolen_size=CT_Decrypt(&decr, &rand, 1);
-        }
-        if(temp)
-            free2(temp);
-        memcpy(decrypted_codes+total_size, stolen_size, 1); //write last key
-        cd->stolen_keys=decrypted_codes;
+        CT_Decrypt(&decr, &rand, *stolen_size);
+        stolen_size=CT_Decrypt(&decr, &rand, sizeof(unsigned char));
+    }
+    unsigned int total_stolen_size=0;
+    total_stolen_size=decr-stolen_keys;
+    if(total_stolen_size)
+    {
+        cd->stolen_keys_size=total_stolen_size;
+        cd->stolen_keys=stolen_keys;
     }
     decr+=cd->decrypt_addvals[1]; //add second seed
 
