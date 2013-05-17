@@ -14,6 +14,6 @@ void IHD_cbJumpOEP();
 void IHD_cbGuardPage();
 void IHD_cbEntry();
 DWORD WINAPI IHD_DebugThread(LPVOID lpStartAddress);
-void IHD_Debugger(char* szFileName, ErrMessageCallback ErrorMessageCallback);
+void IHD_Debugger(char* szFileName, cbErrorMessage ErrorMessageCallback);
 
 #endif

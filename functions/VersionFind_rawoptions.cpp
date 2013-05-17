@@ -11,7 +11,7 @@ static LPPROCESS_INFORMATION g_fdProcessInfo;
 static long g_fdEntrySectionOffset=0;
 static long g_fdEntrySectionSize=0;
 static unsigned int g_raw_options_reg=0;
-static ErrMessageCallback g_ErrorMessageCallback = NULL;
+static cbErrorMessage g_ErrorMessageCallback = NULL;
 
 // Output Pointers
 static unsigned int* gPtrRawOptions=0;
@@ -20,15 +20,14 @@ static unsigned int* gPtrRawOptions=0;
 /**********************************************************************
  *						Functions
  *********************************************************************/
-void VF_cbRetrieveRawOptions()
+static void cbRetrieveRawOptions()
 {
     DeleteBPX(GetContextData(UE_EIP));
     *gPtrRawOptions=GetContextData(g_raw_options_reg);
     StopDebug();
 }
 
-
-void VF_cbMutexReturn()
+void cbMutexReturn()
 {
     unsigned int eip=GetContextData(UE_EIP);
     DeleteBPX(eip);
@@ -65,22 +64,22 @@ void VF_cbMutexReturn()
     }
     if(g_raw_options_reg==0xFFFFFFFF)
         VF_FatalError("Could not determine raw options register", g_ErrorMessageCallback);
-    SetBPX((and20+eip), UE_BREAKPOINT, (void*)VF_cbRetrieveRawOptions);
+    SetBPX((and20+eip), UE_BREAKPOINT, (void*)cbRetrieveRawOptions);
 }
 
 
-void VF_cbOpOpenMutexA()
+static void cbOpenMutexA()
 {
     long esp_addr=0;
     unsigned int return_addr=0;
     DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"OpenMutexA", UE_APISTART);
     esp_addr=(long)GetContextData(UE_ESP);
     ReadProcessMemory(g_fdProcessInfo->hProcess, (const void*)esp_addr, &return_addr, 4, 0);
-    SetBPX(return_addr, UE_BREAKPOINT, (void*)VF_cbMutexReturn);
+    SetBPX(return_addr, UE_BREAKPOINT, (void*)cbMutexReturn);
 }
 
 
-void VF_cbOpGetCommandLine()
+static void cbGetCommandLine()
 {
     DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"GetCommandLineA", UE_APISTART);
     DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"GetCommandLineW", UE_APISTART);
@@ -117,33 +116,34 @@ void VF_cbOpGetCommandLine()
     }
     if(g_raw_options_reg==0xFFFFFFFF)
         VF_FatalError("Could not determine raw options register", g_ErrorMessageCallback);
-    SetBPX((and40000+g_fdEntrySectionOffset), UE_BREAKPOINT, (void*)VF_cbRetrieveRawOptions);
+    SetBPX((and40000+g_fdEntrySectionOffset), UE_BREAKPOINT, (void*)cbRetrieveRawOptions);
 }
 
 
-void VF_cbOpEntry()
+static void cbEntry()
 {
+    FixIsDebuggerPresent(g_fdProcessInfo->hProcess, true);
     if(!g_fdFileIsDll)
-        SetAPIBreakPoint((char*)"kernel32.dll", (char*)"OpenMutexA", UE_BREAKPOINT, UE_APISTART, (void*)VF_cbOpOpenMutexA);
+        SetAPIBreakPoint((char*)"kernel32.dll", (char*)"OpenMutexA", UE_BREAKPOINT, UE_APISTART, (void*)cbOpenMutexA);
     else
     {
-        SetAPIBreakPoint((char*)"kernel32.dll", (char*)"GetCommandLineA", UE_BREAKPOINT, UE_APISTART, (void*)VF_cbOpGetCommandLine);
-        SetAPIBreakPoint((char*)"kernel32.dll", (char*)"GetCommandLineW", UE_BREAKPOINT, UE_APISTART, (void*)VF_cbOpGetCommandLine);
+        g_fdEntrySectionOffset+=GetDebuggedDLLBaseAddress();
+        SetAPIBreakPoint((char*)"kernel32.dll", (char*)"GetCommandLineA", UE_BREAKPOINT, UE_APISTART, (void*)cbGetCommandLine);
+        SetAPIBreakPoint((char*)"kernel32.dll", (char*)"GetCommandLineW", UE_BREAKPOINT, UE_APISTART, (void*)cbGetCommandLine);
     }
 }
 
 
-bool VF_RawOptions(char* szFileName, unsigned int* raw_options, bool* bIsMinimal, ErrMessageCallback ErrorMessageCallback)
+bool VF_RawOptions(char* szFileName, unsigned int* raw_options, bool* bIsMinimal, cbErrorMessage ErrorMessageCallback)
 {
-    long fdImageBase=NULL;
     long fdEntryPoint=NULL;
     long fdEntrySectionNumber=0;
-    FILE_STATUS_INFO inFileStatus = {0};
+    FILE_STATUS_INFO inFileStatus= {0};
 
-    gPtrRawOptions = raw_options;
-    g_fdFileIsDll = false;
-    g_fdProcessInfo = NULL;
-    g_ErrorMessageCallback = ErrorMessageCallback;
+    gPtrRawOptions=raw_options;
+    g_fdFileIsDll=false;
+    g_fdProcessInfo=NULL;
+    g_ErrorMessageCallback=ErrorMessageCallback;
 
     if(IsPE32FileValidEx(szFileName, UE_DEPTH_SURFACE, &inFileStatus))
     {
@@ -155,43 +155,33 @@ bool VF_RawOptions(char* szFileName, unsigned int* raw_options, bool* bIsMinimal
         HANDLE hFile, fileMap;
         ULONG_PTR va;
         DWORD bytes_read;
-        fdImageBase = (long)GetPE32Data(szFileName, NULL, UE_IMAGEBASE);
-        fdEntryPoint = (long)GetPE32Data(szFileName, NULL, UE_OEP);
+        //fdImageBase=(long);
+        fdEntryPoint=(long)GetPE32Data(szFileName, NULL, UE_OEP);
         StaticFileLoad(szFileName, UE_ACCESS_READ, false, &hFile, &bytes_read, &fileMap, &va);
         if(!IsArmadilloProtected(va))
-        {
             ErrorMessageCallback((char*)"Not armadillo protected...", (char*)"Error!");
-        }
         else
         {
-            fdEntrySectionNumber = GetPE32SectionNumberFromVA(va, fdEntryPoint+fdImageBase);
-            g_fdEntrySectionOffset = (long)GetPE32Data(szFileName, fdEntrySectionNumber, UE_SECTIONVIRTUALOFFSET)+fdImageBase;
-            g_fdEntrySectionSize = (long)GetPE32Data(szFileName, fdEntrySectionNumber, UE_SECTIONVIRTUALSIZE);
+            fdEntrySectionNumber=GetPE32SectionNumberFromVA(va, fdEntryPoint+GetPE32Data(szFileName, NULL, UE_IMAGEBASE));
+            g_fdEntrySectionOffset=(long)GetPE32Data(szFileName, fdEntrySectionNumber, UE_SECTIONVIRTUALOFFSET);
+            g_fdEntrySectionSize=(long)GetPE32Data(szFileName, fdEntrySectionNumber, UE_SECTIONVIRTUALSIZE);
             StaticFileClose(hFile);
             *bIsMinimal=VF_IsMinimalProtection(szFileName, va, fdEntrySectionNumber);
             g_fdFileIsDll = inFileStatus.FileIsDLL;
             if(!g_fdFileIsDll)
-            {
-                g_fdProcessInfo = (LPPROCESS_INFORMATION)InitDebugEx(szFileName, NULL, NULL, (void*)VF_cbOpEntry);
-            }
+                g_fdProcessInfo=(LPPROCESS_INFORMATION)InitDebugEx(szFileName, NULL, NULL, (void*)cbEntry);
             else
-            {
-                g_fdProcessInfo = (LPPROCESS_INFORMATION)InitDLLDebug(szFileName, false, NULL, NULL, (void*)VF_cbOpEntry);
-            }
+                g_fdProcessInfo=(LPPROCESS_INFORMATION)InitDLLDebug(szFileName, false, NULL, NULL, (void*)cbEntry);
             if(g_fdProcessInfo)
             {
                 DebugLoop();
                 return true;
             }
             else
-            {
                 ErrorMessageCallback((char*)"Something went wrong during initialization...", (char*)"Error!");
-            }
         }
     }
     else
-    {
         ErrorMessageCallback((char*)"This is not a valid PE file...", (char*)"Error!");
-    }
     return false;
 }

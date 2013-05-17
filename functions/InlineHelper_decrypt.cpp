@@ -14,7 +14,7 @@
  *						Module Variables
  *********************************************************************/
 static char* g_szFileName = NULL;
-static ErrMessageCallback g_ErrorMessageCallback = NULL;
+static cbErrorMessage g_ErrorMessageCallback = NULL;
 
 static bool g_fdFileIsDll = false;
 
@@ -145,7 +145,7 @@ void IHD_cbGuardPage()
     unsigned int bp_addr=IHD_FindJump(data, size_read, &g_reg);
     if(!bp_addr)
     {
-    	g_ErrorMessageCallback((char*)"Could not find:\n\npushad\njmp [register]\n\nPlease contact Mr. eXoDia.", (char*)"Error!");
+        g_ErrorMessageCallback((char*)"Could not find:\n\npushad\njmp [register]\n\nPlease contact Mr. eXoDia.", (char*)"Error!");
         StopDebug();
     }
     free(data);
@@ -154,7 +154,8 @@ void IHD_cbGuardPage()
 
 void IHD_cbEntry()
 {
-    HideDebugger(g_fdProcessInfo->hProcess, UE_HIDE_BASIC);
+    FixIsDebuggerPresent(g_fdProcessInfo->hProcess, true);
+    g_fdImageBase=GetDebuggedFileBaseAddress();
     BYTE entry_byte=0;
     ReadProcessMemory(g_fdProcessInfo->hProcess, (void*)(g_fdEntryPoint+g_fdImageBase), &entry_byte, 1, 0);
     if(entry_byte!=0x60)
@@ -170,7 +171,7 @@ void IHD_cbEntry()
 
 DWORD WINAPI IHD_DebugThread(LPVOID lpStartAddress) //TODO: never used
 {
-	long fdSizeOfImage = NULL;
+    long fdSizeOfImage = NULL;
     FILE_STATUS_INFO inFileStatus = {0};
 
     g_fdFileIsDll = false;
@@ -183,15 +184,14 @@ DWORD WINAPI IHD_DebugThread(LPVOID lpStartAddress) //TODO: never used
     {
         if(inFileStatus.FileIs64Bit)
         {
-        	g_ErrorMessageCallback((char*)"64-bit files are not (yet) supported!", (char*)"Error!");
+            g_ErrorMessageCallback((char*)"64-bit files are not (yet) supported!", (char*)"Error!");
             return 0;
         }
         HANDLE hFile, fileMap;
-        g_fdImageBase = (long)GetPE32Data(g_szFileName, NULL, UE_IMAGEBASE);
         g_fdEntryPoint = (long)GetPE32Data(g_szFileName, NULL, UE_OEP);
         fdSizeOfImage = (long)GetPE32Data(g_szFileName, NULL, UE_SIZEOFIMAGE);
         StaticFileLoad(g_szFileName, UE_ACCESS_READ, false, &hFile, &bytes_read, &fileMap, &IHD_va);
-        g_fdEntrySectionNumber = GetPE32SectionNumberFromVA(IHD_va, g_fdEntryPoint+g_fdImageBase);
+        g_fdEntrySectionNumber = GetPE32SectionNumberFromVA(IHD_va, g_fdEntryPoint+GetPE32Data(g_szFileName, NULL, UE_IMAGEBASE));
         CloseHandle(hFile);
         CloseHandle(fileMap);
         g_fdEntrySectionSize= (long)GetPE32Data(g_szFileName, g_fdEntrySectionNumber, UE_SECTIONVIRTUALSIZE);
@@ -214,19 +214,19 @@ DWORD WINAPI IHD_DebugThread(LPVOID lpStartAddress) //TODO: never used
         }
         else
         {
-        	g_ErrorMessageCallback((char*)"Something went wrong during initialization...", (char*)"Error!");
+            g_ErrorMessageCallback((char*)"Something went wrong during initialization...", (char*)"Error!");
             return 0;
         }
     }
     else
     {
-    	g_ErrorMessageCallback((char*)"This is not a valid PE file...", (char*)"Error!");
+        g_ErrorMessageCallback((char*)"This is not a valid PE file...", (char*)"Error!");
     }
     return 1;
 }
 
 
-void IHD_Debugger(char* szFileName, ErrMessageCallback ErrorMessageCallback)
+void IHD_Debugger(char* szFileName, cbErrorMessage ErrorMessageCallback)
 {
     g_ErrorMessageCallback = ErrorMessageCallback;
     g_szFileName = szFileName;

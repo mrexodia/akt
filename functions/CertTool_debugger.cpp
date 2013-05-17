@@ -82,10 +82,10 @@ void CT_cbEndBigLoop()
     DeleteBPX(tea_decrypt);
     DeleteBPX(magic_byte);
     encrypted_cert_real_size+=4;
-    unsigned char* final_data=(unsigned char*)malloc(encrypted_cert_real_size);
+    unsigned char* final_data=(unsigned char*)malloc2(encrypted_cert_real_size);
     memset(final_data, 0, encrypted_cert_real_size);
     memcpy(final_data, encrypted_cert_real, encrypted_cert_real_size-4);
-    free(encrypted_cert_real);
+    free2(encrypted_cert_real);
     CT_cert_data->encrypted_data=final_data;
     CT_cert_data->encrypted_size=encrypted_cert_real_size;
     encrypted_cert_real_size=0;
@@ -100,18 +100,18 @@ void CT_cbTeaDecrypt()
     unsigned char first_5_bytes[5]="";
     memcpy(first_5_bytes, &values[1], 4);
     first_5_bytes[4]=magic_byte_cert;
-    unsigned char* new_data=(unsigned char*)malloc(values[1]);
+    unsigned char* new_data=(unsigned char*)malloc2(values[1]);
     ReadProcessMemory(fdProcessInfo->hProcess, (void*)values[0], new_data, values[1], 0);
-    unsigned char* temp=(unsigned char*)malloc(encrypted_cert_real_size+values[1]+5);
+    unsigned char* temp=(unsigned char*)malloc2(encrypted_cert_real_size+values[1]+5);
     if(encrypted_cert_real)
     {
         memcpy(temp, encrypted_cert_real, encrypted_cert_real_size);
-        free(encrypted_cert_real);
+        free2(encrypted_cert_real);
     }
     encrypted_cert_real=temp;
     memcpy(encrypted_cert_real+encrypted_cert_real_size, first_5_bytes, 5);
     memcpy(encrypted_cert_real+encrypted_cert_real_size+5, new_data, values[1]);
-    free(new_data);
+    free2(new_data);
     encrypted_cert_real_size+=values[1]+5;
 }
 
@@ -177,7 +177,7 @@ UINT CT_DetermineRegisterFromByte(unsigned char byte)
 
 void CT_SortArray(unsigned int* a, int size)
 {
-    unsigned int* cpy=(unsigned int*)malloc(size*4);
+    unsigned int* cpy=(unsigned int*)malloc2(size*4);
     memcpy(cpy, a, size*4);
     unsigned int* biggest=&cpy[0];
     for(int i=0; i<size; i++)
@@ -211,7 +211,7 @@ void CT_cbGetOtherSeed()
 void CT_cbOtherSeeds()
 {
     unsigned int eip=GetContextData(UE_EIP);
-    unsigned char* eip_data=(unsigned char*)malloc(0x10000);
+    unsigned char* eip_data=(unsigned char*)malloc2(0x10000);
     ReadProcessMemory(fdProcessInfo->hProcess, (void*)eip, eip_data, 0x10000, 0);
     unsigned int stdcall=CT_FindStdcallPattern(eip_data, 0x10000);
     if(!stdcall)
@@ -251,7 +251,7 @@ void CT_cbOtherSeeds()
     for(int i=0; i<4; i++)
         SetBPX(and_addrs[i]+eip+stdcall, UE_BREAKPOINT, (void*)CT_cbGetOtherSeed);
 
-    free(eip_data);
+    free2(eip_data);
 }
 
 void CT_cbReturnSeed1()
@@ -263,10 +263,10 @@ void CT_cbReturnSeed1()
     return_counter++;
     if(return_counter!=2)
     {
-        unsigned char* return_bytes=(unsigned char*)malloc(0x1000);
+        unsigned char* return_bytes=(unsigned char*)malloc2(0x1000);
         ReadProcessMemory(fdProcessInfo->hProcess, (void*)_stack, return_bytes, 0x1000, 0);
         unsigned int retn=CT_FindReturnPattern(return_bytes, 0x1000);
-        free(return_bytes);
+        free2(return_bytes);
         if(!retn)
         {
             CT_FatalError("Could not find return");
@@ -301,14 +301,14 @@ void CT_cbCertificateFunction()
         unsigned int mem_size=0x10000;
         if(VirtualQueryEx(fdProcessInfo->hProcess, (void*)retn_eax, &mbi, sizeof(MEMORY_BASIC_INFORMATION)))
             mem_size=mbi.RegionSize-(retn_eax-(unsigned int)mbi.BaseAddress);
-        BYTE* certificate_code=(BYTE*)malloc(mem_size);
+        BYTE* certificate_code=(BYTE*)malloc2(mem_size);
         if(ReadProcessMemory(fdProcessInfo->hProcess, (void*)retn_eax, certificate_code, mem_size, 0))
         {
             //Arma 9.60 support
             unsigned int esp=GetContextData(UE_ESP);
             unsigned int _stack=0;
             ReadProcessMemory(fdProcessInfo->hProcess, (void*)esp, &_stack, 4, 0);
-            unsigned char* return_bytes=(unsigned char*)malloc(0x1000);
+            unsigned char* return_bytes=(unsigned char*)malloc2(0x1000);
             ReadProcessMemory(fdProcessInfo->hProcess, (void*)_stack, return_bytes, 0x1000, 0);
             unsigned int push100=CT_FindPush100Pattern(return_bytes, 0x1000);
             unsigned int retn=CT_FindReturnPattern(return_bytes, 0x1000);
@@ -332,19 +332,19 @@ void CT_cbCertificateFunction()
                     SetBPX(_stack+retn, UE_BREAKPOINT, (void*)CT_cbReturnSeed1);
                 }
                 CT_cert_data->raw_size=mem_size;
-                CT_cert_data->raw_data=(unsigned char*)malloc(mem_size);
+                CT_cert_data->raw_data=(unsigned char*)malloc2(mem_size);
                 memcpy(CT_cert_data->raw_data, certificate_code, mem_size);
             }
             else
             {
-                free(return_bytes);
+                free2(return_bytes);
                 //Get raw certificate data
                 unsigned int cert_start=CT_FindCertificateMarkers(certificate_code, mem_size);
                 if(!cert_start)
                     cert_start=CT_FindCertificateMarkers2(certificate_code, mem_size);
                 if(!cert_start)
                 {
-                    free(certificate_code);
+                    free2(certificate_code);
                     if(MessageBoxA(CT_shared, "Could not find start markers, continue?", "Continue?", MB_ICONERROR|MB_YESNO)==IDYES)
                     {
                         if(!magic_value_addr)
@@ -355,7 +355,7 @@ void CT_cbCertificateFunction()
                     return;
                 }
                 CT_cert_data->raw_size=mem_size;
-                CT_cert_data->raw_data=(unsigned char*)malloc(mem_size);
+                CT_cert_data->raw_data=(unsigned char*)malloc2(mem_size);
                 memcpy(CT_cert_data->raw_data, certificate_code, mem_size);
                 /*cert_start+=4;
                 CT_cert_data->initial_diff=cert_start+1;
@@ -363,7 +363,7 @@ void CT_cbCertificateFunction()
                 if(cert_end) //Unsigned/Default certificates are not stored here...
                 {
                     CT_cert_data->raw_size=cert_end;
-                    CT_cert_data->raw_data=(unsigned char*)malloc(cert_end);
+                    CT_cert_data->raw_data=(unsigned char*)malloc2(cert_end);
                     memcpy(CT_cert_data->raw_data, certificate_code+cert_start, cert_end);
                     CT_cert_data->raw_data++;
                     CT_cert_data->raw_size--;
@@ -375,11 +375,11 @@ void CT_cbCertificateFunction()
                 //Get project id
                 short projectid_size=0;
                 memcpy(&projectid_size, certificate_code, 2);
-                CT_cert_data->projectid=(char*)malloc(projectid_size+1);
+                CT_cert_data->projectid=(char*)malloc2(projectid_size+1);
                 memset(CT_cert_data->projectid, 0, projectid_size+1);
                 memcpy(CT_cert_data->projectid, certificate_code+2, projectid_size);
 
-                free(certificate_code);*/
+                free2(certificate_code);*/
 
                 if(!magic_value_addr)
                     CT_RetrieveSaltValue();
@@ -387,7 +387,7 @@ void CT_cbCertificateFunction()
         }
         else
         {
-            free(certificate_code);
+            free2(certificate_code);
             CT_FatalError("Failed to read process memory...");
         }
     }
@@ -402,14 +402,14 @@ void CT_cbVirtualProtect()
     unsigned int security_code_base=0,security_code_size=0;
     ReadProcessMemory(fdProcessInfo->hProcess, (void*)(esp_addr+4), &security_code_base, 4, 0);
     ReadProcessMemory(fdProcessInfo->hProcess, (void*)(esp_addr+8), &security_code_size, 4, 0);
-    BYTE* security_code=(BYTE*)malloc(security_code_size);
-    BYTE* header_code=(BYTE*)malloc(0x1000);
+    BYTE* security_code=(BYTE*)malloc2(security_code_size);
+    BYTE* header_code=(BYTE*)malloc2(0x1000);
     ReadProcessMemory(fdProcessInfo->hProcess, (void*)security_code_base, security_code, security_code_size, 0);
     ReadProcessMemory(fdProcessInfo->hProcess, (void*)(security_code_base-0x1000), header_code, 0x1000, 0);
     IMAGE_DOS_HEADER *pdh=(IMAGE_DOS_HEADER*)((DWORD)header_code);
     IMAGE_NT_HEADERS *pnth=(IMAGE_NT_HEADERS*)((DWORD)header_code+pdh->e_lfanew);
     CT_cert_data->timestamp=pnth->FileHeader.TimeDateStamp;
-    free(header_code);
+    free2(header_code);
 
     //Certificate data
     unsigned int breakpoint_addr=CT_FindCertificateFunctionNew(security_code, security_code_size);
@@ -482,7 +482,7 @@ void CT_cbVirtualProtect()
         memcpy(salt_code, (void*)(salt_func_addr+security_code), 60);
         salt_func_addr+=(unsigned int)security_code_base;
     }
-    free(security_code);
+    free2(security_code);
 }
 
 void CT_cbOpenMutexA()
@@ -509,6 +509,7 @@ void CT_cbOpenMutexA()
 
 void CT_cbEntry()
 {
+    FixIsDebuggerPresent(fdProcessInfo->hProcess, true);
     if(!fdFileIsDll)
         SetAPIBreakPoint((char*)"kernel32.dll", (char*)"OpenMutexA", UE_BREAKPOINT, UE_APISTART, (void*)CT_cbOpenMutexA);
     else
@@ -529,24 +530,24 @@ DWORD WINAPI CT_FindCertificates(void* lpvoid)
     if(CT_cert_data)
     {
         if(CT_cert_data->projectid)
-            free(CT_cert_data->projectid);
+            free2(CT_cert_data->projectid);
         if(CT_cert_data->customer_service)
-            free(CT_cert_data->customer_service);
+            free2(CT_cert_data->customer_service);
         if(CT_cert_data->website)
-            free(CT_cert_data->website);
+            free2(CT_cert_data->website);
         if(CT_cert_data->unknown_string)
-            free(CT_cert_data->unknown_string);
+            free2(CT_cert_data->unknown_string);
         if(CT_cert_data->stolen_keys)
-            free(CT_cert_data->stolen_keys);
+            free2(CT_cert_data->stolen_keys);
         if(CT_cert_data->intercepted_libs)
-            free(CT_cert_data->intercepted_libs);
+            free2(CT_cert_data->intercepted_libs);
         if(CT_cert_data->raw_data)
-            free(CT_cert_data->raw_data);
+            free2(CT_cert_data->raw_data);
         if(CT_cert_data->encrypted_data)
-            free(CT_cert_data->encrypted_data);
-        free(CT_cert_data);
+            free2(CT_cert_data->encrypted_data);
+        free2(CT_cert_data);
     }
-    CT_cert_data=(CERT_DATA*)malloc(sizeof(CERT_DATA));
+    CT_cert_data=(CERT_DATA*)malloc2(sizeof(CERT_DATA));
     memset(CT_cert_data, 0, sizeof(CERT_DATA));
     InitVariables(program_dir, (CT_DATA*)CT_cert_data, StopDebug, 1, GetParent(CT_shared));
     FILE_STATUS_INFO inFileStatus = {0};

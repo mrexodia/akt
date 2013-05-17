@@ -283,13 +283,11 @@ void EV_cbOpenMutexA()
 
 void EV_cbEntry()
 {
+    FixIsDebuggerPresent(EV_fdProcessInfo->hProcess, true);
     if(!EV_fdFileIsDll)
         SetAPIBreakPoint((char*)"kernel32.dll", (char*)"OpenMutexA", UE_BREAKPOINT, UE_APISTART, (void*)EV_cbOpenMutexA);
     else
-    {
-        HideDebugger(EV_fdProcessInfo->hProcess, UE_HIDE_BASIC);
         SetAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_BREAKPOINT, UE_APISTART, (void*)EV_cbVirtualProtect);
-    }
 }
 
 DWORD WINAPI EV_DebugThread(LPVOID lpStartAddress)

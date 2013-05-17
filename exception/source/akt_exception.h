@@ -13,6 +13,15 @@ struct CT_DATA
     unsigned char* raw_data;
     unsigned char* encrypted_data;
     char* projectid;
+    char* customer_service;
+    char* website;
+    char* unknown_string;
+    unsigned char* stolen_keys;
+    unsigned int stolen_keys_size;
+    unsigned int stolen_keys_diff;
+    unsigned char* intercepted_libs;
+    unsigned int intercepted_libs_size;
+    unsigned int projectid_diff;
     unsigned int initial_diff;
     unsigned int raw_size;
     unsigned int encrypted_size;
@@ -20,10 +29,11 @@ struct CT_DATA
     unsigned int magic1;
     unsigned int magic2;
     unsigned int salt;
-    unsigned int decrypt_seed[3];
+    unsigned int decrypt_seed[4]; //initial, projectid, certificate, stolen keys
     unsigned int decrypt_addvals[4];
     bool checksumv8;
     bool zero_md5_symverify;
+    unsigned int timestamp;
 };
 
 #ifdef BUILD_DLL

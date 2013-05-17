@@ -9,7 +9,7 @@ static LPPROCESS_INFORMATION g_fdProcessInfo;
 
 // Internal Use Variables
 static unsigned int g_extra_options_reg=0;
-static ErrMessageCallback g_ErrorMessageCallback = NULL;
+static cbErrorMessage g_ErrorMessageCallback = NULL;
 
 // Output Pointers
 static unsigned int* gPtrExtraOptions=0;
@@ -18,7 +18,7 @@ static unsigned int* gPtrExtraOptions=0;
 /**********************************************************************
  *						Functions
  *********************************************************************/
-void VF_cbExtraDwordRetrieve()
+static void cbDwordRetrieve()
 {
     DeleteBPX(GetContextData(UE_EIP));
     *gPtrExtraOptions=GetContextData(g_extra_options_reg);
@@ -26,7 +26,7 @@ void VF_cbExtraDwordRetrieve()
 }
 
 
-void VF_cbExtraDw()
+static void cbDw()
 {
     unsigned int eip=GetContextData(UE_EIP);
     DeleteBPX(eip);
@@ -64,11 +64,11 @@ void VF_cbExtraDw()
     if(g_extra_options_reg==0xFFFFFFFF)
         VF_FatalError("Could not determine the register (extradw)", g_ErrorMessageCallback);
     free(eip_data);
-    SetBPX(and20+eip, UE_BREAKPOINT, (void*)VF_cbExtraDwordRetrieve);
+    SetBPX(and20+eip, UE_BREAKPOINT, (void*)cbDwordRetrieve);
 }
 
 
-void VF_cbExtraVirtualProtect()
+static void cbVirtualProtect()
 {
     DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_APISTART);
     MEMORY_BASIC_INFORMATION mbi= {0};
@@ -131,7 +131,7 @@ void VF_cbExtraVirtualProtect()
         extradw_call=MyDisasm.EIP-((unsigned int)sec_data);
         memcpy(&dw_extracall, sec_data+extradw_call+1, 4);
         unsigned int extradw_call_dest=(extradw_call+sec_addr)+dw_extracall+5;
-        SetBPX(extradw_call_dest, UE_BREAKPOINT, (void*)VF_cbExtraDw);
+        SetBPX(extradw_call_dest, UE_BREAKPOINT, (void*)cbDw);
     }
     else
     {
@@ -144,7 +144,7 @@ void VF_cbExtraVirtualProtect()
 }
 
 
-void VF_cbExtraOpenMutexA()
+static void cbOpenMutexA()
 {
     char mutex_name[20]="";
     long mutex_addr=0;
@@ -158,7 +158,7 @@ void VF_cbExtraOpenMutexA()
     CreateMutexA(0, FALSE, mutex_name);
     if(GetLastError()==ERROR_SUCCESS)
     {
-        SetAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_BREAKPOINT, UE_APISTART, (void*)VF_cbExtraVirtualProtect);
+        SetAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_BREAKPOINT, UE_APISTART, (void*)cbVirtualProtect);
     }
     else
     {
@@ -169,18 +169,17 @@ void VF_cbExtraOpenMutexA()
 }
 
 
-void VF_cbEntry()
+static void cbEntry()
 {
+    FixIsDebuggerPresent(g_fdProcessInfo->hProcess, true);
     if(!g_fdFileIsDll)
-    {
-        SetAPIBreakPoint((char*)"kernel32.dll", (char*)"OpenMutexA", UE_BREAKPOINT, UE_APISTART, (void*)VF_cbExtraOpenMutexA);
-    }
+        SetAPIBreakPoint((char*)"kernel32.dll", (char*)"OpenMutexA", UE_BREAKPOINT, UE_APISTART, (void*)cbOpenMutexA);
     else
-        SetAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_BREAKPOINT, UE_APISTART, (void*)VF_cbExtraVirtualProtect);
+        SetAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_BREAKPOINT, UE_APISTART, (void*)cbVirtualProtect);
 }
 
 
-void VF_ExtraOptions(char* szFileName, unsigned int* extra_options, ErrMessageCallback ErrorMessageCallback)
+void VF_ExtraOptions(char* szFileName, unsigned int* extra_options, cbErrorMessage ErrorMessageCallback)
 {
     FILE_STATUS_INFO inFileStatus = {0};
 
@@ -208,24 +207,14 @@ void VF_ExtraOptions(char* szFileName, unsigned int* extra_options, ErrMessageCa
         StaticFileClose(hFile);
         g_fdFileIsDll = inFileStatus.FileIsDLL;
         if(!g_fdFileIsDll)
-        {
-            g_fdProcessInfo = (LPPROCESS_INFORMATION)InitDebugEx(szFileName, NULL, NULL, (void*)VF_cbEntry);
-        }
+            g_fdProcessInfo = (LPPROCESS_INFORMATION)InitDebugEx(szFileName, NULL, NULL, (void*)cbEntry);
         else
-        {
-            g_fdProcessInfo = (LPPROCESS_INFORMATION)InitDLLDebug(szFileName, false, NULL, NULL, (void*)VF_cbEntry);
-        }
+            g_fdProcessInfo = (LPPROCESS_INFORMATION)InitDLLDebug(szFileName, false, NULL, NULL, (void*)cbEntry);
         if(g_fdProcessInfo)
-        {
             DebugLoop();
-        }
         else
-        {
             ErrorMessageCallback((char*)"Something went wrong during initialization...", (char*)"Error!");
-        }
     }
     else
-    {
         ErrorMessageCallback((char*)"This is not a valid PE file...", (char*)"Error!");
-    }
 }

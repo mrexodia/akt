@@ -75,6 +75,7 @@ void MSC_cbOpenMutexA()
 
 void MSC_cbEntry()
 {
+    FixIsDebuggerPresent(MSC_fdProcessInfo->hProcess, true);
     if(!MSC_fdFileIsDll)
         SetAPIBreakPoint((char*)"kernel32.dll", (char*)"OpenMutexA", UE_BREAKPOINT, UE_APISTART, (void*)MSC_cbOpenMutexA);
     else

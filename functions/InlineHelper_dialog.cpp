@@ -183,7 +183,7 @@ BOOL CALLBACK IH_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
                     else
                     {
                         if(!g_TargetData.ImageBase)
-                        	g_TargetData.ImageBase=0x400000;
+                            g_TargetData.ImageBase=0x400000;
 
                         PluginFunction(PLUGIN_INST, hwndDlg, g_TargetData.SecurityAddrRegister, sg_szAKTDirectory, g_TargetData.ImageBase);
                         FreeLibrary(PLUGIN_INST);
@@ -226,31 +226,31 @@ void IH_ErrorMessageCallback(char* szMessage, char* szTitle)
 
 void IH_DebugEnd_Callback(void)
 {
-	char szBuffer[20] = "";
+    char szBuffer[20] = "";
 
-	sprintf(szBuffer, "%08X", g_TargetData.EmptyEntry);
-	SetDlgItemTextA(g_HWND, IDC_EDT_FREESPACE, szBuffer);
+    sprintf(szBuffer, "%08X", g_TargetData.EmptyEntry);
+    SetDlgItemTextA(g_HWND, IDC_EDT_FREESPACE, szBuffer);
 
-	sprintf(szBuffer, "%08X", g_TargetData.VirtualProtect_Addr);
-	SetDlgItemTextA(g_HWND, IDC_EDT_VP, szBuffer);
+    sprintf(szBuffer, "%08X", g_TargetData.VirtualProtect_Addr);
+    SetDlgItemTextA(g_HWND, IDC_EDT_VP, szBuffer);
 
-	sprintf(szBuffer, "%08X", g_TargetData.OutputDebugStringA_Addr);
-	SetDlgItemTextA(g_HWND, IDC_EDT_ODSA, szBuffer);
+    sprintf(szBuffer, "%08X", g_TargetData.OutputDebugStringA_Addr);
+    SetDlgItemTextA(g_HWND, IDC_EDT_ODSA, szBuffer);
 
-	sprintf(szBuffer, "%08X", g_TargetData.GetEnvironmentVariableA_Addr);
-	SetDlgItemTextA(g_HWND, IDC_EDT_GEVA, szBuffer);
+    sprintf(szBuffer, "%08X", g_TargetData.GetEnvironmentVariableA_Addr);
+    SetDlgItemTextA(g_HWND, IDC_EDT_GEVA, szBuffer);
 
-	sprintf(szBuffer, "%08X", g_TargetData.SetEnvironmentVariableA_Addr);
-	SetDlgItemTextA(g_HWND, IDC_EDT_SEVA, szBuffer);
+    sprintf(szBuffer, "%08X", g_TargetData.SetEnvironmentVariableA_Addr);
+    SetDlgItemTextA(g_HWND, IDC_EDT_SEVA, szBuffer);
 
-	sprintf(szBuffer, "%08X", g_TargetData.LoadLibraryA_Addr);
-	SetDlgItemTextA(g_HWND, IDC_EDT_LLA, szBuffer);
+    sprintf(szBuffer, "%08X", g_TargetData.LoadLibraryA_Addr);
+    SetDlgItemTextA(g_HWND, IDC_EDT_LLA, szBuffer);
 
-	sprintf(szBuffer, "%08X", g_TargetData.GetProcAddress_Addr);
-	SetDlgItemTextA(g_HWND, IDC_EDT_GPA, szBuffer);
+    sprintf(szBuffer, "%08X", g_TargetData.GetProcAddress_Addr);
+    SetDlgItemTextA(g_HWND, IDC_EDT_GPA, szBuffer);
 
-	sprintf(szBuffer, "%08X", g_TargetData.WriteProcessMemory_Addr);
-	SetDlgItemTextA(g_HWND, IDC_EDT_WPM, szBuffer);
+    sprintf(szBuffer, "%08X", g_TargetData.WriteProcessMemory_Addr);
+    SetDlgItemTextA(g_HWND, IDC_EDT_WPM, szBuffer);
 
     sprintf(szBuffer, "%02X", g_TargetData.CRCBase);
     SetDlgItemTextA(g_HWND, IDC_EDT_CRCBASE, szBuffer);

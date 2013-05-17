@@ -9,9 +9,8 @@
 			<Target title="Release">
 				<Option output="bin\Armadillo_KeyTool" prefix_auto="1" extension_auto="1" />
 				<Option object_output="%temp%\" />
-				<Option type="1" />
+				<Option type="0" />
 				<Option compiler="gcc" />
-				<Option use_console_runner="0" />
 				<Linker>
 					<Add option="-s" />
 					<Add library=".\exception\libexception.a" />
@@ -40,8 +39,6 @@
 		<Unit filename="BeaEngine\BeaEngine.h" />
 		<Unit filename="TitanEngine\TitanEngine.h" />
 		<Unit filename="exception\akt_exception.h" />
-		<Unit filename="functions\Basics.cpp" />
-		<Unit filename="functions\Basics.h" />
 		<Unit filename="functions\CertTool_brute.cpp" />
 		<Unit filename="functions\CertTool_brute.h" />
 		<Unit filename="functions\CertTool_debugger.cpp" />

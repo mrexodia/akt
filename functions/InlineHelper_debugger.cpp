@@ -5,8 +5,8 @@
  *********************************************************************/
 static char* g_szFileName = NULL;
 static IH_InlineHelperData_t* g_PtrTargetData = NULL;
-static StdCallback g_EndingCallback;
-static ErrMessageCallback g_ErrorMessageCallback = NULL;
+static cbStd g_EndingCallback;
+static cbErrorMessage g_ErrorMessageCallback = NULL;
 
 static bool g_bFileIsDll;
 static LPPROCESS_INFORMATION IH_fdProcessInfo; 		// Process information structure
@@ -33,21 +33,13 @@ BYTE IH_FindCrcStart(BYTE* data) //Find the start of the CRC array
             if(data[i+3]==0x33)
             {
                 if(data[i+5]==0x33)
-                {
                     return data[i+7];
-                }
                 else if(data[i+6]==0x33)
-                {
                     return data[i+8];
-                }
                 else if(data[i+9]==0x33)
-                {
                     return data[i+11];
-                }
                 else
-                {
                     return data[i+5];
-                }
             }
         }
     }
@@ -58,9 +50,7 @@ BYTE IH_FindCrcStart(BYTE* data) //Find the start of the CRC array
             if(data[i+6]==0x33)
             {
                 if(data[i+12]==0x33)
-                {
                     return data[i+14];
-                }
             }
         }
     }
@@ -77,8 +67,8 @@ unsigned int IH_FindFreeSpace(BYTE* d, unsigned int size)
 
 void IH_GetFreeSpaceAddr(void) //Retrieve address for free space
 {
-	BYTE* dump_addr;
-	unsigned int free_addr;
+    BYTE* dump_addr;
+    unsigned int free_addr;
 
     dump_addr = (BYTE*)VirtualAlloc(VirtualAlloc(0, g_fdEntrySectionSize, MEM_RESERVE, PAGE_EXECUTE_READWRITE), g_fdEntrySectionSize, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
     ReadProcessMemory(IH_fdProcessInfo->hProcess, (void*)(g_fdEntrySectionOffset+g_fdImageBase), dump_addr, g_fdEntrySectionSize, 0);
@@ -210,9 +200,9 @@ void IH_cbOutputDebugStringA() //Callback for OutputDebugStringA
     ///The second call to OutputDebugString("%s%s%s%s%s%s%s%s%s%...s%s%s%s%s%s%s"); is the call we need.
     if(g_OutputDebugStringAMinorCount==2)
     {
-    	// Declare some variables
-    	unsigned int originalCRCVals[5] = {0};  // Original CRC values array
-    	int CRCBase = 0; 						// Stack difference for retrieving the CRC values
+        // Declare some variables
+        unsigned int originalCRCVals[5] = {0};  // Original CRC values array
+        int CRCBase = 0; 						// Stack difference for retrieving the CRC values
         unsigned int ebp_addr = GetContextData(UE_EBP),esp_addr=GetContextData(UE_ESP),bp_addr=0;
         BYTE search_bytes[1024] = {0xFF};
 
@@ -240,7 +230,7 @@ void IH_cbOutputDebugStringA() //Callback for OutputDebugStringA
         }
         if(!CRCBase)
         {
-        	g_ErrorMessageCallback((char*)"There was an error! please contact me, I can fix it", (char*)"Error!");
+            g_ErrorMessageCallback((char*)"There was an error! please contact me, I can fix it", (char*)"Error!");
             //TerminateProcess(IH_fdProcessInfo->hProcess, 0);
             //DetachDebugger(IH_fdProcessInfo->dwProcessId);
             StopDebug();
@@ -297,7 +287,7 @@ void IH_cbOutputDebugStringA() //Callback for OutputDebugStringA
 
 void IH_cbVirtualProtect() // Callback for VirtualProtect
 {
-	char szSecurityAddrRegister[4]=""; //Register that contains a pointer to security.dll
+    char szSecurityAddrRegister[4]=""; //Register that contains a pointer to security.dll
 
     DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_APISTART);
     SetAPIBreakPoint((char*)"kernel32.dll", (char*)"OutputDebugStringA", UE_BREAKPOINT, UE_APISTART, (void*)IH_cbOutputDebugStringA);
@@ -329,7 +319,7 @@ void IH_cbVirtualProtect() // Callback for VirtualProtect
 
     else
     {
-    	g_ErrorMessageCallback((char*)"There was an error recovering the correct register.\n\nThe program will quit now!", (char*)"Error!");
+        g_ErrorMessageCallback((char*)"There was an error recovering the correct register.\n\nThe program will quit now!", (char*)"Error!");
         ExitProcess(1);
     }
 
@@ -361,9 +351,10 @@ void IH_cbOpenMutexA() //Callback for OpenMutexA
 
 void IH_cbEntryPoint() //Entry callback
 {
-    g_PtrTargetData->OEP = (unsigned int)(g_fdImageBase+g_fdEntryPoint);
+    g_fdImageBase = GetDebuggedFileBaseAddress();
+    g_PtrTargetData->ImageBase = g_fdImageBase;
 
-	HideDebugger(IH_fdProcessInfo->hProcess, UE_HIDE_BASIC);
+    g_PtrTargetData->OEP = (unsigned int)(g_fdImageBase+g_fdEntryPoint);
 
     // Retrieve useful data from IAT
     IH_GetImportTableAddresses();
@@ -377,9 +368,9 @@ void IH_cbEntryPoint() //Entry callback
 
 void IH_cbDllEntryPoint() //DLL Entry callback
 {
-	g_PtrTargetData->OEP = (unsigned int)(g_fdImageBase+g_fdEntryPoint);
-
-    HideDebugger(IH_fdProcessInfo->hProcess, UE_HIDE_BASIC);
+    g_fdImageBase = GetDebuggedDLLBaseAddress();
+    g_PtrTargetData->ImageBase = g_fdImageBase;
+    g_PtrTargetData->OEP = (unsigned int)(g_fdImageBase+g_fdEntryPoint);
 
     // Retrieve useful data from IAT
     IH_GetImportTableAddresses();
@@ -411,20 +402,20 @@ DWORD WINAPI IH_DebugThread(LPVOID lpStartAddress) //Thread for debugging
     {
         if(inFileStatus.FileIs64Bit)
         {
-        	g_ErrorMessageCallback((char*)"64-bit files are not (yet) supported!", (char*)"Error!");
+            g_ErrorMessageCallback((char*)"64-bit files are not (yet) supported!", (char*)"Error!");
             return 0;
         }
         HANDLE hFile, fileMap;
         ULONG_PTR va;
 
-        g_fdImageBase = (long)GetPE32Data(g_szFileName, NULL, UE_IMAGEBASE);
-        g_PtrTargetData->ImageBase = g_fdImageBase;
+        //g_fdImageBase = (long)GetPE32Data(g_szFileName, NULL, UE_IMAGEBASE);
+        //g_PtrTargetData->ImageBase = g_fdImageBase;
 
         g_fdEntryPoint = (long)GetPE32Data(g_szFileName, NULL, UE_OEP);
 
         StaticFileLoad(g_szFileName, UE_ACCESS_READ, false, &hFile, &IH_bytes_read, &fileMap, &va);
 
-        g_fdEntrySectionNumber = GetPE32SectionNumberFromVA(va, g_fdEntryPoint+g_fdImageBase);
+        g_fdEntrySectionNumber = GetPE32SectionNumberFromVA(va, g_fdEntryPoint+GetPE32Data(g_szFileName, NULL, UE_IMAGEBASE));
         g_PtrTargetData->EntrySectionNumber = g_fdEntrySectionNumber;
 
         StaticFileClose(hFile);
@@ -450,19 +441,19 @@ DWORD WINAPI IH_DebugThread(LPVOID lpStartAddress) //Thread for debugging
         }
         else
         {
-        	g_ErrorMessageCallback((char*)"Something went wrong during initialization...", (char*)"Error!");
+            g_ErrorMessageCallback((char*)"Something went wrong during initialization...", (char*)"Error!");
             return 0;
         }
     }
     else
     {
-    	g_ErrorMessageCallback((char*)"This is not a valid PE file...", (char*)"Error!");
+        g_ErrorMessageCallback((char*)"This is not a valid PE file...", (char*)"Error!");
     }
     return 1;
 }
 
 
-bool IH_Debugger(char* szFileName, IH_InlineHelperData_t* ptrTargetData, StdCallback EndingCallback, ErrMessageCallback ErrorMessageCallback)
+bool IH_Debugger(char* szFileName, IH_InlineHelperData_t* ptrTargetData, cbStd EndingCallback, cbErrorMessage ErrorMessageCallback)
 {
     FILE_STATUS_INFO fileStatus = {0};
     bool bFileIsDll;
@@ -476,13 +467,13 @@ bool IH_Debugger(char* szFileName, IH_InlineHelperData_t* ptrTargetData, StdCall
 
     if(IsPE32FileValidEx(szFileName, UE_DEPTH_DEEP, &fileStatus))
     {
-    	bFileIsDll = fileStatus.FileIsDLL;
-    	CreateThread(0, 0, IH_DebugThread, 0, 0, 0);
-    	return bFileIsDll;
+        bFileIsDll = fileStatus.FileIsDLL;
+        CreateThread(0, 0, IH_DebugThread, 0, 0, 0);
+        return bFileIsDll;
     }
     else
     {
-    	ErrorMessageCallback((char*)"This is not a valid PE file...", (char*)"Error!");
+        ErrorMessageCallback((char*)"This is not a valid PE file...", (char*)"Error!");
         return false;
     }
 }

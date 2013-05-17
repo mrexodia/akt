@@ -9,7 +9,7 @@ void IH_GenerateAsmCode(char* codeText, bool fileIsDll, IH_InlineHelperData_t ta
     if(targetData.Arma960)
     {
         sprintf(crc_replace_code, "mov dword ptr ds:[ebp-0%X],0%X\r\nmov eax,dword ptr ds:[esp]\r\nmov eax,dword ptr ds:[eax+0%X]\r\nmov dword ptr ds:[eax],0%X\r\nmov dword ptr ds:[eax+4],0%X\r\nmov dword ptr ds:[eax+8],0%X\r\nmov dword ptr ds:[eax+0C],0%X",
-        		targetData.CRCBase,
+                targetData.CRCBase,
                 targetData.CrcOriginalVals[0],
                 targetData.Arma960_add,
                 targetData.CrcOriginalVals[1],
@@ -20,7 +20,7 @@ void IH_GenerateAsmCode(char* codeText, bool fileIsDll, IH_InlineHelperData_t ta
     else
     {
         sprintf(crc_replace_code, "mov dword ptr ds:[ebp-0%X],0%X\r\nmov dword ptr ds:[ebp-%X],0%X\r\nmov dword ptr ds:[ebp-%X],0%X\r\nmov dword ptr ds:[ebp-%X],0%X\r\nmov dword ptr ds:[ebp-%X],0%X\r\n",
-        		targetData.CRCBase,
+                targetData.CRCBase,
                 targetData.CrcOriginalVals[0],
                 targetData.CRCBase+8,
                 targetData.CrcOriginalVals[1],
@@ -34,23 +34,23 @@ void IH_GenerateAsmCode(char* codeText, bool fileIsDll, IH_InlineHelperData_t ta
     if(!fileIsDll)
     {
         sprintf(codeText, template_text+1,
-        		targetData.EmptyEntry,
-        		targetData.OutputDebugStringA_Addr,
-        		targetData.VirtualProtect_Addr,
-        		targetData.OEP,
-        		targetData.OutputDebugCount,
+                targetData.EmptyEntry,
+                targetData.OutputDebugStringA_Addr,
+                targetData.VirtualProtect_Addr,
+                targetData.OEP,
+                targetData.OutputDebugCount,
                 crc_replace_code,
                 targetData.SecurityAddrRegister);
     }
     else
     {
         sprintf(codeText, dll_template_text+1,
-        		targetData.EmptyEntry,
-        		targetData.OutputDebugStringA_Addr,
-        		targetData.VirtualProtect_Addr,
-        		targetData.WriteProcessMemory_Addr,
-        		targetData.OEP,
-        		targetData.OutputDebugCount,
+                targetData.EmptyEntry,
+                targetData.OutputDebugStringA_Addr,
+                targetData.VirtualProtect_Addr,
+                targetData.WriteProcessMemory_Addr,
+                targetData.OEP,
+                targetData.OutputDebugCount,
                 crc_replace_code,
                 targetData.SecurityAddrRegister);
     }
