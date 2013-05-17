@@ -104,7 +104,6 @@
 #define IDC_CHK_OTHERNOCLOCKBACK                1020
 #define IDC_CHK_SALT                            1020
 #define IDC_BTN_CALCFROMRAW                     1021
-#define IDC_BTN_LICENSEREMOVE                   1021
 #define IDC_EDT_ADVLOG                          1021
 #define IDC_BTN_TODAY                           1022
 #define IDC_EDT_OTHER0                          1022
@@ -112,7 +111,6 @@
 #define IDC_BTN_GETPROJECTID                    1023
 #define IDC_EDT_OTHER1                          1023
 #define IDC_RADIO_BACKUPFIXED                   1023
-#define IDC_EDT_LICENSES                        1024
 #define IDC_EDT_OTHER2                          1024
 #define IDC_RADIO_BACKUPMAIN                    1024
 #define IDC_EDT_FIXCLOCKKEY                     1025
@@ -136,6 +134,7 @@
 #define IDC_EDT_KEYSTRING_LENGTH                1031
 #define IDC_RADIO_COMPRESSIONBEST               1031
 #define IDC_BTN_CALC                            1032
+#define IDC_BTN_GETLICENSEDATA                  1032
 #define IDC_CHK_OTHERSCREENSAVER                1032
 #define IDC_BTN_INLINE                          1033
 #define IDC_BTN_VERIFYSYM                       1033
@@ -163,11 +162,14 @@
 #define IDC_BTN_CERTBIN                         1042
 #define IDC_BTN_COPY                            1042
 #define IDC_CHK_ENHANCEDHWID                    1042
+#define IDC_BTN_REMOVESELLLICDATA               1043
 #define IDC_CHK_STANDARDHWID                    1043
 #define IDC_EDT_CRC2                            1043
+#define IDC_BTN_REMOVEALLLICDATA                1044
 #define IDC_EDT_CRC3                            1044
 #define IDC_EDT_CRC5                            1045
 #define IDC_BTN_HELP                            1046
+#define IDC_EDT_LICENSES                        1046
 #define IDC_BTN_EXIT                            1047
 #define IDC_EDT_CRCBASE                         1048
 #define IDC_EDT_COUNTER                         1049

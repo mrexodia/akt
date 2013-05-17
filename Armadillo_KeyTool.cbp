@@ -9,8 +9,9 @@
 			<Target title="Release">
 				<Option output="bin\Armadillo_KeyTool" prefix_auto="1" extension_auto="1" />
 				<Option object_output="%temp%\" />
-				<Option type="0" />
+				<Option type="1" />
 				<Option compiler="gcc" />
+				<Option use_console_runner="0" />
 				<Linker>
 					<Add option="-s" />
 					<Add library=".\exception\libexception.a" />
@@ -72,6 +73,8 @@
 		<Unit filename="functions\InlineHelper_global.h" />
 		<Unit filename="functions\InlineHelper_plugins.cpp" />
 		<Unit filename="functions\InlineHelper_plugins.h" />
+		<Unit filename="functions\LicenceRemoval_debugger.cpp" />
+		<Unit filename="functions\LicenceRemoval_debugger.h" />
 		<Unit filename="functions\Misc_checksum.cpp" />
 		<Unit filename="functions\Misc_checksum.h" />
 		<Unit filename="functions\Misc_currentsym.cpp" />
