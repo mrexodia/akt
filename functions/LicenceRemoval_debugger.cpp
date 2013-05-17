@@ -40,6 +40,7 @@ static CreateFileAContext_t         	mCreateFileAContext;
 static vector<APIContextContainer_t>	mAPIContextContainerList;
 static vector<ArmaLicenseEntry_t>*   	mArmaLicenseEntryPtr;
 static uint32_t                     	mMutexCallCount = 0;
+static unsigned int 					mIsGreaterThanArma940 = 0;
 
 /**************************************************************************
  *                              Main
@@ -111,8 +112,49 @@ void LR_EntryPointArma960Callback()
     // Set a single shoot breakpoint on the OpenMutexA API
     if(SetAPIBreakPoint((char*)"kernel32.dll", (char*)"OpenMutexA", UE_BREAKPOINT | UE_BREAKPOINT_TYPE_LONG_INT3, UE_APISTART, (void*)LR_OpenMutexAArma960Callback) == false)
         printf("OpenMutexA breakpoint has not been set\n");
+
+    // Set a single shoot breakpoint on the VirtualProtect API
+    if(SetAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_BREAKPOINT | UE_BREAKPOINT_TYPE_LONG_INT3, UE_APISTART, (void*)LR_VirtualProtectCallback) == false)
+        printf("OpenMutexA breakpoint has not been set\n");
 }
 
+
+/**
+ * @brief       This callback is called when the breakpoint on VirtualProtect hits. In this library this callback is used to retrieve
+ * 				the timestamp of the security.dll (Date and time of link) in order to deduce the Armadillo version of the file.
+ *
+ * @return      Nothing.
+ */
+void LR_VirtualProtectCallback()
+{
+	unsigned int wTimeStamp;
+    unsigned int wSecurityDLLCodeBaseAddr = 0;
+    unsigned int wSecurityDLLCodeSize = 0;
+    unsigned char* wHeaderCode = (unsigned char*)malloc2(0x1000);
+    IMAGE_DOS_HEADER *wDosHeaderPtr;
+    IMAGE_NT_HEADERS *wNTHeaderPtr;
+
+    // Get parameter from VirtualProtect (Code Address)
+    wSecurityDLLCodeBaseAddr = GetFunctionParameter(mHandle, UE_FUNCTION_STDCALL, 1, UE_PARAMETER_DWORD);
+
+    ReadProcessMemory(mHandle, (void*)(wSecurityDLLCodeBaseAddr - 0x1000), wHeaderCode, 0x1000, 0);
+
+    wDosHeaderPtr = (IMAGE_DOS_HEADER*)((DWORD)wHeaderCode);
+    wNTHeaderPtr = (IMAGE_NT_HEADERS*)((DWORD)wHeaderCode + wDosHeaderPtr->e_lfanew);
+
+    wTimeStamp = wNTHeaderPtr->FileHeader.TimeDateStamp;
+
+    if(wTimeStamp > 0x50624580) // 0x50624580 = 9.40 26-09-2012
+    {
+    	mIsGreaterThanArma940 = 1;
+    }
+
+    printf("Security.dll TimeStamp : %d\n", wTimeStamp);
+
+    free2(wHeaderCode);
+
+    DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_APISTART);
+}
 
 
 /**
@@ -306,27 +348,28 @@ void LR_CreateFileAStartArma960BPCallback()
 void LR_ProcessAPIContextLog()
 {
     uint32_t wI;
-    int8_t wVersionString[10];
-    uint32_t wVersion;
     vector<ArmaLicenseEntry_t> wArmaLicenseEntry;
 
     // Get the version
     /*
+    int8_t wVersionString[10];
+    uint32_t wVersion;
     TEArmaVersionFinder(mFileName, wVersionString);
     wVersionString[1] = wVersionString[2];
     wVersionString[2] = wVersionString[3];
     wVersionString[3] = 0;
     wVersion = string((const char*)wVersionString).toInt();
     */
-    wVersion = 800;
 
-    if(wVersion < 960)
+    if(mIsGreaterThanArma940 == 0)
     {
+    	// Arma <=940
         wArmaLicenseEntry = LR_FilterAPIContextContainerListArma940AndLess(mAPIContextContainerList);
     }
     else
     {
-        //wArmaLicenseEntry = LR_FilterAPIContextContainerListArma960(mAPIContextContainerList);
+    	// Arma >940
+        wArmaLicenseEntry = LR_FilterAPIContextContainerListArma960(mAPIContextContainerList);
     }
 
     for(wI = 0; wI < wArmaLicenseEntry.size(); wI++)

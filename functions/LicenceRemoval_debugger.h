@@ -9,6 +9,7 @@
 #include <stdio.h>
 
 #include "../TitanEngine/TitanEngine.h"
+#include "_global.h"
 
 /*
 #include "TEArmaPatterns.h"
@@ -116,6 +117,7 @@ void LR_RemoveSingleArmaLicenseData(ArmaLicenseEntry_t parArmaLicenseEntry);
     // Callback
 void LR_EntryPointArma960Callback();
 void LR_OpenMutexAArma960Callback();
+void LR_VirtualProtectCallback();
 void LR_RegOpenKeyExAStartArma960BPCallback();
 void LR_RegQueryValueExAStartArma960BPCallback();
 void LR_CreateFileAStartArma960BPCallback();
