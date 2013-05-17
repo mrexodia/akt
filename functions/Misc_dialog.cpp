@@ -1,5 +1,9 @@
 #include "Misc_dialog.h"
 
+HWND g_LicListHWND;
+vector<ArmaLicenseEntry_t> g_ArmaLicenseEntryList;
+
+
 BOOL CALLBACK MSC_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     switch(uMsg)
@@ -9,9 +13,9 @@ BOOL CALLBACK MSC_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
         MSC_shared=hwndDlg;
         memset(MSC_projectID, 0, 65536);
         MSC_SD_list=GetDlgItem(hwndDlg, IDC_LIST_SECTIONS);
+        g_LicListHWND=GetDlgItem(hwndDlg, IDC_EDT_LICENSES);
         EnableWindow(GetDlgItem(hwndDlg, IDC_BTN_DELETESECTIONS), 0);
         EnableWindow(GetDlgItem(hwndDlg, IDC_BTN_GENERATE), 0);
-        EnableWindow(GetDlgItem(hwndDlg, IDC_BTN_LICENSEREMOVE), 0);
         EnableWindow(GetDlgItem(hwndDlg, IDC_BTN_FINDCHECKSUM), 0);
         EnableWindow(GetDlgItem(hwndDlg, IDC_CHK_FOUNDCHECKSUM), 0);
         SendMessageA(hwndDlg, WM_COMMAND, IDC_BTN_TODAY, 0);
@@ -444,9 +448,122 @@ BOOL CALLBACK MSC_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 CreateThread(0, 0, MSC_CurSymDebugThread, 0, 0, 0);
         }
         return TRUE;
+
+        case IDC_BTN_GETLICENSEDATA:
+        {
+        	unsigned int itemLength = 0;
+        	unsigned int widestItemIndex = 0;
+
+        	LR_GetArmaLicenseData(MSC_szFileName, &g_ArmaLicenseEntryList);
+
+        	// Clear the list box
+        	SendMessageA(g_LicListHWND, LB_RESETCONTENT, 0, 0);
+
+        	// Add license files to the list box
+            for(int wI = 0; wI < (int)g_ArmaLicenseEntryList.size(); wI++)
+            {
+            	SendMessageA(g_LicListHWND, LB_ADDSTRING, 0, (LPARAM)g_ArmaLicenseEntryList.at(wI).Path.data());
+
+            	if(strlen(g_ArmaLicenseEntryList.at(wI).Path.data()) > itemLength)
+            	{
+            		itemLength = strlen(g_ArmaLicenseEntryList.at(wI).Path.data());
+            		widestItemIndex = wI;
+            	}
+            }
+
+            // Set the maximal horizontal scroll size
+            if(g_ArmaLicenseEntryList.size() > 0)
+            	UpdateHorizontalScrollLen(g_LicListHWND, g_ArmaLicenseEntryList.at(widestItemIndex).Path.data());
+            else
+            	UpdateHorizontalScrollLen(g_LicListHWND, "");
+        }
+        return TRUE;
+
+        case IDC_BTN_REMOVESELLLICDATA:
+        {
+        	unsigned int itemLength = 0;
+        	unsigned int widestItemIndex = 0;
+            int totalNbrOfItems = SendMessageA(g_LicListHWND, LB_GETCOUNT, 0, 0);
+
+            for(int wI = 0; wI < totalNbrOfItems; wI++)
+            {
+                if(SendMessageA(g_LicListHWND, LB_GETSEL, wI, 0) > 0)
+                {
+                	printf("Remove %s\n", g_ArmaLicenseEntryList.at(wI).Path.data());
+                	LR_RemoveSingleArmaLicenseData(g_ArmaLicenseEntryList.at(wI));
+
+                	g_ArmaLicenseEntryList.erase(g_ArmaLicenseEntryList.begin() + wI);
+
+                    SendMessageA(g_LicListHWND, LB_DELETESTRING, wI, 0);
+
+                    wI--;
+                    totalNbrOfItems--;
+                }
+            }
+
+            // Search the longer string
+            for(int wI = 0; wI < (int)g_ArmaLicenseEntryList.size(); wI++)
+            {
+            	if(strlen(g_ArmaLicenseEntryList.at(wI).Path.data()) > itemLength)
+            	{
+            		itemLength = strlen(g_ArmaLicenseEntryList.at(wI).Path.data());
+            		widestItemIndex = wI;
+            	}
+            }
+
+            // Set the maximal horizontal scroll size
+            if(g_ArmaLicenseEntryList.size() > 0)
+            	UpdateHorizontalScrollLen(g_LicListHWND, g_ArmaLicenseEntryList.at(widestItemIndex).Path.data());
+            else
+            	UpdateHorizontalScrollLen(g_LicListHWND, "");
+
+        }
+        return TRUE;
+
+        case IDC_BTN_REMOVEALLLICDATA:
+        {
+        	int totalNbrOfItems = SendMessageA(g_LicListHWND, LB_GETCOUNT, 0, 0);
+
+        	LR_RemoveArmaLicenseData(g_ArmaLicenseEntryList);
+
+            for(int wI = 0; wI < totalNbrOfItems; wI++)
+            {
+            	SendMessageA(g_LicListHWND, LB_DELETESTRING, 0, 0);
+            }
+
+            UpdateHorizontalScrollLen(g_LicListHWND, "");
+        }
+        return TRUE;
+
         }
     }
     return TRUE;
     }
     return FALSE;
 }
+
+
+
+void UpdateHorizontalScrollLen(HWND list, const char* string)
+{
+    SIZE s= {0};
+    HDC hdc=GetDC(list);
+    SelectObject(hdc, (HFONT)SendMessageA(list, WM_GETFONT, 0, 0));
+    GetTextExtentPoint32A(hdc, string, strlen(string), &s);
+    SendMessageA(list, LB_SETHORIZONTALEXTENT, s.cx+5, 0);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
