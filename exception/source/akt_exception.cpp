@@ -30,7 +30,10 @@ LONG CALLBACK ExceptionHandler(PEXCEPTION_POINTERS ExceptionInfo)
 {
     if(!handle_exceptions)
         return EXCEPTION_CONTINUE_SEARCH;
-    char log_message[4096]="";
+    char msg[256]="";
+    sprintf(msg, "Exception Address: %.8X", (unsigned int)ExceptionInfo->ExceptionRecord->ExceptionAddress);
+    MessageBoxA(hwndDlg, msg, "Exception Caught, please report!", MB_ICONINFORMATION);
+    /*char log_message[4096]="";
     char log_filename[256]="";
     char log_string[256]="";
     char data_string[1024]="";
@@ -115,7 +118,7 @@ LONG CALLBACK ExceptionHandler(PEXCEPTION_POINTERS ExceptionInfo)
     {
         if(MessageBoxA(hwndDlg, "Failed to write log file, do you want to copy it to clipboard?", "Question", MB_ICONQUESTION|MB_SYSTEMMODAL|MB_YESNO)==IDYES)
             CopyToClipboard(log_message);
-    }
+    }*/
     if(StopDebug)
         StopDebug();
     return EXCEPTION_CONTINUE_SEARCH;

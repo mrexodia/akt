@@ -4,7 +4,7 @@
 HWND MSC_shared;
 char MSC_szFileName[256]="";
 char MSC_program_dir[256]="";
-LPPROCESS_INFORMATION MSC_fdProcessInfo = NULL;
+LPPROCESS_INFORMATION MSC_fdProcessInfo=0;
 bool MSC_fdFileIsDll=false;
 unsigned int MSC_current_sym=0;
 bool MSC_getversion_set=false;
@@ -87,7 +87,7 @@ UINT MSC_DetermineRegisterFromByte(unsigned char byte)
 
 void MSC_SortArray(unsigned int* a, int size)
 {
-    unsigned int* cpy=(unsigned int*)malloc(size*4);
+    unsigned int* cpy=(unsigned int*)malloc2(size*4);
     memcpy(cpy, a, size*4);
     unsigned int* biggest=&cpy[0];
     for(int i=0; i<size; i++)

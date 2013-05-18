@@ -26,7 +26,7 @@ unsigned char* encrypted_cert_real=0; //certificate container byte parts
 bool fdFileIsDll=false; //Debugged is dll?
 bool patched_magic_jump=false; //bool to ensure we can retrieve all certificates (dynamically)
 
-LPPROCESS_INFORMATION fdProcessInfo = NULL; //process info
+LPPROCESS_INFORMATION fdProcessInfo=0; //process info
 UINT register_magic_byte=0; //register (titsEngine form) to retrieve the current byte from
 BYTE salt_code[61]= {0}; //Bytes of the salt code (for disassembly)
 
@@ -550,7 +550,7 @@ DWORD WINAPI CT_FindCertificates(void* lpvoid)
     CT_cert_data=(CERT_DATA*)malloc2(sizeof(CERT_DATA));
     memset(CT_cert_data, 0, sizeof(CERT_DATA));
     InitVariables(program_dir, (CT_DATA*)CT_cert_data, StopDebug, 1, GetParent(CT_shared));
-    FILE_STATUS_INFO inFileStatus = {0};
+    FILE_STATUS_INFO inFileStatus={0};
     CT_time1=GetTickCount();
     if(IsPE32FileValidEx(CT_szFileName, UE_DEPTH_DEEP, &inFileStatus))
     {
@@ -571,11 +571,11 @@ DWORD WINAPI CT_FindCertificates(void* lpvoid)
             return 0;
         }
         StaticFileClose(hFile);
-        fdFileIsDll = inFileStatus.FileIsDLL;
+        fdFileIsDll=inFileStatus.FileIsDLL;
         if(!fdFileIsDll)
-            fdProcessInfo = (LPPROCESS_INFORMATION)InitDebugEx(CT_szFileName, NULL, NULL, (void*)CT_cbEntry);
+            fdProcessInfo=(LPPROCESS_INFORMATION)InitDebugEx(CT_szFileName, 0, 0, (void*)CT_cbEntry);
         else
-            fdProcessInfo = (LPPROCESS_INFORMATION)InitDLLDebug(CT_szFileName, false, NULL, NULL, (void*)CT_cbEntry);
+            fdProcessInfo=(LPPROCESS_INFORMATION)InitDLLDebug(CT_szFileName, false, 0, 0, (void*)CT_cbEntry);
         if(fdProcessInfo)
         {
             EnableWindow(GetDlgItem(CT_shared, IDC_BTN_START), 0);

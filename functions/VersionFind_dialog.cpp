@@ -25,14 +25,14 @@ DWORD WINAPI VF_DebugThread(void* lpVoid)
     g_version[0]=0;
     HWND hwndDlg=g_shared_hwnd;
     char temp[10]="";
-    char* log_text=(char*)malloc(4096);
+    char* log_text=(char*)malloc2(4096);
     char log_location[256]="";
     char filename_nopath[256]="";
     memset(log_text, 0, 4096);
 
     if(!VF_RawOptions(g_szFileName, &g_raw_options, &g_minimal, VF_ErrorMessageCallback))
     {
-        free(log_text);
+        free2(log_text);
         return 0;
     }
 
@@ -95,7 +95,7 @@ DWORD WINAPI VF_DebugThread(void* lpVoid)
             }
         }
     }
-    free(log_text);
+    free2(log_text);
     return 0;
 }
 
@@ -134,7 +134,7 @@ BOOL CALLBACK VF_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
     case WM_DROPFILES:
     {
-        DragQueryFileA((HDROP)wParam, NULL, g_szFileName, 256);
+        DragQueryFileA((HDROP)wParam, 0, g_szFileName, 256);
         CreateThread(0, 0, VF_DebugThread, 0, 0, 0);
     }
     return TRUE;

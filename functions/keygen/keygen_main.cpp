@@ -304,7 +304,7 @@ int MakeEccSignature(unsigned char *keybytes, int *keylength, char *name_to_make
 
     /* Create the message to be signed. That will be the current contents of
     'keybytes' plus the name we're making the key for, not including the
-    terminating null. */
+    terminating 0. */
     CookText(tmp, name_to_make_key_for);
     sprintf(log_msg, "Cooked Name (Len: %d, 0x%X):\r\n%s", strlen(tmp), strlen(tmp), tmp);
     AddLogMessage(log, log_msg, false);

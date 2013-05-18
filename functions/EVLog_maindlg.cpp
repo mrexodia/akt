@@ -22,7 +22,7 @@ BOOL CALLBACK EV_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_DROPFILES:
     {
         SendMessageA(EV_list_hwnd, LB_RESETCONTENT, 0, 0);
-        DragQueryFileA((HDROP)wParam, NULL, EV_szFileName, MAX_PATH);
+        DragQueryFileA((HDROP)wParam, 0, EV_szFileName, MAX_PATH);
         strcpy(EV_program_dir, EV_szFileName);
         int i=strlen(EV_program_dir);
         while(EV_program_dir[i]!='\\')
@@ -83,16 +83,16 @@ BOOL CALLBACK EV_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
                     else
                         l+=sprintf(var_value+l, "%c", line_text[i]);
                 }
-                HMENU myMenu=NULL;
+                HMENU myMenu=0;
                 myMenu=CreatePopupMenu();
                 AppendMenu(myMenu, MF_STRING, 1, "Copy Variable &Name");
-                if(strcmp(var_value, "(null)"))
+                if(strcmp(var_value, "(0)"))
                     AppendMenu(myMenu, MF_STRING, 2, "Copy Variable &Value");
                 AppendMenu(myMenu, MF_STRING, 3, "Copy &Line");
                 POINT cursorPos;
                 GetCursorPos(&cursorPos);
                 SetForegroundWindow(hwndDlg);
-                UINT MenuItemClicked=TrackPopupMenu(myMenu, TPM_RETURNCMD | TPM_NONOTIFY, cursorPos.x, cursorPos.y, 0, hwndDlg, NULL);
+                UINT MenuItemClicked=TrackPopupMenu(myMenu, TPM_RETURNCMD|TPM_NONOTIFY, cursorPos.x, cursorPos.y, 0, hwndDlg, 0);
                 SendMessage(hwndDlg, WM_NULL, 0, 0);
                 switch(MenuItemClicked)
                 {

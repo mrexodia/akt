@@ -35,7 +35,7 @@ bool MSC_SD_RemoveWatermark(HWND hwndDlg)
         return false;
     }
     unsigned int filesize=GetFileSize(hFile, 0);
-    char* data=(char*)malloc(filesize);
+    char* data=(char*)malloc2(filesize);
     if(!data)
     {
         CloseHandle(hFile);
@@ -44,7 +44,7 @@ bool MSC_SD_RemoveWatermark(HWND hwndDlg)
     }
     if(!ReadFile(hFile, data, filesize, &read, 0))
     {
-        free(data);
+        free2(data);
         CloseHandle(hFile);
         MessageBoxA(hwndDlg, "Could not read file...", "Error!", MB_ICONERROR);
         return false;
@@ -52,7 +52,7 @@ bool MSC_SD_RemoveWatermark(HWND hwndDlg)
     CloseHandle(hFile);
     if(!DeleteFileA(MSC_szFileName))
     {
-        free(data);
+        free2(data);
         MessageBoxA(hwndDlg, "Could not delete file...", "Error!", MB_ICONERROR);
         return false;
     }
@@ -63,20 +63,20 @@ bool MSC_SD_RemoveWatermark(HWND hwndDlg)
     hFile=CreateFileA(MSC_szFileName, GENERIC_READ|GENERIC_WRITE, 0, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
     if(hFile==INVALID_HANDLE_VALUE)
     {
-        free(data);
+        free2(data);
         MessageBoxA(hwndDlg, "Could not create file...", "Error!", MB_ICONERROR);
         return false;
     }
     read=0;
     if(!WriteFile(hFile, data, filesize, &read, 0))
     {
-        free(data);
+        free2(data);
         CloseHandle(hFile);
         MessageBoxA(hwndDlg, "Could not write file...", "Error!", MB_ICONERROR);
         return false;
     }
     CloseHandle(hFile);
-    free(data);
+    free2(data);
     return true;
 }
 
@@ -89,7 +89,7 @@ void MSC_SD_LoadFile(HWND hwndDlg)
         return;
     }
     unsigned int filesize=GetFileSize(hFile, 0);
-    char* data=(char*)malloc(filesize);
+    char* data=(char*)malloc2(filesize);
     if(!data)
     {
         CloseHandle(hFile);
@@ -99,7 +99,7 @@ void MSC_SD_LoadFile(HWND hwndDlg)
     DWORD read=0;
     if(!ReadFile(hFile, data, filesize, &read, 0))
     {
-        free(data);
+        free2(data);
         CloseHandle(hFile);
         MessageBoxA(hwndDlg, "Could not read file...", "Error!", MB_ICONERROR);
         return;
@@ -108,7 +108,7 @@ void MSC_SD_LoadFile(HWND hwndDlg)
 
     if(!MSC_SD_IsValidPe(data))
     {
-        free(data);
+        free2(data);
         MessageBoxA(hwndDlg, "Invalid PE file...", "Error!", MB_ICONERROR);
         return;
     }
@@ -195,7 +195,7 @@ void MSC_SD_LoadFile(HWND hwndDlg)
     }
     EnableWindow(GetDlgItem(hwndDlg, IDC_CHK_WATERMARK), haswatermark);
     CheckDlgButton(hwndDlg, IDC_CHK_WATERMARK, haswatermark);
-    free(data);
+    free2(data);
     EnableWindow(GetDlgItem(hwndDlg, IDC_BTN_DELETESECTIONS), 1);
 }
 
@@ -209,7 +209,7 @@ bool MSC_SD_RemoveSection(HWND hwndDlg, int i)
         return false;
     }
     unsigned int filesize=GetFileSize(hFile, 0);
-    char* file=(char*)malloc(filesize);
+    char* file=(char*)malloc2(filesize);
     if(!file)
     {
         CloseHandle(hFile);
@@ -220,7 +220,7 @@ bool MSC_SD_RemoveSection(HWND hwndDlg, int i)
     read=0;
     if(!ReadFile(hFile, file, filesize, &read, 0))
     {
-        free(file);
+        free2(file);
         CloseHandle(hFile);
         MessageBoxA(hwndDlg, "Could not read file...", "Error!", MB_ICONERROR);
         return false;
@@ -230,7 +230,7 @@ bool MSC_SD_RemoveSection(HWND hwndDlg, int i)
     //Delete the old file
     if(!DeleteFileA(MSC_szFileName))
     {
-        free(file);
+        free2(file);
         MessageBoxA(hwndDlg, "Could not delete file...", "Error!", MB_ICONERROR);
         return false;
     }
@@ -243,10 +243,10 @@ bool MSC_SD_RemoveSection(HWND hwndDlg, int i)
     unsigned int raw_size=psh[i].SizeOfRawData;
 
     //Remove section data
-    char* file_new=(char*)malloc(filesize-raw_size);
+    char* file_new=(char*)malloc2(filesize-raw_size);
     if(!file_new)
     {
-        free(file);
+        free2(file);
         MessageBoxA(hwndDlg, "Could not allocate memory...", "Error!", MB_ICONERROR);
         return false;
     }
@@ -266,11 +266,11 @@ bool MSC_SD_RemoveSection(HWND hwndDlg, int i)
 
     //Remove section from header
     unsigned int new_section_size=sizeof(IMAGE_SECTION_HEADER)*pnth->FileHeader.NumberOfSections;
-    char* new_section=(char*)malloc(new_section_size);
+    char* new_section=(char*)malloc2(new_section_size);
     if(!new_section)
     {
-        free(file);
-        free(file_new);
+        free2(file);
+        free2(file_new);
         MessageBoxA(hwndDlg, "Could not allocate memory...", "Error!", MB_ICONERROR);
         return false;
     }
@@ -281,7 +281,7 @@ bool MSC_SD_RemoveSection(HWND hwndDlg, int i)
     else
         pnth->OptionalHeader.SizeOfImage-=psh[i].Misc.VirtualSize; //Update sizeofimage when the last section is removed...
     memcpy(&psh[0], new_section, new_section_size);
-    free(new_section);
+    free2(new_section);
     if(i and i!=pnth->FileHeader.NumberOfSections-1)
         psh[i-1].Misc.VirtualSize+=raw_size; //Update raw size of previous section (otherwise its invalid pe)
     pnth->FileHeader.NumberOfSections--;
@@ -290,22 +290,22 @@ bool MSC_SD_RemoveSection(HWND hwndDlg, int i)
     hFile=CreateFileA(MSC_szFileName, GENERIC_READ|GENERIC_WRITE, 0, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
     if(hFile==INVALID_HANDLE_VALUE)
     {
-        free(file);
-        free(file_new);
+        free2(file);
+        free2(file_new);
         MessageBoxA(hwndDlg, "Could not create file...", "Error!", MB_ICONERROR);
         return false;
     }
     read=0;
     if(!WriteFile(hFile, file_new, filesize-raw_size, &read, 0))
     {
-        free(file);
-        free(file_new);
+        free2(file);
+        free2(file_new);
         CloseHandle(hFile);
         MessageBoxA(hwndDlg, "Could not write file...", "Error!", MB_ICONERROR);
         return false;
     }
     CloseHandle(hFile);
-    free(file);
-    free(file_new);
+    free2(file);
+    free2(file_new);
     return true;
 }

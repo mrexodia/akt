@@ -38,7 +38,7 @@ void MSC_cbVirtualProtect()
     unsigned int security_code_base=0,security_code_size=0;
     ReadProcessMemory(MSC_fdProcessInfo->hProcess, (void*)(esp_addr+4), &security_code_base, 4, 0);
     ReadProcessMemory(MSC_fdProcessInfo->hProcess, (void*)(esp_addr+8), &security_code_size, 4, 0);
-    BYTE* security_code=(BYTE*)malloc(security_code_size);
+    BYTE* security_code=(BYTE*)malloc2(security_code_size);
     ReadProcessMemory(MSC_fdProcessInfo->hProcess, (void*)security_code_base, security_code, security_code_size, 0);
 
     MSC_magic_addr=FindMagicPattern(security_code, security_code_size);
@@ -48,7 +48,7 @@ void MSC_cbVirtualProtect()
         return;
     }
     SetBPX(MSC_magic_addr+security_code_base, UE_BREAKPOINT, (void*)MSC_cbSymGet);
-    free(security_code);
+    free2(security_code);
 }
 
 void MSC_cbOpenMutexA()
@@ -89,9 +89,9 @@ DWORD WINAPI MSC_CurSymDebugThread(void* lpvoid)
     EnableWindow(btn, 0);
     MSC_getversion_set=false;
     MSC_current_sym=0;
-    MSC_fdFileIsDll = false;
-    MSC_fdProcessInfo = NULL;
-    FILE_STATUS_INFO inFileStatus = {0};
+    MSC_fdFileIsDll=false;
+    MSC_fdProcessInfo=0;
+    FILE_STATUS_INFO inFileStatus={0};
     if(IsPE32FileValidEx(MSC_szFileName, UE_DEPTH_DEEP, &inFileStatus))
     {
         if(inFileStatus.FileIs64Bit)
@@ -111,14 +111,14 @@ DWORD WINAPI MSC_CurSymDebugThread(void* lpvoid)
             return 0;
         }
         StaticFileClose(hFile);
-        MSC_fdFileIsDll = inFileStatus.FileIsDLL;
+        MSC_fdFileIsDll=inFileStatus.FileIsDLL;
         if(!MSC_fdFileIsDll)
         {
-            MSC_fdProcessInfo = (LPPROCESS_INFORMATION)InitDebugEx(MSC_szFileName, NULL, NULL, (void*)MSC_cbEntry);
+            MSC_fdProcessInfo=(LPPROCESS_INFORMATION)InitDebugEx(MSC_szFileName, 0, 0, (void*)MSC_cbEntry);
         }
         else
         {
-            MSC_fdProcessInfo = (LPPROCESS_INFORMATION)InitDLLDebug(MSC_szFileName, false, NULL, NULL, (void*)MSC_cbEntry);
+            MSC_fdProcessInfo=(LPPROCESS_INFORMATION)InitDLLDebug(MSC_szFileName, false, 0, 0, (void*)MSC_cbEntry);
         }
         if(MSC_fdProcessInfo)
         {

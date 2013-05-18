@@ -91,8 +91,8 @@ void CopyToClipboard(const char* text)
     char *pText;
     int len=strlen(text);
 
-    hText = GlobalAlloc(GMEM_DDESHARE | GMEM_MOVEABLE, len+1);
-    pText = (char*)GlobalLock(hText);
+    hText=GlobalAlloc(GMEM_DDESHARE|GMEM_MOVEABLE, len+1);
+    pText=(char*)GlobalLock(hText);
     strcpy(pText, text);
 
     OpenClipboard(0);
@@ -163,13 +163,13 @@ void FormatHex(char* string)
 {
     int len=strlen(string);
     _strupr(string);
-    char* new_string=(char*)malloc(len+1);
+    char* new_string=(char*)malloc2(len+1);
     memset(new_string, 0, len+1);
     for(int i=0,j=0; i<len; i++)
         if(IsHexChar(string[i]))
             j+=sprintf(new_string+j, "%c", string[i]);
     strcpy(string, new_string);
-    free(new_string);
+    free2(new_string);
 }
 
 int StringToByteArray(const char* s, unsigned char* d, int d_len)
@@ -527,12 +527,12 @@ bool FixIsDebuggerPresent(HANDLE hProcess, bool hide)
 
 void* malloc2(size_t size)
 {
-    return VirtualAlloc(NULL, size, MEM_COMMIT, PAGE_READWRITE);
+    return VirtualAlloc(0, size, MEM_COMMIT, PAGE_READWRITE);
 }
 
 void free2(void *address)
 {
-    VirtualFree(address, NULL, MEM_RELEASE);
+    VirtualFree(address, 0, MEM_RELEASE);
 }
 
 void UpdateHorizontalScrollLen(HWND list, const char* string)

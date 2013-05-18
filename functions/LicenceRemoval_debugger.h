@@ -108,6 +108,7 @@ struct LRPARSTRUCT
     HWND list;
     bool* isdebugging;
     cbGenericTwoArg filllist;
+    HWND hwndDlg;
 };
 
 /**************************************************************************

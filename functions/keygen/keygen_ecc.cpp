@@ -53,12 +53,12 @@ void ECC_RotateLeft(ECC_FIELD *a)
     ECC_INDEX i;
     ECC_ELEMENT bit,temp;
 
-    bit = (a->e[0] & ECC_UPRBIT) ? 1L : 0L;
+    bit=(a->e[0] & ECC_UPRBIT) ? 1L : 0L;
     for(i=ECC_NUMWORD; i>=0; i--)
     {
-        temp = (a->e[i] & ECC_MSB) ? 1L : 0L;
-        a->e[i] = (a->e[i] << 1) | bit;
-        bit = temp;
+        temp=(a->e[i] & ECC_MSB) ? 1L : 0L;
+        a->e[i]=(a->e[i] << 1)|bit;
+        bit=temp;
     }
     a->e[0] &= ECC_UPRMASK;
 }
@@ -68,12 +68,12 @@ void ECC_RotateRight(ECC_FIELD *a)
     ECC_INDEX i;
     ECC_ELEMENT bit,temp;
 
-    bit = (a->e[ECC_NUMWORD] & 1) ? ECC_UPRBIT : 0L;
+    bit=(a->e[ECC_NUMWORD] & 1) ? ECC_UPRBIT : 0L;
     ECC_SUMLOOP(i)
     {
-        temp = (a->e[i] >> 1)  | bit;
-        bit = (a->e[i] & 1) ? ECC_MSB : 0L;
-        a->e[i] = temp;
+        temp=(a->e[i] >> 1) |bit;
+        bit=(a->e[i] & 1) ? ECC_MSB : 0L;
+        a->e[i]=temp;
     }
     a->e[0] &= ECC_UPRMASK;
 }
@@ -81,19 +81,19 @@ void ECC_RotateRight(ECC_FIELD *a)
 void Field_Clear(ECC_FIELD *a)
 {
     ECC_INDEX i;
-    ECC_SUMLOOP(i) a->e[i] = 0;
+    ECC_SUMLOOP(i) a->e[i]=0;
 }
 
 void Field_Copy(ECC_FIELD *a, ECC_FIELD *b)
 {
     ECC_INDEX i;
-    ECC_SUMLOOP(i) b->e[i] = a->e[i];
+    ECC_SUMLOOP(i) b->e[i]=a->e[i];
 }
 
 void Field_Set(ECC_FIELD *place)
 {
     ECC_INDEX i;
-    ECC_SUMLOOP(i) place->e[i] = -1L;
+    ECC_SUMLOOP(i) place->e[i]=-1L;
     place->e[0] &= ECC_UPRMASK;
 }
 
@@ -106,20 +106,20 @@ void ECC_Multiply(ECC_FIELD *a, ECC_FIELD *b, ECC_FIELD *c)
     Field_Clear(c);
     Field_Copy(b, &copyb);
     Field_Copy(a, &amatrix[0]);
-    for(i = 1; i < ECC_NUMBITS; i++)
+    for(i=1; i<ECC_NUMBITS; i++)
     {
         Field_Copy(&amatrix[i-1], &amatrix[i]);
         ECC_RotateRight(&amatrix[i]);
     }
 
-    zero_index = ecc_table[0][0];
-    ECC_SUMLOOP(i) c->e[i] = copyb.e[i] & amatrix[zero_index].e[i];
+    zero_index=ecc_table[0][0];
+    ECC_SUMLOOP(i) c->e[i]=copyb.e[i] & amatrix[zero_index].e[i];
 
-    for(j = 1; j<ECC_NUMBITS; j++)
+    for(j=1; j<ECC_NUMBITS; j++)
     {
         ECC_RotateRight(&copyb);
-        zero_index = ecc_table[0][j];
-        one_index = ecc_table[1][j];
+        zero_index=ecc_table[0][j];
+        one_index=ecc_table[1][j];
         ECC_SUMLOOP(i) c->e[i] ^= copyb.e[i] & (amatrix[zero_index].e[i] ^ amatrix[one_index].e[i]);
     }
 }
@@ -129,15 +129,15 @@ void ECC_Inverse(ECC_FIELD *a, ECC_FIELD *result)
     ECC_FIELD	shift, temp;
     ECC_INDEX m, s, r, rsft;
 
-    s = ecc_log2m - 1;
+    s=ecc_log2m - 1;
     Field_Copy(a, result);
-    m = ECC_NUMBITS - 1;
+    m=ECC_NUMBITS - 1;
 
     while(s >= 0)
     {
-        r = m >> s;
+        r=m >> s;
         Field_Copy(result, &shift);
-        for(rsft = 0; rsft < (r>>1); rsft++) ECC_RotateLeft(&shift);
+        for(rsft=0; rsft<(r>>1); rsft++) ECC_RotateLeft(&shift);
         ECC_Multiply(result, &shift, &temp);
         if(r&1)
         {
@@ -178,8 +178,8 @@ void ECC_PointAdd(ECC_POINT *p1, ECC_POINT *p2, ECC_POINT *p3, ECC_CURVE *curv)
     Field_Clear(&y1);
     ECC_SUMLOOP(i)
     {
-        x1.e[i] = p1->x.e[i] ^ p2->x.e[i];
-        y1.e[i] = p1->y.e[i] ^ p2->y.e[i];
+        x1.e[i]=p1->x.e[i] ^ p2->x.e[i];
+        y1.e[i]=p1->y.e[i] ^ p2->y.e[i];
     }
     ECC_Inverse(&x1, &onex);
     ECC_Multiply(&onex, &y1, &theta);
@@ -188,16 +188,16 @@ void ECC_PointAdd(ECC_POINT *p1, ECC_POINT *p2, ECC_POINT *p3, ECC_CURVE *curv)
 
     if(curv->form)
     {
-        ECC_SUMLOOP(i) p3->x.e[i] = theta.e[i] ^ theta2.e[i] ^ p1->x.e[i] ^ p2->x.e[i] ^ curv->a2.e[i];
+        ECC_SUMLOOP(i) p3->x.e[i]=theta.e[i] ^ theta2.e[i] ^ p1->x.e[i] ^ p2->x.e[i] ^ curv->a2.e[i];
     }
     else
     {
-        ECC_SUMLOOP(i) p3->x.e[i] = theta.e[i] ^ theta2.e[i] ^ p1->x.e[i] ^ p2->x.e[i];
+        ECC_SUMLOOP(i) p3->x.e[i]=theta.e[i] ^ theta2.e[i] ^ p1->x.e[i] ^ p2->x.e[i];
     }
 
-    ECC_SUMLOOP(i) x1.e[i] = p1->x.e[i] ^ p3->x.e[i];
+    ECC_SUMLOOP(i) x1.e[i]=p1->x.e[i] ^ p3->x.e[i];
     ECC_Multiply(&x1, &theta, &theta2);
-    ECC_SUMLOOP(i) p3->y.e[i] = theta2.e[i] ^ p3->x.e[i] ^ p1->y.e[i];
+    ECC_SUMLOOP(i) p3->y.e[i]=theta2.e[i] ^ p3->x.e[i] ^ p1->y.e[i];
 }
 
 void ECC_PointSubtract(ECC_POINT *p1, ECC_POINT *p2, ECC_POINT *p3, ECC_CURVE *curv)
@@ -207,7 +207,7 @@ void ECC_PointSubtract(ECC_POINT *p1, ECC_POINT *p2, ECC_POINT *p3, ECC_CURVE *c
 
     Field_Copy(&p2->x, &negp.x);
     Field_Clear(&negp.y);
-    ECC_SUMLOOP(i) negp.y.e[i] = p2->x.e[i] ^ p2->y.e[i];
+    ECC_SUMLOOP(i) negp.y.e[i]=p2->x.e[i] ^ p2->y.e[i];
     ECC_PointAdd(p1, &negp, p3, curv);
 }
 
@@ -218,17 +218,17 @@ void ECC_PointDouble(ECC_POINT *p1, ECC_POINT *p3, ECC_CURVE *curv)
 
     ECC_Inverse(&p1->x, &x1);
     ECC_Multiply(&x1, &p1->y, &y1);
-    ECC_SUMLOOP(i) theta.e[i] = p1->x.e[i] ^ y1.e[i];
+    ECC_SUMLOOP(i) theta.e[i]=p1->x.e[i] ^ y1.e[i];
 
     Field_Copy(&theta, &theta2);
     ECC_RotateLeft(&theta2);
     if(curv->form)
     {
-        ECC_SUMLOOP(i) p3->x.e[i] = theta.e[i] ^ theta2.e[i] ^ curv->a2.e[i];
+        ECC_SUMLOOP(i) p3->x.e[i]=theta.e[i] ^ theta2.e[i] ^ curv->a2.e[i];
     }
     else
     {
-        ECC_SUMLOOP(i) p3->x.e[i] = theta.e[i] ^ theta2.e[i];
+        ECC_SUMLOOP(i) p3->x.e[i]=theta.e[i] ^ theta2.e[i];
     }
 
     Field_Set(&y1);
@@ -236,7 +236,7 @@ void ECC_PointDouble(ECC_POINT *p1, ECC_POINT *p3, ECC_CURVE *curv)
     ECC_Multiply(&y1, &p3->x, &t1);
     Field_Copy(&p1->x, &x1);
     ECC_RotateLeft(&x1);
-    ECC_SUMLOOP(i) p3->y.e[i] = x1.e[i] ^ t1.e[i];
+    ECC_SUMLOOP(i) p3->y.e[i]=x1.e[i] ^ t1.e[i];
 }
 
 void ECC_PointMultiply(ECC_FIELD *k, ECC_POINT *p, ECC_POINT *r, ECC_CURVE *curv)
@@ -250,7 +250,7 @@ void ECC_PointMultiply(ECC_FIELD *k, ECC_POINT *p, ECC_POINT *r, ECC_CURVE *curv
     /* make sure input multiplier k is not zero. Return point at infinity if it
     is. */
     Field_Copy(k, &number);
-    notzero = 0;
+    notzero=0;
     ECC_SUMLOOP(i) notzero |= number.e[i];
     if(!notzero)
     {
@@ -259,13 +259,13 @@ void ECC_PointMultiply(ECC_FIELD *k, ECC_POINT *p, ECC_POINT *r, ECC_CURVE *curv
         return;
     }
 
-    bit_count = 0;
+    bit_count=0;
     while(notzero)
     {
         if(number.e[ECC_NUMWORD] & 1)
         {
-            blncd[bit_count] = (char)(2 - (number.e[ECC_NUMWORD] & 3));
-            if(blncd[bit_count] < 0)
+            blncd[bit_count]=(char)(2 - (number.e[ECC_NUMWORD] & 3));
+            if(blncd[bit_count]<0)
             {
                 for(i=ECC_NUMWORD; i>=0; i--)
                 {
@@ -274,18 +274,18 @@ void ECC_PointMultiply(ECC_FIELD *k, ECC_POINT *p, ECC_POINT *r, ECC_CURVE *curv
                 }
             }
         }
-        else blncd[bit_count] = 0;
+        else blncd[bit_count]=0;
 
         number.e[ECC_NUMWORD] &= ~0 << 1;
         ECC_RotateRight(&number);
         bit_count++;
-        notzero = 0;
+        notzero=0;
         ECC_SUMLOOP(i) notzero |= number.e[i];
     }
 
     --bit_count;
     ECC_PointCopy(p,r);
-    while(bit_count > 0)
+    while(bit_count>0)
     {
         ECC_PointDouble(r, &temp, curv);
         bit_count--;
@@ -450,52 +450,52 @@ void ECC_InitializeTable(void)
 #ifdef ECC_TYPE2
     ECC_INDEX logof[4], j;
 
-    twoexp = 1;
+    twoexp=1;
     for(i=0; i<ECC_NUMBITS; i++)
     {
-        log2[twoexp] = i;
-        twoexp = (short)((twoexp << 1) % ECC_FIELDPRIME);
+        log2[twoexp]=i;
+        twoexp=(short)((twoexp << 1) % ECC_FIELDPRIME);
     }
 
-    if(twoexp == 1)
+    if(twoexp==1)
     {
-        twoexp = 2*ECC_NUMBITS;
+        twoexp=2*ECC_NUMBITS;
         for(i=0; i<ECC_NUMBITS; i++)
         {
-            log2[twoexp] = i;
-            twoexp = (short)((twoexp << 1) % ECC_FIELDPRIME);
+            log2[twoexp]=i;
+            twoexp=(short)((twoexp << 1) % ECC_FIELDPRIME);
         }
     }
     else
     {
         for(i=ECC_NUMBITS; i<ECC_FIELDPRIME-1; i++)
         {
-            log2[twoexp] = i;
-            twoexp = (short)((twoexp << 1) % ECC_FIELDPRIME);
+            log2[twoexp]=i;
+            twoexp=(short)((twoexp << 1) % ECC_FIELDPRIME);
         }
     }
 
-    /* first element in vector 1 always = 1 */
-    ecc_table[0][0] = 1;
-    ecc_table[1][0] = -1;
+    /* first element in vector 1 always=1 */
+    ecc_table[0][0]=1;
+    ecc_table[1][0]=-1;
 
-    n = (ECC_FIELDPRIME - 1)/2;
+    n=(ECC_FIELDPRIME - 1)/2;
 
-    twoexp = 1;
+    twoexp=1;
     for(i=1; i<n; i++)
     {
-        twoexp = (short)((twoexp<<1) % ECC_FIELDPRIME);
-        logof[0] = log2[ECC_FIELDPRIME + 1 - twoexp];
-        logof[1] = log2[ECC_FIELDPRIME - 1 - twoexp];
-        logof[2] = log2[twoexp - 1];
-        logof[3] = log2[twoexp + 1];
-        k = 0;
-        j = 0;
+        twoexp=(short)((twoexp<<1) % ECC_FIELDPRIME);
+        logof[0]=log2[ECC_FIELDPRIME + 1 - twoexp];
+        logof[1]=log2[ECC_FIELDPRIME - 1 - twoexp];
+        logof[2]=log2[twoexp - 1];
+        logof[3]=log2[twoexp + 1];
+        k=0;
+        j=0;
         while(k<2)
         {
-            if(logof[j] < n)
+            if(logof[j]<n)
             {
-                ecc_table[k][i] = logof[j];
+                ecc_table[k][i]=logof[j];
                 ++k;
             }
             ++j;
@@ -504,33 +504,33 @@ void ECC_InitializeTable(void)
 #else
     ECC_INDEX logof, index;
 
-    for(i=0; i<ECC_FIELDPRIME; i++) log2[i] = -1;
+    for(i=0; i<ECC_FIELDPRIME; i++) log2[i]=-1;
 
-    twoexp = 1;
+    twoexp=1;
     for(i=0; i<ECC_FIELDPRIME; i++)
     {
-        log2[twoexp] = i;
-        twoexp = (short)((twoexp << 1) % ECC_FIELDPRIME);
+        log2[twoexp]=i;
+        twoexp=(short)((twoexp << 1) % ECC_FIELDPRIME);
     }
 
-    n = (ECC_FIELDPRIME - 1)/2;
+    n=(ECC_FIELDPRIME - 1)/2;
 
-    ecc_table[0][0] = n;
+    ecc_table[0][0]=n;
     for(i=1; i<ECC_FIELDPRIME; i++)
-        ecc_table[0][i] = (ecc_table[0][i-1] + 1) % ECC_NUMBITS;
+        ecc_table[0][i]=(ecc_table[0][i-1] + 1) % ECC_NUMBITS;
 
     ecc_table[1][0]= -1; /* never used */
-    ecc_table[1][1] = n;
-    ecc_table[1][n] = 1;
+    ecc_table[1][1]=n;
+    ecc_table[1][n]=1;
 
     for(i=2; i<=n; i++)
     {
-        index = log2[i];
-        logof = log2[ECC_FIELDPRIME - i + 1];
-        ecc_table[1][index] = logof;
-        ecc_table[1][logof] = index;
+        index=log2[i];
+        logof=log2[ECC_FIELDPRIME - i + 1];
+        ecc_table[1][index]=logof;
+        ecc_table[1][logof]=index;
     }
-    ecc_table[1][log2[n+1]] = log2[n+1];
+    ecc_table[1][log2[n+1]]=log2[n+1];
 #endif
 
     ecc_log2m=0;
@@ -569,7 +569,7 @@ int ECC_Quadratic(ECC_FIELD *a, ECC_FIELD *b, ECC_FIELD *y)
     ECC_FIELD x, k, a2;
     ECC_ELEMENT r, t, mask;
 
-    r = 0;
+    r=0;
     ECC_SUMLOOP(i) r |= a->e[i];
     if(!r)
     {
@@ -584,15 +584,15 @@ int ECC_Quadratic(ECC_FIELD *a, ECC_FIELD *b, ECC_FIELD *y)
 
     ECC_Multiply(b, &a2, &k);
     ECC_RotateRight(&k);
-    r = 0;
+    r=0;
 
     ECC_SUMLOOP(i) r ^= k.e[i];
 
-    mask = -1L;
-    for(bits = ECC_ELEMENTBITS/2; bits > 0; bits >>= 1)
+    mask=-1L;
+    for(bits=ECC_ELEMENTBITS/2; bits>0; bits >>= 1)
     {
         mask >>= bits;
-        r = ((r & mask) ^ (r >> bits));
+        r=((r & mask) ^ (r >> bits));
     }
 
     if(r)
@@ -603,17 +603,17 @@ int ECC_Quadratic(ECC_FIELD *a, ECC_FIELD *b, ECC_FIELD *y)
     }
 
     Field_Clear(&x);
-    mask = 1;
-    for(bits=0; bits < ECC_NUMBITS ; bits++)
+    mask=1;
+    for(bits=0; bits<ECC_NUMBITS ; bits++)
     {
-        i = ECC_NUMWORD - bits/ECC_ELEMENTBITS;
-        l = ECC_NUMWORD - (bits + 1)/ECC_ELEMENTBITS;
+        i=ECC_NUMWORD - bits/ECC_ELEMENTBITS;
+        l=ECC_NUMWORD - (bits + 1)/ECC_ELEMENTBITS;
 
-        r = k.e[i] & mask;
-        t = x.e[i] & mask;
+        r=k.e[i] & mask;
+        t=x.e[i] & mask;
         r ^= t;
 
-        if(l == i)
+        if(l==i)
         {
             r <<= 1;
             x.e[l] |= r;
@@ -621,13 +621,13 @@ int ECC_Quadratic(ECC_FIELD *a, ECC_FIELD *b, ECC_FIELD *y)
         }
         else
         {
-            mask = 1;
-            if(r) x.e[l] = 1;
+            mask=1;
+            if(r) x.e[l]=1;
         }
     }
 
-    r = k.e[0] & ECC_UPRBIT;
-    t = x.e[0] & ECC_UPRBIT;
+    r=k.e[0] & ECC_UPRBIT;
+    t=x.e[0] & ECC_UPRBIT;
     if(r^t)
     {
         Field_Clear(&y[0]);
@@ -638,7 +638,7 @@ int ECC_Quadratic(ECC_FIELD *a, ECC_FIELD *b, ECC_FIELD *y)
     ECC_Multiply(a, &x, &y[0]);
 
     Field_Clear(&y[1]);
-    ECC_SUMLOOP(i) y[1].e[i] = y[0].e[i] ^ a->e[i];
+    ECC_SUMLOOP(i) y[1].e[i]=y[0].e[i] ^ a->e[i];
 
     return 0;
 }
@@ -648,7 +648,7 @@ void ECC_Embed(ECC_FIELD *data, ECC_CURVE *curv, ECC_INDEX incrmt, ECC_INDEX roo
     ECC_FIELD f, y[2];
     ECC_INDEX inc=incrmt;
 
-    if((inc < 0) || ((unsigned int)inc > ECC_NUMWORD)) inc=0;
+    if((inc<0) || ((unsigned int)inc>ECC_NUMWORD)) inc=0;
     Field_Copy(data, &pnt->x);
     ECC_FOFX(&pnt->x, curv, &f);
     while(ECC_Quadratic(&pnt->x, &f, y))

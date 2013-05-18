@@ -14,3 +14,4 @@ bin/plugins/
 bin/exception_*.log
 *.layout
 *.depend
+Public/

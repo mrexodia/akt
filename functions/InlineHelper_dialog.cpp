@@ -3,12 +3,12 @@
 /**********************************************************************
  *						Module Variables
  *********************************************************************/
-char g_szFileName[256] = ""; 				// Debugged program filename
-static char g_szTargetDir[256] = ""; 		// String for the directory of the debugged program
+char g_szFileName[256]=""; 				// Debugged program filename
+static char g_szTargetDir[256]=""; 		// String for the directory of the debugged program
 
 bool g_FileIsDll=false; 					// Flag for DLL
 
-static char g_codeText[2048] = ""; 			// String for the inline asm code
+static char g_codeText[2048]=""; 			// String for the inline asm code
 
 IH_InlineHelperData_t g_TargetData;
 
@@ -43,7 +43,7 @@ BOOL CALLBACK IH_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_DROPFILES:
     {
         //Get the dropped file name.
-        DragQueryFileA((HDROP)wParam, NULL, g_szFileName, 256);
+        DragQueryFileA((HDROP)wParam, 0, g_szFileName, 256);
 
         //Retrieve the directory of the file.
         int i=strlen(g_szFileName)-1;
@@ -105,7 +105,7 @@ BOOL CALLBACK IH_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             }
 
             CopyFileA(g_szFileName, patch_filename, FALSE);
-            SetPE32Data(patch_filename, NULL, UE_OEP, g_TargetData.EmptyEntry-g_TargetData.ImageBase);
+            SetPE32Data(patch_filename, 0, UE_OEP, g_TargetData.EmptyEntry-g_TargetData.ImageBase);
             long newflags=(long)GetPE32Data(patch_filename, g_TargetData.EntrySectionNumber, UE_SECTIONFLAGS);
             SetPE32Data(patch_filename, g_TargetData.EntrySectionNumber, UE_SECTIONFLAGS, (newflags|0x80000000));
 
@@ -152,7 +152,7 @@ BOOL CALLBACK IH_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             sscanf(total_found_s, "%d", &total_found);
             if(total_found)
             {
-                HMENU myMenu=NULL;
+                HMENU myMenu=0;
                 myMenu=CreatePopupMenu();
                 for(int i=1; i!=(total_found+1); i++)
                 {
@@ -163,7 +163,7 @@ BOOL CALLBACK IH_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 POINT cursorPos;
                 GetCursorPos(&cursorPos);
                 SetForegroundWindow(hwndDlg);
-                UINT MenuItemClicked=TrackPopupMenu(myMenu, TPM_RETURNCMD | TPM_NONOTIFY, cursorPos.x, cursorPos.y, 0, hwndDlg, NULL);
+                UINT MenuItemClicked=TrackPopupMenu(myMenu, TPM_RETURNCMD|TPM_NONOTIFY, cursorPos.x, cursorPos.y, 0, hwndDlg, 0);
                 SendMessage(hwndDlg, WM_NULL, 0, 0);
                 if(!MenuItemClicked)
                     return TRUE;
@@ -193,13 +193,13 @@ BOOL CALLBACK IH_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             }
             else
             {
-                HMENU myMenu=NULL;
+                HMENU myMenu=0;
                 myMenu=CreatePopupMenu();
                 AppendMenuA(myMenu, MF_STRING|MF_GRAYED, 1, "No plugins found :(");
                 POINT cursorPos;
                 GetCursorPos(&cursorPos);
                 SetForegroundWindow(hwndDlg);
-                TrackPopupMenu(myMenu, TPM_RETURNCMD | TPM_NONOTIFY, cursorPos.x, cursorPos.y, 0, hwndDlg, NULL);
+                TrackPopupMenu(myMenu, TPM_RETURNCMD|TPM_NONOTIFY, cursorPos.x, cursorPos.y, 0, hwndDlg, 0);
             }
         }
         return TRUE;
@@ -226,7 +226,7 @@ void IH_ErrorMessageCallback(char* szMessage, char* szTitle)
 
 void IH_DebugEnd_Callback(void)
 {
-    char szBuffer[20] = "";
+    char szBuffer[20]="";
 
     sprintf(szBuffer, "%08X", g_TargetData.EmptyEntry);
     SetDlgItemTextA(g_HWND, IDC_EDT_FREESPACE, szBuffer);

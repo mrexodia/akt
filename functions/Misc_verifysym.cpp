@@ -37,14 +37,14 @@ void MSC_VR_cbVirtualProtect()
     unsigned int security_code_base=0,security_code_size=0;
     ReadProcessMemory(MSC_fdProcessInfo->hProcess, (void*)(esp_addr+4), &security_code_base, 4, 0);
     ReadProcessMemory(MSC_fdProcessInfo->hProcess, (void*)(esp_addr+8), &security_code_size, 4, 0);
-    BYTE* security_code=(BYTE*)malloc(security_code_size);
+    BYTE* security_code=(BYTE*)malloc2(security_code_size);
     ReadProcessMemory(MSC_fdProcessInfo->hProcess, (void*)security_code_base, security_code, security_code_size, 0);
 
     MSC_VR_magic_value_addr=MSC_FindMagicPattern(security_code, security_code_size, &MSC_VR_magic_ebp_sub);
     if(MSC_VR_magic_value_addr)
         SetHardwareBreakPoint((security_code_base+MSC_VR_magic_value_addr), UE_DR1, UE_HARDWARE_EXECUTE, UE_HARDWARE_SIZE_1, (void*)MSC_cbMagicValue);
 
-    free(security_code);
+    free2(security_code);
 }
 
 void MSC_VR_cbOpenMutexA()
@@ -83,9 +83,9 @@ DWORD WINAPI MSC_VR_GetMagic(void* lpvoid)
     HWND btn=GetDlgItem(MSC_shared, IDC_BTN_GETMAGIC);
     EnableWindow(btn, 0);
     MSC_isdebugging=true;
-    MSC_fdFileIsDll = false;
-    MSC_fdProcessInfo = NULL;
-    FILE_STATUS_INFO inFileStatus = {0};
+    MSC_fdFileIsDll=false;
+    MSC_fdProcessInfo=0;
+    FILE_STATUS_INFO inFileStatus={0};
     if(IsPE32FileValidEx(MSC_szFileName, UE_DEPTH_DEEP, &inFileStatus))
     {
         if(inFileStatus.FileIs64Bit)
@@ -105,14 +105,14 @@ DWORD WINAPI MSC_VR_GetMagic(void* lpvoid)
             return 0;
         }
         StaticFileClose(hFile);
-        MSC_fdFileIsDll = inFileStatus.FileIsDLL;
+        MSC_fdFileIsDll=inFileStatus.FileIsDLL;
         if(!MSC_fdFileIsDll)
         {
-            MSC_fdProcessInfo = (LPPROCESS_INFORMATION)InitDebugEx(MSC_szFileName, NULL, NULL, (void*)MSC_VR_cbEntry);
+            MSC_fdProcessInfo=(LPPROCESS_INFORMATION)InitDebugEx(MSC_szFileName, 0, 0, (void*)MSC_VR_cbEntry);
         }
         else
         {
-            MSC_fdProcessInfo = (LPPROCESS_INFORMATION)InitDLLDebug(MSC_szFileName, false, NULL, NULL, (void*)MSC_VR_cbEntry);
+            MSC_fdProcessInfo=(LPPROCESS_INFORMATION)InitDLLDebug(MSC_szFileName, false, 0, 0, (void*)MSC_VR_cbEntry);
         }
         if(MSC_fdProcessInfo)
         {
@@ -164,7 +164,7 @@ unsigned int MSC_VR_GenerateNumberDword(int* in_value)
 void MSC_VR_TEA_Decrypt(unsigned int* k, unsigned char* data, unsigned int length, int flag) //TODO: never used
 {
     unsigned int v0, v1, sum, i;
-    unsigned int delta = 0x9e3779b9;
+    unsigned int delta=0x9e3779b9;
     unsigned int k0=k[0], k1=k[1], k2=k[2], k3=k[3];
     unsigned int *lpData, *ptrEnd;
 
@@ -200,23 +200,23 @@ void MSC_VR_TEA_Decrypt(unsigned int* k, unsigned char* data, unsigned int lengt
 void MSC_VR_TEA_Decrypt_Nrounds(unsigned int *k, unsigned int *data, unsigned int rounds)
 {
     unsigned int v0, v1, sum, i;
-    unsigned int delta = 0x9e3779b9;
+    unsigned int delta=0x9e3779b9;
     unsigned int k0=k[0], k1=k[1], k2=k[2], k3=k[3];
 
-    v0 = data[0];
-    v1 = data[1];
+    v0=data[0];
+    v1=data[1];
     while(rounds--)
     {
-        sum = 0xC6EF3720;
-        for(i = 0; i < 32; i++)
+        sum=0xC6EF3720;
+        for(i=0; i<32; i++)
         {
             v1 -= ((v0<<4) + k2) ^ (v0 + sum) ^ ((v0>>5) + k3);
             v0 -= ((v1<<4) + k0) ^ (v1 + sum) ^ ((v1>>5) + k1);
             sum -= delta;
         }
     }
-    data[0] = v0;
-    //data[1] = v1;
+    data[0]=v0;
+    //data[1]=v1;
 }
 
 int MSC_VR_brute(unsigned int _magic1, unsigned int _magic2, unsigned int _sym, unsigned int _md5_ecdsa, unsigned char* data, unsigned int data_size)
@@ -231,7 +231,7 @@ int MSC_VR_brute(unsigned int _magic1, unsigned int _magic2, unsigned int _sym, 
     unsigned int sym_xor_md5_ecdsa=sym^md5_ecdsa;
     unsigned int sym_not_xor_magic1=magic1^~sym;
 
-    MSC_VR_buffer_400=(unsigned int*)malloc(0x400);
+    MSC_VR_buffer_400=(unsigned int*)malloc2(0x400);
     for(unsigned int i=0; i<0x100; i++) //loop1
     {
         unsigned int val1=MSC_VR_GenerateNumberDword((int*)&sym_xor_magic1);
@@ -265,7 +265,7 @@ int MSC_VR_brute(unsigned int _magic1, unsigned int _magic2, unsigned int _sym, 
     }
     unsigned int hash[4]= {0};
     md5((long unsigned int*)hash, (void*)MSC_VR_buffer_400, 0x400);
-    free(MSC_VR_buffer_400);
+    free2(MSC_VR_buffer_400);
     unsigned int rounds=MSC_VR_GenerateNumber_core(0x190, (int*)&sym_not_xor_magic1)+0x321;
     unsigned int buf_size=0, mini_crc=0, keyA=0;//, keyB=0;
     unsigned char key_mini_crc=hash[0]&7;
@@ -285,20 +285,20 @@ int MSC_VR_brute(unsigned int _magic1, unsigned int _magic2, unsigned int _sym, 
                 p_certs++;
                 if(key_mini_crc==mini_crc)
                 {
-                    p_block=(unsigned char*)malloc(8);
+                    p_block=(unsigned char*)malloc2(8);
                     memcpy(p_block, p_certs, 8);
-                    p_certs = p_certs + buf_size;
+                    p_certs=p_certs + buf_size;
                     MSC_VR_TEA_Decrypt_Nrounds((unsigned int*)hash, (unsigned int*)p_block, rounds + 2);
-                    keyA = *(unsigned int *)(p_block);
-                    free(p_block);
-                    if(keyA == 0xFFFFFFFF || ((keyA & 0xFFFFFFF0) == 0))
+                    keyA=*(unsigned int *)(p_block);
+                    free2(p_block);
+                    if(keyA==0xFFFFFFFF || ((keyA & 0xFFFFFFF0)==0))
                         return 1;
 
-                    /*p_block=(unsigned char*)malloc(buf_size);
+                    /*p_block=(unsigned char*)malloc2(buf_size);
                     memcpy(p_block, p_certs, buf_size);
                     p_certs=p_certs+buf_size;
                     TEA_Decrypt(hash, p_block, buf_size, -1);
-                    if(rounds) //loop3 (rounds = magic2)
+                    if(rounds) //loop3 (rounds=magic2)
                     {
                         block_size=1024;
                         if(buf_size<1024)
@@ -313,7 +313,7 @@ int MSC_VR_brute(unsigned int _magic1, unsigned int _magic2, unsigned int _sym, 
                     TEA_Decrypt(hash, p_block, buf_size, -1);
                     keyA=*(unsigned int*)(p_block+buf_size-8);
                     keyB=*(unsigned int*)(p_block+buf_size-4);
-                    free(p_block);
+                    free2(p_block);
                     if(keyA==~keyB)
                         return 1;*/
                 }
@@ -358,17 +358,17 @@ DWORD WINAPI MSC_VR_BruteThread(LPVOID arg)
         return 1;
     }
     data_size=GetFileSize(hFile, 0);
-    data=(unsigned char*)malloc(data_size);
+    data=(unsigned char*)malloc2(data_size);
     DWORD read=0;
     ReadFile(hFile, data, data_size, &read, 0);
     CloseHandle(hFile);
 
     //Read keys
-    MSC_VR_keys=(char*)malloc(max_bufsize);
+    MSC_VR_keys=(char*)malloc2(max_bufsize);
     memset(MSC_VR_keys, 0, max_bufsize);
-    MSC_VR_keys_format=(char*)malloc(max_bufsize);
+    MSC_VR_keys_format=(char*)malloc2(max_bufsize);
     memset(MSC_VR_keys_format, 0, max_bufsize);
-    MSC_VR_key_array=(unsigned int*)malloc((max_bufsize/8)*4);
+    MSC_VR_key_array=(unsigned int*)malloc2((max_bufsize/8)*4);
     memset(MSC_VR_key_array, 0, (max_bufsize/8)*4);
     char single_key[10]="";
     hFile=CreateFileA(MSC_VR_keyspath, GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE, 0, OPEN_EXISTING, 0, 0);
@@ -404,8 +404,8 @@ DWORD WINAPI MSC_VR_BruteThread(LPVOID arg)
         j++;
         i+=8;
     }
-    free(MSC_VR_keys);
-    free(MSC_VR_keys_format);
+    free2(MSC_VR_keys);
+    free2(MSC_VR_keys_format);
 
     //Actual brute force...
     for(int k=0; k!=j; k++)
@@ -415,8 +415,8 @@ DWORD WINAPI MSC_VR_BruteThread(LPVOID arg)
             char valid[10]="";
             sprintf(valid, "%.8X", MSC_VR_key_array[k]);
             SetDlgItemTextA(MSC_shared, IDC_EDT_SYMFOUND, valid);
-            free(MSC_VR_key_array);
-            free(data);
+            free2(MSC_VR_key_array);
+            free2(data);
             CheckDlgButton(MSC_shared, IDC_CHK_ISVALIDSYM, 1);
             EnableWindow(GetDlgItem(MSC_shared, IDC_BTN_VERIFYSYM), 1);
             return 0;
@@ -425,8 +425,8 @@ DWORD WINAPI MSC_VR_BruteThread(LPVOID arg)
     }
 
     //Free memory
-    free(MSC_VR_key_array);
-    free(data);
+    free2(MSC_VR_key_array);
+    free2(data);
     SetDlgItemTextA(MSC_shared, IDC_EDT_SYMFOUND, "NO_VALID");
     EnableWindow(GetDlgItem(MSC_shared, IDC_BTN_VERIFYSYM), 1);
     return 0;

@@ -4,19 +4,19 @@ vector<ArmaLicenseEntry_t> g_ArmaLicenseEntryList;
 
 static void FillLicRemovalList(HWND list, vector<ArmaLicenseEntry_t>* lic_entry)
 {
-    unsigned int itemLength = 0;
-    unsigned int widestItemIndex = 0;
+    unsigned int itemLength=0;
+    unsigned int widestItemIndex=0;
     // Clear the list box
     SendMessageA(list, LB_RESETCONTENT, 0, 0);
     // Add license files to the list box
-    for(int wI = 0; wI < (int)lic_entry->size(); wI++)
+    for(int wI=0; wI<(int)lic_entry->size(); wI++)
     {
         SendMessageA(list, LB_ADDSTRING, 0, (LPARAM)lic_entry->at(wI).Path.data());
 
-        if(strlen(lic_entry->at(wI).Path.data()) > itemLength)
+        if(strlen(lic_entry->at(wI).Path.data())>itemLength)
         {
-            itemLength = strlen(lic_entry->at(wI).Path.data());
-            widestItemIndex = wI;
+            itemLength=strlen(lic_entry->at(wI).Path.data());
+            widestItemIndex=wI;
         }
     }
     // Set the maximal horizontal scroll size
@@ -55,7 +55,7 @@ BOOL CALLBACK MSC_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
         if(MSC_isdebugging)
             return TRUE;
-        DragQueryFileA((HDROP)wParam, NULL, MSC_szFileName, MAX_PATH);
+        DragQueryFileA((HDROP)wParam, 0, MSC_szFileName, MAX_PATH);
         strcpy(MSC_program_dir, MSC_szFileName);
         int i=strlen(MSC_program_dir);
         while(MSC_program_dir[i]!='\\')
@@ -84,13 +84,13 @@ BOOL CALLBACK MSC_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             int len=GetDlgItemTextA(hwndDlg, IDC_EDT_FIXCLOCKKEY, serial, 2048);
             if(!len)
                 return TRUE;
-            HMENU myMenu=NULL;
+            HMENU myMenu=0;
             myMenu=CreatePopupMenu();
             AppendMenu(myMenu, MF_STRING, 1, "Copy FixClock Key");
             POINT cursorPos;
             GetCursorPos(&cursorPos);
             SetForegroundWindow(hwndDlg);
-            UINT MenuItemClicked=TrackPopupMenu(myMenu, TPM_RETURNCMD|TPM_NONOTIFY, cursorPos.x, cursorPos.y, 0, hwndDlg, NULL);
+            UINT MenuItemClicked=TrackPopupMenu(myMenu, TPM_RETURNCMD|TPM_NONOTIFY, cursorPos.x, cursorPos.y, 0, hwndDlg, 0);
             SendMessage(hwndDlg, WM_NULL, 0, 0);
             if(MenuItemClicked==1)
             {
@@ -137,7 +137,7 @@ BOOL CALLBACK MSC_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 POINT cursorPos;
                 GetCursorPos(&cursorPos);
                 SetForegroundWindow(hwndDlg);
-                UINT MenuItemClicked=TrackPopupMenu(myMenu, TPM_RETURNCMD|TPM_NONOTIFY, cursorPos.x, cursorPos.y, 0, hwndDlg, NULL);
+                UINT MenuItemClicked=TrackPopupMenu(myMenu, TPM_RETURNCMD|TPM_NONOTIFY, cursorPos.x, cursorPos.y, 0, hwndDlg, 0);
                 SendMessage(hwndDlg, WM_NULL, 0, 0);
                 switch(MenuItemClicked)
                 {
@@ -159,7 +159,7 @@ BOOL CALLBACK MSC_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
                         return TRUE;
                     }
                     data_size=GetFileSize(hFile, 0);
-                    data=(unsigned char*)malloc(data_size);
+                    data=(unsigned char*)malloc2(data_size);
                     DWORD read=0;
                     ReadFile(hFile, data, data_size, &read, 0);
                     CloseHandle(hFile);
@@ -206,7 +206,7 @@ BOOL CALLBACK MSC_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             POINT cursorPos;
             GetCursorPos(&cursorPos);
             SetForegroundWindow(hwndDlg);
-            UINT MenuItemClicked=TrackPopupMenu(myMenu, TPM_RETURNCMD|TPM_NONOTIFY, cursorPos.x, cursorPos.y, 0, hwndDlg, NULL);
+            UINT MenuItemClicked=TrackPopupMenu(myMenu, TPM_RETURNCMD|TPM_NONOTIFY, cursorPos.x, cursorPos.y, 0, hwndDlg, 0);
             SendMessage(hwndDlg, WM_NULL, 0, 0);
             switch(MenuItemClicked)
             {
@@ -271,7 +271,7 @@ BOOL CALLBACK MSC_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             POINT cursorPos;
             GetCursorPos(&cursorPos);
             SetForegroundWindow(hwndDlg);
-            UINT MenuItemClicked=TrackPopupMenu(myMenu, TPM_RETURNCMD|TPM_NONOTIFY, cursorPos.x, cursorPos.y, 0, hwndDlg, NULL);
+            UINT MenuItemClicked=TrackPopupMenu(myMenu, TPM_RETURNCMD|TPM_NONOTIFY, cursorPos.x, cursorPos.y, 0, hwndDlg, 0);
             SendMessage(hwndDlg, WM_NULL, 0, 0);
             switch(MenuItemClicked)
             {
@@ -484,82 +484,45 @@ BOOL CALLBACK MSC_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             par->list=list;
             par->isdebugging=&MSC_isdebugging;
             par->filllist=(cbGenericTwoArg)FillLicRemovalList;
+            par->hwndDlg=hwndDlg;
             CreateThread(0, 0, LR_GetArmaLicenseDataThread, par, 0, 0);
-            //LR_GetArmaLicenseData(MSC_szFileName, &g_ArmaLicenseEntryList);
-
-            /*unsigned int itemLength = 0;
-            unsigned int widestItemIndex = 0;
-            // Clear the list box
-            SendMessageA(list, LB_RESETCONTENT, 0, 0);
-            // Add license files to the list box
-            for(int wI = 0; wI < (int)g_ArmaLicenseEntryList.size(); wI++)
-            {
-                SendMessageA(list, LB_ADDSTRING, 0, (LPARAM)g_ArmaLicenseEntryList.at(wI).Path.data());
-
-                if(strlen(g_ArmaLicenseEntryList.at(wI).Path.data()) > itemLength)
-                {
-                    itemLength = strlen(g_ArmaLicenseEntryList.at(wI).Path.data());
-                    widestItemIndex = wI;
-                }
-            }
-            // Set the maximal horizontal scroll size
-            if(g_ArmaLicenseEntryList.size())
-                UpdateHorizontalScrollLen(list, g_ArmaLicenseEntryList.at(widestItemIndex).Path.data());
-            else
-                UpdateHorizontalScrollLen(list, "");*/
         }
         return TRUE;
 
         case IDC_BTN_REMOVESELLLICDATA:
         {
-            unsigned int itemLength = 0;
-            unsigned int widestItemIndex = 0;
+            unsigned int itemLength=0;
+            unsigned int widestItemIndex=0;
             HWND list=GetDlgItem(hwndDlg, IDC_LIST_LICENSES);
-            int totalNbrOfItems = SendMessageA(list, LB_GETCOUNT, 0, 0);
-
-            for(int wI = 0; wI < totalNbrOfItems; wI++)
+            int totalNbrOfItems=SendMessageA(list, LB_GETCOUNT, 0, 0);
+            for(int wI=0; wI<totalNbrOfItems; wI++)
             {
                 if(SendMessageA(list, LB_GETSEL, wI, 0))
                 {
                     //printf("Remove %s\n", g_ArmaLicenseEntryList.at(wI).Path.data());
                     LR_RemoveSingleArmaLicenseData(g_ArmaLicenseEntryList.at(wI));
-
                     g_ArmaLicenseEntryList.erase(g_ArmaLicenseEntryList.begin() + wI);
-
                     SendMessageA(list, LB_DELETESTRING, wI, 0);
-
                     wI--;
                     totalNbrOfItems--;
                 }
             }
             // Search the longer string
-            for(int wI = 0; wI < (int)g_ArmaLicenseEntryList.size(); wI++)
+            for(int wI=0; wI<(int)g_ArmaLicenseEntryList.size(); wI++)
             {
-                if(strlen(g_ArmaLicenseEntryList.at(wI).Path.data()) > itemLength)
+                if(strlen(g_ArmaLicenseEntryList.at(wI).Path.data())>itemLength)
                 {
-                    itemLength = strlen(g_ArmaLicenseEntryList.at(wI).Path.data());
-                    widestItemIndex = wI;
+                    itemLength=strlen(g_ArmaLicenseEntryList.at(wI).Path.data());
+                    widestItemIndex=wI;
                 }
             }
             // Set the maximal horizontal scroll size
-            if(g_ArmaLicenseEntryList.size() > 0)
+            if(g_ArmaLicenseEntryList.size()>0)
                 UpdateHorizontalScrollLen(list, g_ArmaLicenseEntryList.at(widestItemIndex).Path.data());
             else
                 UpdateHorizontalScrollLen(list, "");
         }
         return TRUE;
-
-        /*case IDC_BTN_REMOVEALLLICDATA:
-        {
-            HWND list=GetDlgItem(hwndDlg, IDC_LIST_LICENSES);
-            int totalNbrOfItems = SendMessageA(list, LB_GETCOUNT, 0, 0);
-            LR_RemoveArmaLicenseData(g_ArmaLicenseEntryList);
-            for(int wI = 0; wI < totalNbrOfItems; wI++)
-                SendMessageA(list, LB_DELETESTRING, 0, 0);
-            UpdateHorizontalScrollLen(list, "");
-        }
-        return TRUE;*/
-
         }
     }
     return TRUE;

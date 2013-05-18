@@ -285,12 +285,13 @@ void CT_ParseCerts()
     //Encrypted certificate containers
     if(cd->encrypted_size and cd->encrypted_data)
     {
-        DeleteFileA(CT_szCryptCertFile);
+        //DeleteFileA(CT_szCryptCertFile);
         HANDLE hFile=CreateFileA(CT_szCryptCertFile, GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
         if(hFile==INVALID_HANDLE_VALUE)
             MessageBoxA(hwndDlg, "Failed to create file...", CT_szCryptCertFile, MB_ICONERROR);
         else
         {
+            SetEndOfFile(hFile);
             DWORD written=0;
             if(WriteFile(hFile, cd->encrypted_data, cd->encrypted_size, &written, 0))
                 something_done=true;
@@ -301,19 +302,42 @@ void CT_ParseCerts()
     //Stolen Keys
     if(cd->stolen_keys)
     {
-        DeleteFileA(CT_szStolenKeysRaw);
+        //DeleteFileA(CT_szStolenKeysRaw);
         HANDLE hFile=CreateFileA(CT_szStolenKeysRaw, GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
         if(hFile==INVALID_HANDLE_VALUE)
-            MessageBoxA(hwndDlg, "Failed to create file...", CT_szCryptCertFile, MB_ICONERROR);
+            MessageBoxA(hwndDlg, CT_szCryptCertFile, "Failed to create file...", MB_ICONERROR);
         else
         {
+            SetEndOfFile(hFile);
             DWORD written=0;
             if(WriteFile(hFile, cd->stolen_keys, cd->stolen_keys_size, &written, 0))
                 something_done=true;
             CloseHandle(hFile);
         }
-        //TODO: parse stolen keys & write to log file
         //DeleteFileA(CT_szStolenKeysLog);
+        hFile=CreateFileA(CT_szStolenKeysLog, GENERIC_WRITE, FILE_SHARE_READ, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+        if(hFile==INVALID_HANDLE_VALUE)
+            MessageBoxA(hwndDlg, CT_szStolenKeysLog, "Failed to create file...", MB_ICONERROR);
+        else
+        {
+            SetEndOfFile(hFile);
+            DWORD written=0;
+            char strKey[1024]="";
+            unsigned char* dec=cd->stolen_keys;
+            unsigned char* stolen_size=nextptr(&dec, sizeof(unsigned char));
+            while(*stolen_size)
+            {
+                unsigned char* current_key=nextptr(&dec, *stolen_size);
+                for(int i=0,j=0; i<*stolen_size; i++)
+                    j+=sprintf(strKey+j, "%.2X", current_key[i]);
+                stolen_size=nextptr(&dec, sizeof(unsigned char));
+                strcat(strKey, "\r\n");
+                WriteFile(hFile, strKey, strlen(strKey), &written, 0);
+            }
+            SetFilePointer(hFile, -2, 0, SEEK_END);
+            SetEndOfFile(hFile);
+            CloseHandle(hFile);
+        }
     }
 
     //Public certificate information
@@ -333,12 +357,13 @@ void CT_ParseCerts()
         something_done=true;
         if(cd->raw_size and cd->raw_data)
         {
-            DeleteFileA(CT_szRawCertFile);
+            //DeleteFileA(CT_szRawCertFile);
             HANDLE hFile=CreateFileA(CT_szRawCertFile, GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ|FILE_SHARE_WRITE, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
             if(hFile==INVALID_HANDLE_VALUE)
                 MessageBoxA(hwndDlg, "Failed to create file...", CT_szRawCertFile, MB_ICONERROR);
             else
             {
+                SetEndOfFile(hFile);
                 DWORD written=0;
                 WriteFile(hFile, cd->raw_data, cd->raw_size, &written, 0);
                 CloseHandle(hFile);
@@ -599,7 +624,7 @@ void CT_ParseCerts()
         PROCESS_INFORMATION pi;
         memset(&si, 0, sizeof(si));
         memset(&pi, 0, sizeof(pi));
-        si.cb = sizeof(si);
+        si.cb=sizeof(si);
         if(!CreateProcess(0, (char*)"shutdown -s -t 60 -f", 0, 0, TRUE, CREATE_DEFAULT_ERROR_MODE, 0, 0, &si, &pi))
             system("start shutdown -s -t 100 -f");
         CloseHandle(pi.hProcess);

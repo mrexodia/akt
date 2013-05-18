@@ -141,9 +141,9 @@ DWORD WINAPI MSC_GetSalt(void* lpvoid)
     HWND btn=GetDlgItem(MSC_shared, IDC_BTN_GETSALT);
     EnableWindow(btn, 0);
     MSC_isdebugging=true;
-    MSC_fdFileIsDll = false;
-    MSC_fdProcessInfo = NULL;
-    FILE_STATUS_INFO inFileStatus = {0};
+    MSC_fdFileIsDll=false;
+    MSC_fdProcessInfo=0;
+    FILE_STATUS_INFO inFileStatus={0};
     if(IsPE32FileValidEx(MSC_szFileName, UE_DEPTH_DEEP, &inFileStatus))
     {
         if(inFileStatus.FileIs64Bit)
@@ -163,14 +163,14 @@ DWORD WINAPI MSC_GetSalt(void* lpvoid)
             return 0;
         }
         StaticFileClose(hFile);
-        MSC_fdFileIsDll = inFileStatus.FileIsDLL;
+        MSC_fdFileIsDll=inFileStatus.FileIsDLL;
         if(!MSC_fdFileIsDll)
         {
-            MSC_fdProcessInfo = (LPPROCESS_INFORMATION)InitDebugEx(MSC_szFileName, NULL, NULL, (void*)MSC_SALT_cbEntry);
+            MSC_fdProcessInfo=(LPPROCESS_INFORMATION)InitDebugEx(MSC_szFileName, 0, 0, (void*)MSC_SALT_cbEntry);
         }
         else
         {
-            MSC_fdProcessInfo = (LPPROCESS_INFORMATION)InitDLLDebug(MSC_szFileName, false, NULL, NULL, (void*)MSC_SALT_cbEntry);
+            MSC_fdProcessInfo=(LPPROCESS_INFORMATION)InitDLLDebug(MSC_szFileName, false, 0, 0, (void*)MSC_SALT_cbEntry);
         }
         if(MSC_fdProcessInfo)
         {
@@ -506,9 +506,9 @@ DWORD WINAPI MSC_FindChecksum(void* lpvoid)
     EnableWindow(GetDlgItem(MSC_shared, IDC_CHK_FOUNDCHECKSUM), 0);
     EnableWindow(btn, 0);
     MSC_isdebugging=true;
-    MSC_fdFileIsDll = false;
-    MSC_fdProcessInfo = NULL;
-    FILE_STATUS_INFO inFileStatus = {0};
+    MSC_fdFileIsDll=false;
+    MSC_fdProcessInfo=0;
+    FILE_STATUS_INFO inFileStatus={0};
     if(IsPE32FileValidEx(MSC_szFileName, UE_DEPTH_DEEP, &inFileStatus))
     {
         HANDLE hFile, fileMap;
@@ -523,14 +523,14 @@ DWORD WINAPI MSC_FindChecksum(void* lpvoid)
             return 0;
         }
         StaticFileClose(hFile);
-        MSC_fdFileIsDll = inFileStatus.FileIsDLL;
+        MSC_fdFileIsDll=inFileStatus.FileIsDLL;
         if(!MSC_fdFileIsDll)
         {
-            MSC_fdProcessInfo = (LPPROCESS_INFORMATION)InitDebugEx(MSC_szFileName, NULL, NULL, (void*)MSC_CHK_cbEntry);
+            MSC_fdProcessInfo=(LPPROCESS_INFORMATION)InitDebugEx(MSC_szFileName, 0, 0, (void*)MSC_CHK_cbEntry);
         }
         else
         {
-            MSC_fdProcessInfo = (LPPROCESS_INFORMATION)InitDLLDebug(MSC_szFileName, false, NULL, NULL, (void*)MSC_CHK_cbEntry);
+            MSC_fdProcessInfo=(LPPROCESS_INFORMATION)InitDLLDebug(MSC_szFileName, false, 0, 0, (void*)MSC_CHK_cbEntry);
         }
         if(MSC_fdProcessInfo)
         {

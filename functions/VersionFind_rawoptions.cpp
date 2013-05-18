@@ -4,14 +4,14 @@
  *						Module Variables
  *********************************************************************/
 // Debugging Variables
-static bool g_fdFileIsDll = false;
+static bool g_fdFileIsDll=false;
 static LPPROCESS_INFORMATION g_fdProcessInfo;
 
 // Internal Use Variables
 static long g_fdEntrySectionOffset=0;
 static long g_fdEntrySectionSize=0;
 static unsigned int g_raw_options_reg=0;
-static cbErrorMessage g_ErrorMessageCallback = NULL;
+static cbErrorMessage g_ErrorMessageCallback=0;
 
 // Output Pointers
 static unsigned int* gPtrRawOptions=0;
@@ -31,7 +31,7 @@ void cbMutexReturn()
 {
     unsigned int eip=GetContextData(UE_EIP);
     DeleteBPX(eip);
-    BYTE* eip_data=(BYTE*)malloc(100);
+    BYTE* eip_data=(BYTE*)malloc2(100);
     ReadProcessMemory(g_fdProcessInfo->hProcess, (void*)eip, eip_data, 100, 0);
     int and20=VF_FindAnd20Pattern(eip_data, 100);
     if(!and20)
@@ -83,7 +83,7 @@ static void cbGetCommandLine()
 {
     DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"GetCommandLineA", UE_APISTART);
     DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"GetCommandLineW", UE_APISTART);
-    BYTE* data=(BYTE*)malloc(g_fdEntrySectionSize);
+    BYTE* data=(BYTE*)malloc2(g_fdEntrySectionSize);
     ReadProcessMemory(g_fdProcessInfo->hProcess, (void*)g_fdEntrySectionOffset, data, g_fdEntrySectionSize, 0);
     int and40000=VF_FindAnd40000Pattern(data, g_fdEntrySectionSize);
     if(!and40000)
@@ -136,13 +136,13 @@ static void cbEntry()
 
 bool VF_RawOptions(char* szFileName, unsigned int* raw_options, bool* bIsMinimal, cbErrorMessage ErrorMessageCallback)
 {
-    long fdEntryPoint=NULL;
+    long fdEntryPoint=0;
     long fdEntrySectionNumber=0;
     FILE_STATUS_INFO inFileStatus= {0};
 
     gPtrRawOptions=raw_options;
     g_fdFileIsDll=false;
-    g_fdProcessInfo=NULL;
+    g_fdProcessInfo=0;
     g_ErrorMessageCallback=ErrorMessageCallback;
 
     if(IsPE32FileValidEx(szFileName, UE_DEPTH_SURFACE, &inFileStatus))
@@ -156,22 +156,22 @@ bool VF_RawOptions(char* szFileName, unsigned int* raw_options, bool* bIsMinimal
         ULONG_PTR va;
         DWORD bytes_read;
         //fdImageBase=(long);
-        fdEntryPoint=(long)GetPE32Data(szFileName, NULL, UE_OEP);
+        fdEntryPoint=(long)GetPE32Data(szFileName, 0, UE_OEP);
         StaticFileLoad(szFileName, UE_ACCESS_READ, false, &hFile, &bytes_read, &fileMap, &va);
         if(!IsArmadilloProtected(va))
             ErrorMessageCallback((char*)"Not armadillo protected...", (char*)"Error!");
         else
         {
-            fdEntrySectionNumber=GetPE32SectionNumberFromVA(va, fdEntryPoint+GetPE32Data(szFileName, NULL, UE_IMAGEBASE));
+            fdEntrySectionNumber=GetPE32SectionNumberFromVA(va, fdEntryPoint+GetPE32Data(szFileName, 0, UE_IMAGEBASE));
             g_fdEntrySectionOffset=(long)GetPE32Data(szFileName, fdEntrySectionNumber, UE_SECTIONVIRTUALOFFSET);
             g_fdEntrySectionSize=(long)GetPE32Data(szFileName, fdEntrySectionNumber, UE_SECTIONVIRTUALSIZE);
             StaticFileClose(hFile);
             *bIsMinimal=VF_IsMinimalProtection(szFileName, va, fdEntrySectionNumber);
-            g_fdFileIsDll = inFileStatus.FileIsDLL;
+            g_fdFileIsDll=inFileStatus.FileIsDLL;
             if(!g_fdFileIsDll)
-                g_fdProcessInfo=(LPPROCESS_INFORMATION)InitDebugEx(szFileName, NULL, NULL, (void*)cbEntry);
+                g_fdProcessInfo=(LPPROCESS_INFORMATION)InitDebugEx(szFileName, 0, 0, (void*)cbEntry);
             else
-                g_fdProcessInfo=(LPPROCESS_INFORMATION)InitDLLDebug(szFileName, false, NULL, NULL, (void*)cbEntry);
+                g_fdProcessInfo=(LPPROCESS_INFORMATION)InitDLLDebug(szFileName, false, 0, 0, (void*)cbEntry);
             if(g_fdProcessInfo)
             {
                 DebugLoop();

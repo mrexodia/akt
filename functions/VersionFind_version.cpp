@@ -4,18 +4,18 @@
  *						Module Variables
  *********************************************************************/
 // Debugging Variables
-static bool g_fdFileIsDll = false;
+static bool g_fdFileIsDll=false;
 static LPPROCESS_INFORMATION g_fdProcessInfo;
 
 // Output Pointers
 static char* g_szVersion;
 
 // Internal Use Variables
-static unsigned int g_version_decrypt_buffer = 0;
-static unsigned int g_version_decrypt_call = 0;
-static unsigned int g_version_decrypt_call_dest = 0;
-static unsigned int g_version_decrypt_neweip = 0;
-static cbErrorMessage g_ErrorMessageCallback = NULL;
+static unsigned int g_version_decrypt_buffer=0;
+static unsigned int g_version_decrypt_call=0;
+static unsigned int g_version_decrypt_call_dest=0;
+static unsigned int g_version_decrypt_neweip=0;
+static cbErrorMessage g_ErrorMessageCallback=0;
 
 
 /**********************************************************************
@@ -69,7 +69,7 @@ static void cbVirtualProtect()
     sec_addr-=0x1000;
     VirtualQueryEx(g_fdProcessInfo->hProcess, (void*)sec_addr, &mbi, sizeof(MEMORY_BASIC_INFORMATION));
     sec_size=mbi.RegionSize;
-    sec_data=(BYTE*)malloc(sec_size);
+    sec_data=(BYTE*)malloc2(sec_size);
     ReadProcessMemory(g_fdProcessInfo->hProcess, (const void*)sec_addr, sec_data, sec_size, 0);
     unsigned int armversion_addr=VF_FindarmVersion(sec_data, sec_size);
     if(!armversion_addr)
@@ -102,7 +102,7 @@ static void cbVirtualProtect()
     g_version_decrypt_call_dest=call_dest;
     g_version_decrypt_neweip=push100;
     SetBPX(g_version_decrypt_call_dest, UE_BREAKPOINT, (void*)cbDecryptCall);
-    free(sec_data);
+    free2(sec_data);
 }
 
 
@@ -141,12 +141,12 @@ static void cbEntry()
 
 void VF_Version(char* szFileName, char* szVersion, cbErrorMessage ErrorMessageCallback)
 {
-    FILE_STATUS_INFO inFileStatus = {0};
+    FILE_STATUS_INFO inFileStatus={0};
 
-    g_szVersion = szVersion;
-    g_fdFileIsDll = false;
-    g_fdProcessInfo = NULL;
-    g_ErrorMessageCallback = ErrorMessageCallback;
+    g_szVersion=szVersion;
+    g_fdFileIsDll=false;
+    g_fdProcessInfo=0;
+    g_ErrorMessageCallback=ErrorMessageCallback;
 
     if(IsPE32FileValidEx(szFileName, UE_DEPTH_SURFACE, &inFileStatus))
     {
@@ -165,11 +165,11 @@ void VF_Version(char* szFileName, char* szVersion, cbErrorMessage ErrorMessageCa
             return;
         }
         StaticFileClose(hFile);
-        g_fdFileIsDll = inFileStatus.FileIsDLL;
+        g_fdFileIsDll=inFileStatus.FileIsDLL;
         if(!g_fdFileIsDll)
-            g_fdProcessInfo=(LPPROCESS_INFORMATION)InitDebugEx(szFileName, NULL, NULL, (void*)cbEntry);
+            g_fdProcessInfo=(LPPROCESS_INFORMATION)InitDebugEx(szFileName, 0, 0, (void*)cbEntry);
         else
-            g_fdProcessInfo=(LPPROCESS_INFORMATION)InitDLLDebug(szFileName, false, NULL, NULL, (void*)cbEntry);
+            g_fdProcessInfo=(LPPROCESS_INFORMATION)InitDLLDebug(szFileName, false, 0, 0, (void*)cbEntry);
         if(g_fdProcessInfo)
             DebugLoop();
         else

@@ -1,6 +1,6 @@
 #include "tabs.h"
 
-HBRUSH g_hbrBkgnd = CreateSolidBrush(0);
+HBRUSH g_hbrBkgnd=CreateSolidBrush(0);
 
 //Places the window in the tab rectangle, also resizes the window when specified
 void WINAPI OnChildDialogInit(HWND hwndDlg)
@@ -15,12 +15,12 @@ void WINAPI OnChildDialogInit(HWND hwndDlg)
     GetWindowRect(pHdr->hwndTab, &TabRect);
     MapWindowPoints(HWND_DESKTOP, GetParent(pHdr->hwndTab), (POINT *)&TabRect, 2);
     SendMessage(pHdr->hwndTab, TCM_ADJUSTRECT, false, (LPARAM)&TabRect);
-    TabRect.right  -= TabRect.left; // .right  == width
-    TabRect.bottom -= TabRect.top;  // .bottom == heigth
+    TabRect.right  -= TabRect.left; // .right ==width
+    TabRect.bottom -= TabRect.top;  // .bottom==heigth
     SetWindowPos(hwndDlg, HWND_BOTTOM, TabRect.left-1, TabRect.top, TabRect.right, TabRect.bottom, flags);
 
-    //SetWindowPos(hwndDlg, NULL, pHdr->tabRect.left-1, pHdr->tabRect.top-6, pHdr->tabRect.right, pHdr->tabRect.bottom, flags);
-    //SetWindowPos(hwndDlg, NULL, pHdr->tabRect.left, pHdr->tabRect.top, pHdr->tabRect.right, pHdr->tabRect.bottom, flags);
+    //SetWindowPos(hwndDlg, 0, pHdr->tabRect.left-1, pHdr->tabRect.top-6, pHdr->tabRect.right, pHdr->tabRect.bottom, flags);
+    //SetWindowPos(hwndDlg, 0, pHdr->tabRect.left, pHdr->tabRect.top, pHdr->tabRect.right, pHdr->tabRect.bottom, flags);
     return;
 }
 
@@ -131,7 +131,7 @@ BOOL CALLBACK DropFileSubClass(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lP
         else //Create menu with supported tabs
         {
             int totalTabs=TabCtrl_GetItemCount(pHdr->hwndTab);
-            HMENU myMenu=NULL;
+            HMENU myMenu=0;
             myMenu=CreatePopupMenu();
 
             bool accept;
@@ -149,7 +149,7 @@ BOOL CALLBACK DropFileSubClass(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lP
             POINT cursorPos;
             GetCursorPos(&cursorPos);
             SetForegroundWindow(hwndParent);
-            UINT MenuItemClicked=TrackPopupMenu(myMenu, TPM_RETURNCMD | TPM_NONOTIFY, cursorPos.x, cursorPos.y, 0, hwndParent, NULL);
+            UINT MenuItemClicked=TrackPopupMenu(myMenu, TPM_RETURNCMD|TPM_NONOTIFY, cursorPos.x, cursorPos.y, 0, hwndParent, 0);
             SendMessage(hwndParent, WM_NULL, 0, 0);
             if(!MenuItemClicked)
                 return TRUE;
@@ -166,7 +166,7 @@ BOOL CALLBACK DropFileSubClass(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lP
 //Loads and locks a dialog resource (for creating the child dialog)
 DLGTEMPLATE* DoLockDlgRes(HINSTANCE hInstance, LPCTSTR lpszResName)
 {
-    HRSRC hrsrc=FindResource(NULL, lpszResName, RT_DIALOG);
+    HRSRC hrsrc=FindResource(0, lpszResName, RT_DIALOG);
     HGLOBAL hglb=LoadResource(hInstance, hrsrc);
     return (DLGTEMPLATE*)LockResource(hglb);
 }
@@ -226,7 +226,7 @@ void AddTabbedDialog(HINSTANCE hInstance, HWND hwndDlg, const char* tab_title, U
         *dlg_hinst=GetModuleHandleA(0);
     pHdr->apRes[*total_tabs]=DoLockDlgRes(*dlg_hinst, MAKEINTRESOURCE(dlg_id));
     pHdr->dlg_id[*total_tabs]=dlg_id;
-    //pHdr->apRes[*total_tabs]->style=DS_CONTROL | DS_SHELLFONT | WS_BORDER | WS_VISIBLE | WS_CHILDWINDOW;
+    //pHdr->apRes[*total_tabs]->style=DS_CONTROL|DS_SHELLFONT|WS_BORDER|WS_VISIBLE|WS_CHILDWINDOW;
     pHdr->windowProc[*total_tabs]=dlg_proc;
     pHdr->accept_files[*total_tabs]=accept_files;
     pHdr->handles_help[*total_tabs]=handles_help;
@@ -260,9 +260,9 @@ void AddTabbedDialog(HINSTANCE hInstance, HWND hwndDlg, const char* tab_title, U
     if(!pHdr->auto_resize_tab_control)
         flags|=SWP_NOSIZE;
     if(!pHdr->auto_resize_window)
-        SetWindowPos(hwndTab, NULL, rcTab.left, rcTab.top, rcTab.right-rcTab.left, rcTab.bottom-rcTab.top+2, flags);
+        SetWindowPos(hwndTab, 0, rcTab.left, rcTab.top, rcTab.right-rcTab.left, rcTab.bottom-rcTab.top+2, flags);
     else
-        SetWindowPos(hwndTab, NULL, rcTab.left, rcTab.top, rcTab.right-rcTab.left-2, rcTab.bottom-rcTab.top, flags);
+        SetWindowPos(hwndTab, 0, rcTab.left, rcTab.top, rcTab.right-rcTab.left-2, rcTab.bottom-rcTab.top, flags);
     RECT tab_rect= {0};
     RECT wrect= {0};
     GetWindowRect(hwndTab, &tab_rect);
