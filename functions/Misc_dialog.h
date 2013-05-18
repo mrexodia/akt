@@ -10,6 +10,5 @@
 #include "LicenceRemoval_debugger.h"
 
 BOOL CALLBACK MSC_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
-void UpdateHorizontalScrollLen(HWND list, const char* string);
 
 #endif

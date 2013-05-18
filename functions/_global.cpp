@@ -534,3 +534,12 @@ void free2(void *address)
 {
     VirtualFree(address, NULL, MEM_RELEASE);
 }
+
+void UpdateHorizontalScrollLen(HWND list, const char* string)
+{
+    SIZE s= {0};
+    HDC hdc=GetDC(list);
+    SelectObject(hdc, (HFONT)SendMessageA(list, WM_GETFONT, 0, 0));
+    GetTextExtentPoint32A(hdc, string, strlen(string), &s);
+    SendMessageA(list, LB_SETHORIZONTALEXTENT, s.cx+5, 0);
+}

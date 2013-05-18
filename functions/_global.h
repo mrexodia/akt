@@ -5,6 +5,8 @@
 #define WINVER 0x0501
 #define _WIN32_IE 0x0500
 
+#include <string>
+#include <vector>
 #include <windows.h>
 #include <commctrl.h>
 
@@ -19,6 +21,7 @@
  *						Standard Callbacks
  *********************************************************************/
 typedef void (*cbErrorMessage)(char*, char*);
+typedef void (*cbGenericTwoArg)(void*, void*);
 typedef void (*cbStd)();
 
 extern char sg_szAKTDirectory[256];
@@ -52,6 +55,7 @@ unsigned int FindCallPattern(BYTE* d, unsigned int size);
 bool FixIsDebuggerPresent(HANDLE hProcess, bool hide);
 void* malloc2(size_t size);
 void free2(void *address);
+void UpdateHorizontalScrollLen(HWND list, const char* string);
 
 /**
 Structures

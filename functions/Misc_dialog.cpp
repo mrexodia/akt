@@ -1,8 +1,32 @@
 #include "Misc_dialog.h"
 
-HWND g_LicListHWND;
 vector<ArmaLicenseEntry_t> g_ArmaLicenseEntryList;
 
+static void FillLicRemovalList(HWND list, vector<ArmaLicenseEntry_t>* lic_entry)
+{
+    unsigned int itemLength = 0;
+    unsigned int widestItemIndex = 0;
+    // Clear the list box
+    SendMessageA(list, LB_RESETCONTENT, 0, 0);
+    // Add license files to the list box
+    for(int wI = 0; wI < (int)lic_entry->size(); wI++)
+    {
+        SendMessageA(list, LB_ADDSTRING, 0, (LPARAM)lic_entry->at(wI).Path.data());
+
+        if(strlen(lic_entry->at(wI).Path.data()) > itemLength)
+        {
+            itemLength = strlen(lic_entry->at(wI).Path.data());
+            widestItemIndex = wI;
+        }
+    }
+    // Set the maximal horizontal scroll size
+    if(lic_entry->size())
+        UpdateHorizontalScrollLen(list, lic_entry->at(widestItemIndex).Path.data());
+    else
+        UpdateHorizontalScrollLen(list, "");
+    // Select all items
+    SendMessageA(list, LB_SETSEL, TRUE, -1);
+}
 
 BOOL CALLBACK MSC_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -13,7 +37,6 @@ BOOL CALLBACK MSC_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
         MSC_shared=hwndDlg;
         memset(MSC_projectID, 0, 65536);
         MSC_SD_list=GetDlgItem(hwndDlg, IDC_LIST_SECTIONS);
-        g_LicListHWND=GetDlgItem(hwndDlg, IDC_EDT_LICENSES);
         EnableWindow(GetDlgItem(hwndDlg, IDC_BTN_DELETESECTIONS), 0);
         EnableWindow(GetDlgItem(hwndDlg, IDC_BTN_GENERATE), 0);
         EnableWindow(GetDlgItem(hwndDlg, IDC_BTN_FINDCHECKSUM), 0);
@@ -451,89 +474,91 @@ BOOL CALLBACK MSC_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
         case IDC_BTN_GETLICENSEDATA:
         {
-        	unsigned int itemLength = 0;
-        	unsigned int widestItemIndex = 0;
+            if(MSC_isdebugging or !MSC_szFileName[0])
+                return TRUE;
 
-        	LR_GetArmaLicenseData(MSC_szFileName, &g_ArmaLicenseEntryList);
+            HWND list=GetDlgItem(hwndDlg, IDC_LIST_LICENSES);
+            LRPARSTRUCT* par=(LRPARSTRUCT*)malloc2(sizeof(LRPARSTRUCT));
+            par->parFileName=MSC_szFileName;
+            par->parArmaLicenseEntryListPtr=&g_ArmaLicenseEntryList;
+            par->list=list;
+            par->isdebugging=&MSC_isdebugging;
+            par->filllist=(cbGenericTwoArg)FillLicRemovalList;
+            CreateThread(0, 0, LR_GetArmaLicenseDataThread, par, 0, 0);
+            //LR_GetArmaLicenseData(MSC_szFileName, &g_ArmaLicenseEntryList);
 
-        	// Clear the list box
-        	SendMessageA(g_LicListHWND, LB_RESETCONTENT, 0, 0);
-
-        	// Add license files to the list box
+            /*unsigned int itemLength = 0;
+            unsigned int widestItemIndex = 0;
+            // Clear the list box
+            SendMessageA(list, LB_RESETCONTENT, 0, 0);
+            // Add license files to the list box
             for(int wI = 0; wI < (int)g_ArmaLicenseEntryList.size(); wI++)
             {
-            	SendMessageA(g_LicListHWND, LB_ADDSTRING, 0, (LPARAM)g_ArmaLicenseEntryList.at(wI).Path.data());
+                SendMessageA(list, LB_ADDSTRING, 0, (LPARAM)g_ArmaLicenseEntryList.at(wI).Path.data());
 
-            	if(strlen(g_ArmaLicenseEntryList.at(wI).Path.data()) > itemLength)
-            	{
-            		itemLength = strlen(g_ArmaLicenseEntryList.at(wI).Path.data());
-            		widestItemIndex = wI;
-            	}
+                if(strlen(g_ArmaLicenseEntryList.at(wI).Path.data()) > itemLength)
+                {
+                    itemLength = strlen(g_ArmaLicenseEntryList.at(wI).Path.data());
+                    widestItemIndex = wI;
+                }
             }
-
             // Set the maximal horizontal scroll size
-            if(g_ArmaLicenseEntryList.size() > 0)
-            	UpdateHorizontalScrollLen(g_LicListHWND, g_ArmaLicenseEntryList.at(widestItemIndex).Path.data());
+            if(g_ArmaLicenseEntryList.size())
+                UpdateHorizontalScrollLen(list, g_ArmaLicenseEntryList.at(widestItemIndex).Path.data());
             else
-            	UpdateHorizontalScrollLen(g_LicListHWND, "");
+                UpdateHorizontalScrollLen(list, "");*/
         }
         return TRUE;
 
         case IDC_BTN_REMOVESELLLICDATA:
         {
-        	unsigned int itemLength = 0;
-        	unsigned int widestItemIndex = 0;
-            int totalNbrOfItems = SendMessageA(g_LicListHWND, LB_GETCOUNT, 0, 0);
+            unsigned int itemLength = 0;
+            unsigned int widestItemIndex = 0;
+            HWND list=GetDlgItem(hwndDlg, IDC_LIST_LICENSES);
+            int totalNbrOfItems = SendMessageA(list, LB_GETCOUNT, 0, 0);
 
             for(int wI = 0; wI < totalNbrOfItems; wI++)
             {
-                if(SendMessageA(g_LicListHWND, LB_GETSEL, wI, 0) > 0)
+                if(SendMessageA(list, LB_GETSEL, wI, 0))
                 {
-                	printf("Remove %s\n", g_ArmaLicenseEntryList.at(wI).Path.data());
-                	LR_RemoveSingleArmaLicenseData(g_ArmaLicenseEntryList.at(wI));
+                    //printf("Remove %s\n", g_ArmaLicenseEntryList.at(wI).Path.data());
+                    LR_RemoveSingleArmaLicenseData(g_ArmaLicenseEntryList.at(wI));
 
-                	g_ArmaLicenseEntryList.erase(g_ArmaLicenseEntryList.begin() + wI);
+                    g_ArmaLicenseEntryList.erase(g_ArmaLicenseEntryList.begin() + wI);
 
-                    SendMessageA(g_LicListHWND, LB_DELETESTRING, wI, 0);
+                    SendMessageA(list, LB_DELETESTRING, wI, 0);
 
                     wI--;
                     totalNbrOfItems--;
                 }
             }
-
             // Search the longer string
             for(int wI = 0; wI < (int)g_ArmaLicenseEntryList.size(); wI++)
             {
-            	if(strlen(g_ArmaLicenseEntryList.at(wI).Path.data()) > itemLength)
-            	{
-            		itemLength = strlen(g_ArmaLicenseEntryList.at(wI).Path.data());
-            		widestItemIndex = wI;
-            	}
+                if(strlen(g_ArmaLicenseEntryList.at(wI).Path.data()) > itemLength)
+                {
+                    itemLength = strlen(g_ArmaLicenseEntryList.at(wI).Path.data());
+                    widestItemIndex = wI;
+                }
             }
-
             // Set the maximal horizontal scroll size
             if(g_ArmaLicenseEntryList.size() > 0)
-            	UpdateHorizontalScrollLen(g_LicListHWND, g_ArmaLicenseEntryList.at(widestItemIndex).Path.data());
+                UpdateHorizontalScrollLen(list, g_ArmaLicenseEntryList.at(widestItemIndex).Path.data());
             else
-            	UpdateHorizontalScrollLen(g_LicListHWND, "");
-
+                UpdateHorizontalScrollLen(list, "");
         }
         return TRUE;
 
-        case IDC_BTN_REMOVEALLLICDATA:
+        /*case IDC_BTN_REMOVEALLLICDATA:
         {
-        	int totalNbrOfItems = SendMessageA(g_LicListHWND, LB_GETCOUNT, 0, 0);
-
-        	LR_RemoveArmaLicenseData(g_ArmaLicenseEntryList);
-
+            HWND list=GetDlgItem(hwndDlg, IDC_LIST_LICENSES);
+            int totalNbrOfItems = SendMessageA(list, LB_GETCOUNT, 0, 0);
+            LR_RemoveArmaLicenseData(g_ArmaLicenseEntryList);
             for(int wI = 0; wI < totalNbrOfItems; wI++)
-            {
-            	SendMessageA(g_LicListHWND, LB_DELETESTRING, 0, 0);
-            }
-
-            UpdateHorizontalScrollLen(g_LicListHWND, "");
+                SendMessageA(list, LB_DELETESTRING, 0, 0);
+            UpdateHorizontalScrollLen(list, "");
         }
-        return TRUE;
+        return TRUE;*/
 
         }
     }
@@ -541,29 +566,3 @@ BOOL CALLBACK MSC_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     }
     return FALSE;
 }
-
-
-
-void UpdateHorizontalScrollLen(HWND list, const char* string)
-{
-    SIZE s= {0};
-    HDC hdc=GetDC(list);
-    SelectObject(hdc, (HFONT)SendMessageA(list, WM_GETFONT, 0, 0));
-    GetTextExtentPoint32A(hdc, string, strlen(string), &s);
-    SendMessageA(list, LB_SETHORIZONTALEXTENT, s.cx+5, 0);
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

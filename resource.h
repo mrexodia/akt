@@ -74,6 +74,7 @@
 #define IDC_CHK_BRUTE                           1011
 #define IDC_EDT_NAME_DECRYPT                    1011
 #define IDC_EDT_VERSIONNUM                      1011
+#define IDC_LIST_LICENSES                       1011
 #define IDC_CHK_OTHERDONTFALLBACK               1012
 #define IDC_EDT_NAME_ENCRYPT                    1012
 #define IDC_EDT_PROJECTID                       1012
@@ -165,11 +166,9 @@
 #define IDC_BTN_REMOVESELLLICDATA               1043
 #define IDC_CHK_STANDARDHWID                    1043
 #define IDC_EDT_CRC2                            1043
-#define IDC_BTN_REMOVEALLLICDATA                1044
 #define IDC_EDT_CRC3                            1044
 #define IDC_EDT_CRC5                            1045
 #define IDC_BTN_HELP                            1046
-#define IDC_EDT_LICENSES                        1046
 #define IDC_BTN_EXIT                            1047
 #define IDC_EDT_CRCBASE                         1048
 #define IDC_EDT_COUNTER                         1049

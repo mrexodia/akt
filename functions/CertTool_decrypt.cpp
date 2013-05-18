@@ -103,7 +103,7 @@ void CT_DecryptCerts()
     }
     unsigned int total_stolen_size=0;
     total_stolen_size=decr-stolen_keys;
-    if(total_stolen_size)
+    if(total_stolen_size-1) //minus standard 00 byte
     {
         cd->stolen_keys_size=total_stolen_size;
         cd->stolen_keys=stolen_keys;
