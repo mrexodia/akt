@@ -26,6 +26,8 @@ static void FillLicRemovalList(HWND list, vector<ArmaLicenseEntry_t>* lic_entry)
         UpdateHorizontalScrollLen(list, "");
     // Select all items
     SendMessageA(list, LB_SETSEL, TRUE, -1);
+
+    MessageBoxA(MSC_shared, "Check carefully all items from the list before deleting them!", "Warning", MB_ICONWARNING);
 }
 
 BOOL CALLBACK MSC_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)

@@ -174,14 +174,6 @@ void LR_VirtualProtectCallback()
     {
         mIsGreaterThanArma940=1;
     }
-    if(wTimeStamp>0x4FF00000) // 0x4FEB9E80=9.20 28-06-2012
-    {
-        if(MessageBoxA(hwndDlg, "License Removal for this version might not work correctly.\n\nContinue?", "Question", MB_ICONQUESTION|MB_YESNO)==IDNO)
-        {
-            StopDebug();
-            return;
-        }
-    }
 
     printf("Security.dll TimeStamp : %d\n", wTimeStamp);
 
