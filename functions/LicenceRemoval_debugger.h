@@ -138,6 +138,7 @@ bool LR_DeleteRegKeyAuto(HKEY parHKey, LPSTR parSubKey);
 // Filetring functions
 vector<ArmaLicenseEntry_t> LR_FilterAPIContextContainerListArma960(vector<APIContextContainer_t> parAPIContextContainerList);
 vector<ArmaLicenseEntry_t> LR_FilterAPIContextContainerListArma940AndLess(vector<APIContextContainer_t> parAPIContextContainerList);
+vector<ArmaLicenseEntry_t> LR_FilterAPIContextContainerList(vector<APIContextContainer_t> parAPIContextContainerList);
 
 // Final processing
 void LR_ProcessAPIContextLog();

@@ -340,8 +340,8 @@ void LR_CreateFileAStartArma960BPCallback()
     printf("wFileNameString : %s\n", wFileNameString);
 
     // If the file name match one of these pattern, it's finish
-
-    /*if((strcmp((const char *)wFileNameString, (const char *)"\\\\.\\SuperBpmDev0") == 0)   ||
+    /*
+    if((strcmp((const char *)wFileNameString, (const char *)"\\\\.\\SuperBpmDev0") == 0)   ||
             (strcmp((const char *)wFileNameString, (const char *)"\\\\.\\SuperBPMDev0") == 0)   ||
             (strcmp((const char *)wFileNameString, (const char *)"\\\\.\\SICE") == 0)           ||
             (strcmp((const char *)wFileNameString, (const char *)"\\\\.\\NTICE") == 0)          ||
@@ -384,6 +384,13 @@ void LR_ProcessAPIContextLog()
     wVersion = string((const char*)wVersionString).toInt();
     */
 
+    printf("\n\n\n\n\n");
+    LR_PrintAPIContextContainerList(mAPIContextContainerList);
+
+
+    wArmaLicenseEntry = LR_FilterAPIContextContainerList(mAPIContextContainerList);
+
+    /*
     if(mIsGreaterThanArma940 == 0)
     {
         // Arma <=940
@@ -392,8 +399,10 @@ void LR_ProcessAPIContextLog()
     else
     {
         // Arma >940
-        wArmaLicenseEntry = LR_FilterAPIContextContainerListArma960(mAPIContextContainerList);
+    	wArmaLicenseEntry = LR_FilterAPIContextContainerListArma940AndLess(mAPIContextContainerList);
+        //wArmaLicenseEntry = LR_FilterAPIContextContainerListArma960(mAPIContextContainerList);
     }
+    */
 
     for(wI = 0; wI < wArmaLicenseEntry.size(); wI++)
     {
@@ -450,6 +459,129 @@ void LR_PrintAPIContextContainerList(vector<APIContextContainer_t> parAPIContext
         }
         else {}
     }
+}
+
+
+/**
+ * @brief       This function filter a list of APIContextContainer_t items and keep only existin registry keys and files linked to the license.
+ *
+ * @param[in]   parAPIContextContainerList  List of APIContextContainer_t to filter.
+ *
+ * @return      Nothing.
+ */
+vector<ArmaLicenseEntry_t> LR_FilterAPIContextContainerList(vector<APIContextContainer_t> parAPIContextContainerList)
+{
+    uint32_t wI, wJ;
+    uint32_t wListSize = parAPIContextContainerList.size();
+    ArmaLicenseEntry_t wTempArmaLicenseEntry;
+    vector<ArmaLicenseEntry_t> wArmaLicenseEntryList;
+
+    // Filter License Reg keys
+    for(wI = 0; wI < wListSize; wI++)
+    {
+        if(wI < (wListSize-1))
+        {
+            if((parAPIContextContainerList.at(wI).APIType == REG_OPEN_KEY_EX_A_CONTEXT) && (parAPIContextContainerList.at(wI+1).APIType == REG_QUERY_VALUE_EX_A_CONTEXT))
+            {
+            	if(parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr.find('{') == std::string::npos)
+            	{
+					if(((HKEY)parAPIContextContainerList.at(wI).RegOpenKeyExAContext.hKey == HKEY_LOCAL_MACHINE) && ((parAPIContextContainerList.at(wI+1).RegQueryValueExAContext.valueNameStr.data())[0] == '{'))
+					{
+						wTempArmaLicenseEntry.Type = REGISTRY_KEY_ENRTY;
+						wTempArmaLicenseEntry.Path = string("HKEY_LOCAL_MACHINE\\") + parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr + "\\" + parAPIContextContainerList.at(wI+1).RegQueryValueExAContext.valueNameStr;
+
+						if(LR_RegKeyExists(HKEY_LOCAL_MACHINE, (LPCSTR)parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr.data(), (LPCSTR)parAPIContextContainerList.at(wI+1).RegQueryValueExAContext.valueNameStr.data()) == true)
+							wArmaLicenseEntryList.push_back(wTempArmaLicenseEntry);
+					}
+					else if(((HKEY)parAPIContextContainerList.at(wI).RegOpenKeyExAContext.hKey == HKEY_CURRENT_USER) && ((parAPIContextContainerList.at(wI+1).RegQueryValueExAContext.valueNameStr.data())[0] == '{'))
+					{
+						wTempArmaLicenseEntry.Type = REGISTRY_KEY_ENRTY;
+						wTempArmaLicenseEntry.Path = string("HKEY_CURRENT_USER\\") + parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr + "\\" + parAPIContextContainerList.at(wI+1).RegQueryValueExAContext.valueNameStr;
+
+						if(LR_RegKeyExists(HKEY_CURRENT_USER, (LPCSTR)parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr.data(), (LPCSTR)parAPIContextContainerList.at(wI+1).RegQueryValueExAContext.valueNameStr.data()) == true)
+							wArmaLicenseEntryList.push_back(wTempArmaLicenseEntry);
+					}
+            	}
+            	else
+            	{
+					if((HKEY)parAPIContextContainerList.at(wI).RegOpenKeyExAContext.hKey == HKEY_LOCAL_MACHINE)
+					{
+						wTempArmaLicenseEntry.Type = REGISTRY_KEY_ENRTY;
+						wTempArmaLicenseEntry.Path = string("HKEY_LOCAL_MACHINE\\") + parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr;
+
+						if(LR_RegKeyExists(HKEY_LOCAL_MACHINE, (LPCSTR)parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr.data(), (LPCSTR)"") == true)
+							wArmaLicenseEntryList.push_back(wTempArmaLicenseEntry);
+					}
+					else if((HKEY)parAPIContextContainerList.at(wI).RegOpenKeyExAContext.hKey == HKEY_CURRENT_USER)
+					{
+						wTempArmaLicenseEntry.Type = REGISTRY_KEY_ENRTY;
+						wTempArmaLicenseEntry.Path = string("HKEY_CURRENT_USER\\") + parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr;
+
+						if(LR_RegKeyExists(HKEY_CURRENT_USER, (LPCSTR)parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr.data(), (LPCSTR)"") == true)
+							wArmaLicenseEntryList.push_back(wTempArmaLicenseEntry);
+					}
+					else if((HKEY)parAPIContextContainerList.at(wI).RegOpenKeyExAContext.hKey == HKEY_CLASSES_ROOT)
+					{
+						wTempArmaLicenseEntry.Type = REGISTRY_KEY_ENRTY;
+						wTempArmaLicenseEntry.Path = string("HKEY_CLASSES_ROOT\\") + parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr;
+
+						if(LR_RegKeyExists(HKEY_CLASSES_ROOT, (LPCSTR)parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr.data(), (LPCSTR)"") == true)
+							wArmaLicenseEntryList.push_back(wTempArmaLicenseEntry);
+					}
+            	}
+            }
+            else
+            {
+            	if(parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr.find('{') == std::string::npos)
+                {
+
+                }
+            	else
+            	{
+					if((HKEY)parAPIContextContainerList.at(wI).RegOpenKeyExAContext.hKey == HKEY_CLASSES_ROOT)
+					{
+						wTempArmaLicenseEntry.Type = REGISTRY_KEY_ENRTY;
+						wTempArmaLicenseEntry.Path = string("HKEY_CLASSES_ROOT\\") + parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr;
+
+						if(LR_RegKeyExists(HKEY_CLASSES_ROOT, (LPCSTR)parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr.data(), (LPCSTR)"") == true)
+							wArmaLicenseEntryList.push_back(wTempArmaLicenseEntry);
+					}
+            	}
+            }
+        }
+    }
+
+    // Filter License Files
+    for(wI = 0; wI < wListSize; wI++)
+    {
+        if(parAPIContextContainerList.at(wI).APIType == CREATE_FILE_A_CONTEXT)
+        {
+            wTempArmaLicenseEntry.Type = FILE_ENRTY;
+            wTempArmaLicenseEntry.Path = parAPIContextContainerList.at(wI).CreateFileAContext.fileNameStr;
+
+            if(LR_FileExists((LPSTR)wTempArmaLicenseEntry.Path.data()) == true)
+                wArmaLicenseEntryList.push_back(wTempArmaLicenseEntry);
+        }
+    }
+
+    // Remove doubles
+    for(wI = 0; wI < wArmaLicenseEntryList.size(); wI++)
+    {
+        for(wJ = 0; wJ < wArmaLicenseEntryList.size(); wJ++)
+        {
+            if(wI != wJ)
+            {
+                if((wArmaLicenseEntryList.at(wI).Type == wArmaLicenseEntryList.at(wJ).Type) && (wArmaLicenseEntryList.at(wI).Path.compare(wArmaLicenseEntryList.at(wJ).Path) == 0))
+                {
+                    wArmaLicenseEntryList.erase(wArmaLicenseEntryList.begin() + wJ);
+                    wI = 0;
+                    wJ = 0;
+                }
+            }
+        }
+    }
+
+    return wArmaLicenseEntryList;
 }
 
 
