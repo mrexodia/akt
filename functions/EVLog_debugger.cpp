@@ -1,8 +1,8 @@
 #include "EVLog_debugger.h"
 
 bool EV_bpvp_set=false;
-bool EV_fdFileIsDll = false;
-LPPROCESS_INFORMATION EV_fdProcessInfo = NULL;
+bool EV_fdFileIsDll=false;
+LPPROCESS_INFORMATION EV_fdProcessInfo=0;
 char EV_guard_text[256]="Break!";
 ULONG_PTR EV_va;
 
@@ -12,7 +12,7 @@ void RemoveListDuplicates(HWND hwndDlg, UINT id)
     char** unique_list;
     HWND lst=GetDlgItem(hwndDlg, id);
     int total_list=SendMessageA(lst, LB_GETCOUNT, 0, 0);
-    unique_list=(char**)malloc(total_list*4);
+    unique_list=(char**)malloc2(total_list*4);
     memset(unique_list, 0, total_list*4);
 
     //Filter duplicates
@@ -21,7 +21,7 @@ void RemoveListDuplicates(HWND hwndDlg, UINT id)
         if(!total_unique) //First entry
         {
             int textlen=SendMessageA(lst, LB_GETTEXTLEN, 0, 0);
-            unique_list[total_unique]=(char*)malloc(textlen+1);
+            unique_list[total_unique]=(char*)malloc2(textlen+1);
             memset(unique_list[total_unique], 0, textlen+1);
             SendMessageA(lst, LB_GETTEXT, i, (LPARAM)unique_list[total_unique]);
             total_unique++;
@@ -39,7 +39,7 @@ void RemoveListDuplicates(HWND hwndDlg, UINT id)
             if(isnotinlist) //Add a new item to the unique list
             {
                 int textlen=strlen(list_text);
-                unique_list[total_unique]=(char*)malloc(textlen+1);
+                unique_list[total_unique]=(char*)malloc2(textlen+1);
                 memset(unique_list[total_unique], 0, textlen+1);
                 strcpy(unique_list[total_unique], list_text);
                 total_unique++;
@@ -52,9 +52,9 @@ void RemoveListDuplicates(HWND hwndDlg, UINT id)
     for(int i=0; i<total_unique; i++)
     {
         SendMessageA(lst, LB_ADDSTRING, 0, (LPARAM)unique_list[i]);
-        free(unique_list[i]);
+        free2(unique_list[i]);
     }
-    free(unique_list);
+    free2(unique_list);
 }
 
 unsigned int EV_FindSetEnvPattern(BYTE* d, unsigned int size, bool skip_first)
@@ -149,14 +149,14 @@ void EV_log_var_valW(const wchar_t* varname, const wchar_t* varvalue)
     //swprintf(final_string, L"SetEnvW: %s=%s", varname, varvalue);
     else if(varvalue[0]==0 and varname[0] and varname[1])
     {
-        //swprintf(final_string, L"SetEnvW: %s=(null)", varname);
-        swprintf(final_string, L"%s=(null)", varname);
+        //swprintf(final_string, L"SetEnvW: %s=(0)", varname);
+        swprintf(final_string, L"%s=(0)", varname);
     }
     else
         return;
-    SendMessageW(EV_list_hwnd, LB_ADDSTRING, NULL, (LPARAM)final_string);
-    int cSelect=(int)SendMessageA(EV_list_hwnd, LB_GETCOUNT, NULL, NULL)-1;
-    SendMessageW(EV_list_hwnd, LB_SETCURSEL, (WPARAM)cSelect, NULL);
+    SendMessageW(EV_list_hwnd, LB_ADDSTRING, 0, (LPARAM)final_string);
+    int cSelect=(int)SendMessageA(EV_list_hwnd, LB_GETCOUNT, 0, 0)-1;
+    SendMessageW(EV_list_hwnd, LB_SETCURSEL, (WPARAM)cSelect, 0);
 }
 
 void EV_log_var_valA(const char* varname, const char* varvalue)
@@ -167,14 +167,14 @@ void EV_log_var_valA(const char* varname, const char* varvalue)
         sprintf(final_string, "%s=%s", varname, varvalue);
     else if(varvalue[0]==0 and varname[0] and varname[1])
     {
-        //sprintf(final_string, "SetEnvA: %s=(null)", varname);
-        sprintf(final_string, "%s=(null)", varname);
+        //sprintf(final_string, "SetEnvA: %s=(0)", varname);
+        sprintf(final_string, "%s=(0)", varname);
     }
     else
         return;
-    SendMessageA(EV_list_hwnd, LB_ADDSTRING, NULL, (LPARAM)final_string);
-    int cSelect=(int)SendMessageA(EV_list_hwnd, LB_GETCOUNT, NULL, NULL)-1;
-    SendMessageA(EV_list_hwnd, LB_SETCURSEL, (WPARAM)cSelect, NULL);
+    SendMessageA(EV_list_hwnd, LB_ADDSTRING, 0, (LPARAM)final_string);
+    int cSelect=(int)SendMessageA(EV_list_hwnd, LB_GETCOUNT, 0, 0)-1;
+    SendMessageA(EV_list_hwnd, LB_SETCURSEL, (WPARAM)cSelect, 0);
 }
 
 void EV_cbSetEnvW()
@@ -230,7 +230,7 @@ void EV_cbVirtualProtect()
 
     ReadProcessMemory(EV_fdProcessInfo->hProcess, (const void*)((esp_addr)+4), &sec_addr, 4, 0);
     ReadProcessMemory(EV_fdProcessInfo->hProcess, (const void*)((esp_addr)+8), &sec_size, 4, 0);
-    sec_data=(BYTE*)malloc(sec_size);
+    sec_data=(BYTE*)malloc2(sec_size);
     ReadProcessMemory(EV_fdProcessInfo->hProcess, (const void*)sec_addr, sec_data, sec_size, 0);
     unsigned int SetEnvA=0,SetEnvW=0;
     SetEnvW=EV_FindSetEnvPattern(sec_data, sec_size, false)+sec_addr;
@@ -292,26 +292,26 @@ void EV_cbEntry()
 
 DWORD WINAPI EV_DebugThread(LPVOID lpStartAddress)
 {
-    EV_fdFileIsDll = false;
-    unsigned int EV_fdEntryPoint = NULL;
-    EV_fdProcessInfo = NULL;
+    EV_fdFileIsDll=false;
+    unsigned int EV_fdEntryPoint=0;
+    EV_fdProcessInfo=0;
     EV_bpvp_set=false;
     DWORD EV_bytes_read=0;
-    FILE_STATUS_INFO inFileStatus = {0};
+    FILE_STATUS_INFO inFileStatus={0};
     if(IsPE32FileValidEx(EV_szFileName, UE_DEPTH_DEEP, &inFileStatus))
     {
         HANDLE hFile, fileMap;
-        EV_fdEntryPoint = (long)GetPE32Data(EV_szFileName, NULL, UE_OEP);
+        EV_fdEntryPoint=(long)GetPE32Data(EV_szFileName, 0, UE_OEP);
         StaticFileLoad(EV_szFileName, UE_ACCESS_READ, false, &hFile, &EV_bytes_read, &fileMap, &EV_va);
         StaticFileClose(hFile);
-        EV_fdFileIsDll = inFileStatus.FileIsDLL;
+        EV_fdFileIsDll=inFileStatus.FileIsDLL;
         if(!EV_fdFileIsDll)
         {
-            EV_fdProcessInfo = (LPPROCESS_INFORMATION)InitDebugEx(EV_szFileName, NULL, NULL, (void*)EV_cbEntry);
+            EV_fdProcessInfo=(LPPROCESS_INFORMATION)InitDebugEx(EV_szFileName, 0, 0, (void*)EV_cbEntry);
         }
         else
         {
-            EV_fdProcessInfo = (LPPROCESS_INFORMATION)InitDLLDebug(EV_szFileName, false, NULL, NULL, (void*)EV_cbEntry);
+            EV_fdProcessInfo=(LPPROCESS_INFORMATION)InitDLLDebug(EV_szFileName, false, 0, 0, (void*)EV_cbEntry);
         }
         if(EV_fdProcessInfo)
         {

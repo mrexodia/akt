@@ -107,7 +107,7 @@ void cbBruteProgess(double checked, double all, time_t* start)
 {
     //Calculate the needed values
     double pdone=(checked/all)*100.0;
-    double elaps=(double)(time(NULL)-*start);
+    double elaps=(double)(time(0)-*start);
     double estim=((100.0-pdone)/(pdone/elaps));
     double speed=checked/elaps;
     int pdone_int=pdone;
@@ -127,9 +127,9 @@ void cbBruteProgess(double checked, double all, time_t* start)
 
     //Check if we should halt the bruting process
     bool update_time=CT_brute_is_paused;
-    time_t pause=time(NULL);
+    time_t pause=time(0);
     while(CT_brute_is_paused)
         Sleep(100);
     if(update_time)
-        *start+=(time(NULL)-pause);
+        *start+=(time(0)-pause);
 }

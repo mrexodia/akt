@@ -33,7 +33,7 @@ void IH_GetPluginList(void)
             {
                 MessageBoxA(0, "Invalid plugin:\n\nThe export 'PluginInfo' could not be found.", find_struct.cFileName, MB_ICONERROR);
             }
-            else if(PluginFunction==0)
+            else if(!PluginFunction)
             {
                 MessageBoxA(0, "Invalid plugin:\n\nThe export 'PluginFunction' could not be found.", find_struct.cFileName, MB_ICONERROR);
             }
@@ -60,7 +60,7 @@ void IH_GetPluginList(void)
                 {
                     MessageBoxA(0, "Invalid plugin:\n\nThe export 'PluginInfo' could not be found.", find_struct.cFileName, MB_ICONERROR);
                 }
-                else if(PluginFunction==0)
+                else if(!PluginFunction)
                 {
                     MessageBoxA(0, "Invalid plugin:\n\nThe export 'PluginFunction' could not be found.", find_struct.cFileName, MB_ICONERROR);
                 }
@@ -90,7 +90,7 @@ void IH_GetPluginList(void)
                         {
                             MessageBoxA(0, "Invalid plugin:\n\nThe export 'PluginInfo' could not be found.", find_struct.cFileName, MB_ICONERROR);
                         }
-                        else if(PluginFunction==0)
+                        else if(!PluginFunction)
                         {
                             MessageBoxA(0, "Invalid plugin:\n\nThe export 'PluginFunction' could not be found.", find_struct.cFileName, MB_ICONERROR);
                         }

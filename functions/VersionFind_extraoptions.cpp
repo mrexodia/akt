@@ -4,12 +4,12 @@
  *						Module Variables
  *********************************************************************/
 // Debugging Variables
-static bool g_fdFileIsDll = false;
+static bool g_fdFileIsDll=false;
 static LPPROCESS_INFORMATION g_fdProcessInfo;
 
 // Internal Use Variables
 static unsigned int g_extra_options_reg=0;
-static cbErrorMessage g_ErrorMessageCallback = NULL;
+static cbErrorMessage g_ErrorMessageCallback=0;
 
 // Output Pointers
 static unsigned int* gPtrExtraOptions=0;
@@ -30,7 +30,7 @@ static void cbDw()
 {
     unsigned int eip=GetContextData(UE_EIP);
     DeleteBPX(eip);
-    BYTE* eip_data=(BYTE*)malloc(0x1000);
+    BYTE* eip_data=(BYTE*)malloc2(0x1000);
     ReadProcessMemory(g_fdProcessInfo->hProcess, (void*)eip, eip_data, 0x1000, 0);
     unsigned int and20=VF_FindAnd20Pattern(eip_data, 0x1000);
     if(!and20)
@@ -63,7 +63,7 @@ static void cbDw()
     }
     if(g_extra_options_reg==0xFFFFFFFF)
         VF_FatalError("Could not determine the register (extradw)", g_ErrorMessageCallback);
-    free(eip_data);
+    free2(eip_data);
     SetBPX(and20+eip, UE_BREAKPOINT, (void*)cbDwordRetrieve);
 }
 
@@ -82,7 +82,7 @@ static void cbVirtualProtect()
     sec_addr-=0x1000;
     VirtualQueryEx(g_fdProcessInfo->hProcess, (void*)sec_addr, &mbi, sizeof(MEMORY_BASIC_INFORMATION));
     sec_size=mbi.RegionSize;
-    sec_data=(BYTE*)malloc(sec_size);
+    sec_data=(BYTE*)malloc2(sec_size);
     ReadProcessMemory(g_fdProcessInfo->hProcess, (const void*)sec_addr, sec_data, sec_size, 0);
 
     unsigned int usbdevice=VF_FindUsbPattern(sec_data, sec_size);
@@ -140,7 +140,7 @@ static void cbVirtualProtect()
     }
 
 
-    free(sec_data);
+    free2(sec_data);
 }
 
 
@@ -181,12 +181,12 @@ static void cbEntry()
 
 void VF_ExtraOptions(char* szFileName, unsigned int* extra_options, cbErrorMessage ErrorMessageCallback)
 {
-    FILE_STATUS_INFO inFileStatus = {0};
+    FILE_STATUS_INFO inFileStatus={0};
 
-    gPtrExtraOptions = extra_options;
-    g_fdFileIsDll = false;
-    g_fdProcessInfo = NULL;
-    g_ErrorMessageCallback = ErrorMessageCallback;
+    gPtrExtraOptions=extra_options;
+    g_fdFileIsDll=false;
+    g_fdProcessInfo=0;
+    g_ErrorMessageCallback=ErrorMessageCallback;
 
     if(IsPE32FileValidEx(szFileName, UE_DEPTH_SURFACE, &inFileStatus))
     {
@@ -205,11 +205,11 @@ void VF_ExtraOptions(char* szFileName, unsigned int* extra_options, cbErrorMessa
             return;
         }
         StaticFileClose(hFile);
-        g_fdFileIsDll = inFileStatus.FileIsDLL;
+        g_fdFileIsDll=inFileStatus.FileIsDLL;
         if(!g_fdFileIsDll)
-            g_fdProcessInfo = (LPPROCESS_INFORMATION)InitDebugEx(szFileName, NULL, NULL, (void*)cbEntry);
+            g_fdProcessInfo=(LPPROCESS_INFORMATION)InitDebugEx(szFileName, 0, 0, (void*)cbEntry);
         else
-            g_fdProcessInfo = (LPPROCESS_INFORMATION)InitDLLDebug(szFileName, false, NULL, NULL, (void*)cbEntry);
+            g_fdProcessInfo=(LPPROCESS_INFORMATION)InitDLLDebug(szFileName, false, 0, 0, (void*)cbEntry);
         if(g_fdProcessInfo)
             DebugLoop();
         else

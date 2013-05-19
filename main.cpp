@@ -119,7 +119,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
     if(setting[0]=='1')
         CT_logtofile=false;
 
-    int retn=DialogBox(hInst, MAKEINTRESOURCE(DLG_MAIN), NULL, DlgMain);
+    int retn=DialogBox(hInst, MAKEINTRESOURCE(DLG_MAIN), 0, DlgMain);
 
     if(start_ontop)
         setting[0]='1';

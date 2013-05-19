@@ -158,13 +158,13 @@ BOOL CALLBACK KG_DlgKeyGenerate(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM l
             int len=GetDlgItemTextA(hwndDlg, IDC_EDT_SERIAL, serial, 2048);
             if(!len)
                 return TRUE;
-            HMENU myMenu=NULL;
+            HMENU myMenu=0;
             myMenu=CreatePopupMenu();
             AppendMenu(myMenu, MF_STRING, 1, "Copy Serial");
             POINT cursorPos;
             GetCursorPos(&cursorPos);
             SetForegroundWindow(hwndDlg);
-            UINT MenuItemClicked=TrackPopupMenu(myMenu, TPM_RETURNCMD|TPM_NONOTIFY, cursorPos.x, cursorPos.y, 0, hwndDlg, NULL);
+            UINT MenuItemClicked=TrackPopupMenu(myMenu, TPM_RETURNCMD|TPM_NONOTIFY, cursorPos.x, cursorPos.y, 0, hwndDlg, 0);
             SendMessage(hwndDlg, WM_NULL, 0, 0);
             if(MenuItemClicked==1)
             {
@@ -268,7 +268,7 @@ BOOL CALLBACK KG_DlgKeyGenerate(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM l
             len=strlen(new_date);
             UINT dest_id;
 
-            HMENU myMenu=NULL;
+            HMENU myMenu=0;
             myMenu=CreatePopupMenu();
 
             if(len!=8)
@@ -281,7 +281,7 @@ BOOL CALLBACK KG_DlgKeyGenerate(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM l
             POINT cursorPos;
             GetCursorPos(&cursorPos);
             SetForegroundWindow(hwndDlg);
-            UINT MenuItemClicked=TrackPopupMenu(myMenu, TPM_RETURNCMD|TPM_NONOTIFY, cursorPos.x, cursorPos.y, 0, hwndDlg, NULL);
+            UINT MenuItemClicked=TrackPopupMenu(myMenu, TPM_RETURNCMD|TPM_NONOTIFY, cursorPos.x, cursorPos.y, 0, hwndDlg, 0);
             SendMessage(hwndDlg, WM_NULL, 0, 0);
             switch(MenuItemClicked)
             {
@@ -326,7 +326,7 @@ BOOL CALLBACK KG_DlgKeyGenerate(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM l
             char temp[1024]="";
             char temp2[256]="";
             UINT MenuItemClicked=1;
-            HMENU myMenu=NULL;
+            HMENU myMenu=0;
             char clipboard[256]="";
             char pvt[1024]="";
             char y[1024]="";
@@ -365,7 +365,7 @@ BOOL CALLBACK KG_DlgKeyGenerate(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM l
                 POINT cursorPos;
                 GetCursorPos(&cursorPos);
                 SetForegroundWindow(hwndDlg);
-                MenuItemClicked=TrackPopupMenu(myMenu, TPM_RETURNCMD|TPM_NONOTIFY, cursorPos.x, cursorPos.y, 0, hwndDlg, NULL);
+                MenuItemClicked=TrackPopupMenu(myMenu, TPM_RETURNCMD|TPM_NONOTIFY, cursorPos.x, cursorPos.y, 0, hwndDlg, 0);
                 SendMessage(hwndDlg, WM_NULL, 0, 0);
             }
             switch(MenuItemClicked)

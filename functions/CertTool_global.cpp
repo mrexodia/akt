@@ -23,9 +23,9 @@ void CT_FatalError(const char* msg)
 
 int CT_NextSeed(int data)
 {
-    int a = data % 10000;
+    int a=data % 10000;
     int res;
-    res = 10000 * ((3141 * a  + (data / 10000) * 5821) % 10000u);
+    res=10000 * ((3141 * a  + (data / 10000) * 5821) % 10000u);
     return (a * 5821 + res + 1) % 100000000u;
 }
 

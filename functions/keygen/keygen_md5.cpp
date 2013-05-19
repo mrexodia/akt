@@ -10,11 +10,11 @@
 	arbitrary length. Used for the ShortV3 key system.
 */
 
-#define RotateLeft(x,n) (((x) << n) | ((x) >> (32-n)))
+#define RotateLeft(x,n) (((x) << n)|((x) >> (32-n)))
 #define FF(A,B,C,D,X,S,T) (RotateLeft(((B & C)|(~B & D))+A+X+T, S)+B)
 #define GG(A,B,C,D,X,S,T) (RotateLeft(((B & D)|(C & ~D))+A+X+T, S)+B)
 #define HH(A,B,C,D,X,S,T) (RotateLeft((B^C^D)+A+X+T, S)+B)
-#define II(A,B,C,D,X,S,T) (RotateLeft((C^ (B | ~D))+A+X+T, S)+B)
+#define II(A,B,C,D,X,S,T) (RotateLeft((C^ (B|~D))+A+X+T, S)+B)
 
 void TransformBlock(unsigned long *i, const unsigned char *in)
 {

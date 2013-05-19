@@ -38,7 +38,7 @@ BOOL CALLBACK CT_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
         if(CT_isdebugging)
             return TRUE;
-        DragQueryFileA((HDROP)wParam, NULL, CT_szFileName, MAX_PATH);
+        DragQueryFileA((HDROP)wParam, 0, CT_szFileName, MAX_PATH);
         strcpy(CT_szProgramDir, CT_szFileName);
         int len=strlen(CT_szProgramDir);
         while(CT_szProgramDir[len]!='\\')

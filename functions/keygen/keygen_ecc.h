@@ -83,8 +83,8 @@ typedef struct
 typedef struct
 {
     ECC_INDEX form; /* 'form' is just a fast way to check if a2==0 */
-    ECC_FIELD a2; /* if form is zero, then: y^2 + xy = x^3 + a_6 */
-    ECC_FIELD a6; /* otherwise: y^2 + xy = x^3 + a_2*x^2 + a_6 ("twist" curve) */
+    ECC_FIELD a2; /* if form is zero, then: y^2 + xy=x^3 + a_6 */
+    ECC_FIELD a6; /* otherwise: y^2 + xy=x^3 + a_2*x^2 + a_6 ("twist" curve) */
 } ECC_CURVE;
 
 /* These structures described in IEEE P1363 Nov. 1997. */

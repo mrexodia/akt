@@ -10,11 +10,11 @@
 void BigInt_Realloc(BigInt n, int newcount, int copydata)
 {
     if(newcount<0) newcount=0;
-    if(newcount < n->alloc)
+    if(newcount<n->alloc)
     {
         if(copydata)
         {
-            if(newcount > n->length) memset(n->digits+n->length, 0, (newcount-n->length)*sizeof(DIGIT));
+            if(newcount>n->length) memset(n->digits+n->length, 0, (newcount-n->length)*sizeof(DIGIT));
             n->length=newcount;
         }
         else
@@ -76,7 +76,7 @@ int BigInt_Compare_SignOptional(BigInt b1, BigInt b2, int ignoresign)
 
     if(b1->length!=b2->length)
     {
-        answer=((b1->length < b2->length) ? -1 : 1);
+        answer=((b1->length<b2->length) ? -1 : 1);
     }
     else
     {
@@ -256,7 +256,7 @@ void BigInt_Add(BigInt a, BigInt b, BigInt answer)
     /* Make the numbers both the same size */
     if(a->length!=b->length)
     {
-        if(a->length > b->length) BigInt_Realloc(b, a->length, 1);
+        if(a->length>b->length) BigInt_Realloc(b, a->length, 1);
         else BigInt_Realloc(a, b->length, 1);
     }
 
@@ -296,7 +296,7 @@ void BigInt_Add(BigInt a, BigInt b, BigInt answer)
         BigInt_Copy(b, savedb);
         BigInt_Destroy(savedb);
 
-        if(answer->length > level)
+        if(answer->length>level)
         {
             --answer->digits[level];
             BigInt_FindMSD(answer);
@@ -356,7 +356,7 @@ void BigInt_Multiply(BigInt a, BigInt b, BigInt answer)
             {
                 addt=(*ansd)+1;
                 (*ansd++)=(DIGIT)addt;
-                if(addt < OVERFLOW_DIGIT) break;
+                if(addt<OVERFLOW_DIGIT) break;
             }
         }
     }

@@ -3,22 +3,22 @@
 /**********************************************************************
  *						Module Variables
  *********************************************************************/
-static char* g_szFileName = NULL;
-static IH_InlineHelperData_t* g_PtrTargetData = NULL;
+static char* g_szFileName=0;
+static IH_InlineHelperData_t* g_PtrTargetData=0;
 static cbStd g_EndingCallback;
-static cbErrorMessage g_ErrorMessageCallback = NULL;
+static cbErrorMessage g_ErrorMessageCallback=0;
 
 static bool g_bFileIsDll;
 static LPPROCESS_INFORMATION IH_fdProcessInfo; 		// Process information structure
 
-static long g_fdImageBase = NULL; 					// Process image base
-static long g_fdEntryPoint = NULL; 					// Process entry
-static long g_fdEntrySectionNumber = NULL; 			// Entry section number
-static long g_fdEntrySectionSize = NULL; 			// Entry section size
-static long g_fdEntrySectionOffset = NULL; 			// Entry section offset
+static long g_fdImageBase=0; 					// Process image base
+static long g_fdEntryPoint=0; 					// Process entry
+static long g_fdEntrySectionNumber=0; 			// Entry section number
+static long g_fdEntrySectionSize=0; 			// Entry section size
+static long g_fdEntrySectionOffset=0; 			// Entry section offset
 
-static int g_OutputDebugStringATotalCount = 0; 		// Total count of hits on OutputDebugStringA
-static int g_OutputDebugStringAMinorCount = 0; 		// Counter for correct hits on OutputDebugStringA
+static int g_OutputDebugStringATotalCount=0; 		// Total count of hits on OutputDebugStringA
+static int g_OutputDebugStringAMinorCount=0; 		// Counter for correct hits on OutputDebugStringA
 
 
 /**********************************************************************
@@ -70,11 +70,11 @@ void IH_GetFreeSpaceAddr(void) //Retrieve address for free space
     BYTE* dump_addr;
     unsigned int free_addr;
 
-    dump_addr = (BYTE*)VirtualAlloc(VirtualAlloc(0, g_fdEntrySectionSize, MEM_RESERVE, PAGE_EXECUTE_READWRITE), g_fdEntrySectionSize, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+    dump_addr=(BYTE*)VirtualAlloc(VirtualAlloc(0, g_fdEntrySectionSize, MEM_RESERVE, PAGE_EXECUTE_READWRITE), g_fdEntrySectionSize, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
     ReadProcessMemory(IH_fdProcessInfo->hProcess, (void*)(g_fdEntrySectionOffset+g_fdImageBase), dump_addr, g_fdEntrySectionSize, 0);
-    free_addr = IH_FindFreeSpace(dump_addr, (unsigned int)g_fdEntrySectionSize)+g_fdEntrySectionOffset+g_fdImageBase+5;
+    free_addr=IH_FindFreeSpace(dump_addr, (unsigned int)g_fdEntrySectionSize)+g_fdEntrySectionOffset+g_fdImageBase+5;
 
-    g_PtrTargetData->EmptyEntry = free_addr;
+    g_PtrTargetData->EmptyEntry=free_addr;
 
     VirtualFree(dump_addr, g_fdEntrySectionSize, MEM_DECOMMIT);
 }
@@ -115,7 +115,7 @@ void IH_GetImportTableAddresses() //Retrieve basic import data
     else
         VirtualProtect_Addr=0;
 
-    g_PtrTargetData->VirtualProtect_Addr = VirtualProtect_Addr;
+    g_PtrTargetData->VirtualProtect_Addr=VirtualProtect_Addr;
 
 
     // Find OutputDebugStringA address
@@ -125,7 +125,7 @@ void IH_GetImportTableAddresses() //Retrieve basic import data
     else
         OutputDebugStringA_Addr=0;
 
-    g_PtrTargetData->OutputDebugStringA_Addr = OutputDebugStringA_Addr;
+    g_PtrTargetData->OutputDebugStringA_Addr=OutputDebugStringA_Addr;
 
 
     // Find GetEnvironmentVariableA address
@@ -135,7 +135,7 @@ void IH_GetImportTableAddresses() //Retrieve basic import data
     else
         GetEnvironmentVariableA_Addr=0;
 
-    g_PtrTargetData->GetEnvironmentVariableA_Addr = GetEnvironmentVariableA_Addr;
+    g_PtrTargetData->GetEnvironmentVariableA_Addr=GetEnvironmentVariableA_Addr;
 
 
     // Find SetEnvironmentVariableA address
@@ -145,7 +145,7 @@ void IH_GetImportTableAddresses() //Retrieve basic import data
     else
         SetEnvironmentVariableA_Addr=0;
 
-    g_PtrTargetData->SetEnvironmentVariableA_Addr = SetEnvironmentVariableA_Addr;
+    g_PtrTargetData->SetEnvironmentVariableA_Addr=SetEnvironmentVariableA_Addr;
 
 
     // Find LoadLibraryA address
@@ -155,7 +155,7 @@ void IH_GetImportTableAddresses() //Retrieve basic import data
     else
         LoadLibraryA_Addr=0;
 
-    g_PtrTargetData->LoadLibraryA_Addr = LoadLibraryA_Addr;
+    g_PtrTargetData->LoadLibraryA_Addr=LoadLibraryA_Addr;
 
 
     // Find GetProcAddress address
@@ -165,7 +165,7 @@ void IH_GetImportTableAddresses() //Retrieve basic import data
     else
         GetProcAddress_Addr=0;
 
-    g_PtrTargetData->GetProcAddress_Addr = GetProcAddress_Addr;
+    g_PtrTargetData->GetProcAddress_Addr=GetProcAddress_Addr;
 
 
     // Find WriteProcessMemory address
@@ -175,7 +175,7 @@ void IH_GetImportTableAddresses() //Retrieve basic import data
     else
         WriteProcessMemory_Addr=0;
 
-    g_PtrTargetData->WriteProcessMemory_Addr = WriteProcessMemory_Addr;
+    g_PtrTargetData->WriteProcessMemory_Addr=WriteProcessMemory_Addr;
 
 
     // Free the memory and close the handle
@@ -201,12 +201,12 @@ void IH_cbOutputDebugStringA() //Callback for OutputDebugStringA
     if(g_OutputDebugStringAMinorCount==2)
     {
         // Declare some variables
-        unsigned int originalCRCVals[5] = {0};  // Original CRC values array
-        int CRCBase = 0; 						// Stack difference for retrieving the CRC values
-        unsigned int ebp_addr = GetContextData(UE_EBP),esp_addr=GetContextData(UE_ESP),bp_addr=0;
-        BYTE search_bytes[1024] = {0xFF};
+        unsigned int originalCRCVals[5]={0};  // Original CRC values array
+        int CRCBase=0; 						// Stack difference for retrieving the CRC values
+        unsigned int ebp_addr=GetContextData(UE_EBP),esp_addr=GetContextData(UE_ESP),bp_addr=0;
+        BYTE search_bytes[1024]={0xFF};
 
-        g_OutputDebugStringAMinorCount = 0;
+        g_OutputDebugStringAMinorCount=0;
 
         // Read the executable code to obtain the CRC base
         ReadProcessMemory(IH_fdProcessInfo->hProcess, (void*)esp_addr, &bp_addr, 4, 0); ///Get the return address.
@@ -238,11 +238,11 @@ void IH_cbOutputDebugStringA() //Callback for OutputDebugStringA
         }
 
         ///Read the CRC values from the variable stack.
-        originalCRCVals[0] = 0;
-        originalCRCVals[1] = 0;
-        originalCRCVals[2] = 0;
-        originalCRCVals[3] = 0;
-        originalCRCVals[4] = 0;
+        originalCRCVals[0]=0;
+        originalCRCVals[1]=0;
+        originalCRCVals[2]=0;
+        originalCRCVals[3]=0;
+        originalCRCVals[4]=0;
 
         ReadProcessMemory(IH_fdProcessInfo->hProcess, (void*)(ebp_addr-CRCBase), &originalCRCVals[0], 4, 0);
         if(!arma960)
@@ -260,20 +260,20 @@ void IH_cbOutputDebugStringA() //Callback for OutputDebugStringA
         }
 
         // Fill CRCs
-        g_PtrTargetData->CRCBase = CRCBase;
+        g_PtrTargetData->CRCBase=CRCBase;
 
-        g_PtrTargetData->CrcOriginalVals[0] = originalCRCVals[0];
-        g_PtrTargetData->CrcOriginalVals[1] = originalCRCVals[1];
-        g_PtrTargetData->CrcOriginalVals[2] = originalCRCVals[2];
-        g_PtrTargetData->CrcOriginalVals[3] = originalCRCVals[3];
-        g_PtrTargetData->CrcOriginalVals[4] = originalCRCVals[4];
+        g_PtrTargetData->CrcOriginalVals[0]=originalCRCVals[0];
+        g_PtrTargetData->CrcOriginalVals[1]=originalCRCVals[1];
+        g_PtrTargetData->CrcOriginalVals[2]=originalCRCVals[2];
+        g_PtrTargetData->CrcOriginalVals[3]=originalCRCVals[3];
+        g_PtrTargetData->CrcOriginalVals[4]=originalCRCVals[4];
 
-        g_PtrTargetData->OutputDebugCount = g_OutputDebugStringATotalCount;
+        g_PtrTargetData->OutputDebugCount=g_OutputDebugStringATotalCount;
 
 
         // Arma960 support
-        g_PtrTargetData->Arma960 = arma960;
-        g_PtrTargetData->Arma960_add = push_addr;
+        g_PtrTargetData->Arma960=arma960;
+        g_PtrTargetData->Arma960_add=push_addr;
 
         ///Termintate the process and detach the debugger.
         //TerminateProcess(IH_fdProcessInfo->hProcess, 0);
@@ -351,10 +351,10 @@ void IH_cbOpenMutexA() //Callback for OpenMutexA
 
 void IH_cbEntryPoint() //Entry callback
 {
-    g_fdImageBase = GetDebuggedFileBaseAddress();
-    g_PtrTargetData->ImageBase = g_fdImageBase;
+    g_fdImageBase=GetDebuggedFileBaseAddress();
+    g_PtrTargetData->ImageBase=g_fdImageBase;
 
-    g_PtrTargetData->OEP = (unsigned int)(g_fdImageBase+g_fdEntryPoint);
+    g_PtrTargetData->OEP=(unsigned int)(g_fdImageBase+g_fdEntryPoint);
 
     // Retrieve useful data from IAT
     IH_GetImportTableAddresses();
@@ -368,9 +368,9 @@ void IH_cbEntryPoint() //Entry callback
 
 void IH_cbDllEntryPoint() //DLL Entry callback
 {
-    g_fdImageBase = GetDebuggedDLLBaseAddress();
-    g_PtrTargetData->ImageBase = g_fdImageBase;
-    g_PtrTargetData->OEP = (unsigned int)(g_fdImageBase+g_fdEntryPoint);
+    g_fdImageBase=GetDebuggedDLLBaseAddress();
+    g_PtrTargetData->ImageBase=g_fdImageBase;
+    g_PtrTargetData->OEP=(unsigned int)(g_fdImageBase+g_fdEntryPoint);
 
     // Retrieve useful data from IAT
     IH_GetImportTableAddresses();
@@ -384,20 +384,20 @@ void IH_cbDllEntryPoint() //DLL Entry callback
 
 DWORD WINAPI IH_DebugThread(LPVOID lpStartAddress) //Thread for debugging
 {
-    g_bFileIsDll = false;
-    g_fdImageBase = NULL;
-    g_fdEntryPoint = NULL;
-    IH_fdProcessInfo = NULL;
+    g_bFileIsDll=false;
+    g_fdImageBase=0;
+    g_fdEntryPoint=0;
+    IH_fdProcessInfo=0;
 
-    g_OutputDebugStringATotalCount = 0;
-    g_OutputDebugStringAMinorCount = 0;
-
-
-
-    DWORD IH_bytes_read = 0;
+    g_OutputDebugStringATotalCount=0;
+    g_OutputDebugStringAMinorCount=0;
 
 
-    FILE_STATUS_INFO inFileStatus = {0};
+
+    DWORD IH_bytes_read=0;
+
+
+    FILE_STATUS_INFO inFileStatus={0};
     if(IsPE32FileValidEx(g_szFileName, UE_DEPTH_DEEP, &inFileStatus))
     {
         if(inFileStatus.FileIs64Bit)
@@ -408,30 +408,30 @@ DWORD WINAPI IH_DebugThread(LPVOID lpStartAddress) //Thread for debugging
         HANDLE hFile, fileMap;
         ULONG_PTR va;
 
-        //g_fdImageBase = (long)GetPE32Data(g_szFileName, NULL, UE_IMAGEBASE);
-        //g_PtrTargetData->ImageBase = g_fdImageBase;
+        //g_fdImageBase=(long)GetPE32Data(g_szFileName, 0, UE_IMAGEBASE);
+        //g_PtrTargetData->ImageBase=g_fdImageBase;
 
-        g_fdEntryPoint = (long)GetPE32Data(g_szFileName, NULL, UE_OEP);
+        g_fdEntryPoint=(long)GetPE32Data(g_szFileName, 0, UE_OEP);
 
         StaticFileLoad(g_szFileName, UE_ACCESS_READ, false, &hFile, &IH_bytes_read, &fileMap, &va);
 
-        g_fdEntrySectionNumber = GetPE32SectionNumberFromVA(va, g_fdEntryPoint+GetPE32Data(g_szFileName, NULL, UE_IMAGEBASE));
-        g_PtrTargetData->EntrySectionNumber = g_fdEntrySectionNumber;
+        g_fdEntrySectionNumber=GetPE32SectionNumberFromVA(va, g_fdEntryPoint+GetPE32Data(g_szFileName, 0, UE_IMAGEBASE));
+        g_PtrTargetData->EntrySectionNumber=g_fdEntrySectionNumber;
 
         StaticFileClose(hFile);
         g_fdEntrySectionSize= (long)GetPE32Data(g_szFileName, g_fdEntrySectionNumber, UE_SECTIONVIRTUALSIZE);
-        g_fdEntrySectionOffset = (long)GetPE32Data(g_szFileName, g_fdEntrySectionNumber, UE_SECTIONVIRTUALOFFSET);
+        g_fdEntrySectionOffset=(long)GetPE32Data(g_szFileName, g_fdEntrySectionNumber, UE_SECTIONVIRTUALOFFSET);
 
-        g_bFileIsDll = inFileStatus.FileIsDLL;
+        g_bFileIsDll=inFileStatus.FileIsDLL;
 
 
-        if(g_bFileIsDll == false)
+        if(g_bFileIsDll==false)
         {
-            IH_fdProcessInfo = (LPPROCESS_INFORMATION)InitDebugEx(g_szFileName, NULL, NULL, (void*)IH_cbEntryPoint);
+            IH_fdProcessInfo=(LPPROCESS_INFORMATION)InitDebugEx(g_szFileName, 0, 0, (void*)IH_cbEntryPoint);
         }
         else
         {
-            IH_fdProcessInfo = (LPPROCESS_INFORMATION)InitDLLDebug(g_szFileName, false, NULL, NULL, (void*)IH_cbDllEntryPoint);
+            IH_fdProcessInfo=(LPPROCESS_INFORMATION)InitDLLDebug(g_szFileName, false, 0, 0, (void*)IH_cbDllEntryPoint);
         }
 
         if(IH_fdProcessInfo)
@@ -455,19 +455,19 @@ DWORD WINAPI IH_DebugThread(LPVOID lpStartAddress) //Thread for debugging
 
 bool IH_Debugger(char* szFileName, IH_InlineHelperData_t* ptrTargetData, cbStd EndingCallback, cbErrorMessage ErrorMessageCallback)
 {
-    FILE_STATUS_INFO fileStatus = {0};
+    FILE_STATUS_INFO fileStatus={0};
     bool bFileIsDll;
 
-    g_EndingCallback = EndingCallback;
-    g_ErrorMessageCallback = ErrorMessageCallback;
-    g_szFileName = szFileName;
-    g_PtrTargetData = ptrTargetData;
+    g_EndingCallback=EndingCallback;
+    g_ErrorMessageCallback=ErrorMessageCallback;
+    g_szFileName=szFileName;
+    g_PtrTargetData=ptrTargetData;
 
     memset(g_PtrTargetData, 0, sizeof(IH_InlineHelperData_t));
 
     if(IsPE32FileValidEx(szFileName, UE_DEPTH_DEEP, &fileStatus))
     {
-        bFileIsDll = fileStatus.FileIsDLL;
+        bFileIsDll=fileStatus.FileIsDLL;
         CreateThread(0, 0, IH_DebugThread, 0, 0, 0);
         return bFileIsDll;
     }

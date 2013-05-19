@@ -126,7 +126,7 @@ void NoTimeZoneStuff(void) //TODO: never used
 
     NoTimeZoneStuff();
 
-    days=(time(NULL)/secondsperday);
+    days=(time(0)/secondsperday);
     return (unsigned short)(days-dateoffset);
 #endif
 }*/

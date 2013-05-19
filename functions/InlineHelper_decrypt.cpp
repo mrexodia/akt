@@ -13,20 +13,20 @@
 /**********************************************************************
  *						Module Variables
  *********************************************************************/
-static char* g_szFileName = NULL;
-static cbErrorMessage g_ErrorMessageCallback = NULL;
+static char* g_szFileName=0;
+static cbErrorMessage g_ErrorMessageCallback=0;
 
-static bool g_fdFileIsDll = false;
+static bool g_fdFileIsDll=false;
 
-static LPPROCESS_INFORMATION g_fdProcessInfo = NULL;
+static LPPROCESS_INFORMATION g_fdProcessInfo=0;
 //static unsigned int g_epsection_raw_offset=0;
 
-static long g_fdImageBase = NULL;
+static long g_fdImageBase=0;
 static ULONG_PTR IHD_va;
-static long g_fdEntryPoint = NULL;
-static long g_fdEntrySectionNumber = NULL;
-static long g_fdEntrySectionSize = NULL;
-static long g_fdEntrySectionOffset = NULL;
+static long g_fdEntryPoint=0;
+static long g_fdEntrySectionNumber=0;
+static long g_fdEntrySectionSize=0;
+static long g_fdEntrySectionOffset=0;
 static long g_fdEntrySectionRawOffset=0;
 static long g_fdEntrySectionRawSize=0;
 
@@ -61,7 +61,7 @@ void IHD_cbOEP()
     unsigned int IHD_epsection_raw_offset=GetPE32DataFromMappedFile(IHD_va, real_ep_section, UE_SECTIONRAWOFFSET);
     unsigned int epsection_offset=GetPE32DataFromMappedFile(IHD_va, real_ep_section, UE_SECTIONVIRTUALOFFSET);
     unsigned int epsection_raw_size=GetPE32DataFromMappedFile(IHD_va, real_ep_section, UE_SECTIONRAWSIZE);
-    BYTE* new_data=(BYTE*)malloc(epsection_raw_size);
+    BYTE* new_data=(BYTE*)malloc2(epsection_raw_size);
     ReadProcessMemory(g_fdProcessInfo->hProcess, (void*)(epsection_offset+g_fdImageBase), new_data, epsection_raw_size, 0);
     char newfile[256]="";
     strcpy(newfile, g_szFileName);
@@ -78,7 +78,7 @@ void IHD_cbOEP()
     ovl.Offset=IHD_epsection_raw_offset;
     WriteFile(hFile, new_data, epsection_raw_size, 0, &ovl);
     CloseHandle(hFile);
-    free(new_data);
+    free2(new_data);
     char msg[256]="";
     sprintf(msg, "New file written to %s.\n\nShould I set a new EP and clear out the old .adata section?", newfile);
     if(MessageBoxA(0, msg, "Question", MB_ICONQUESTION|MB_YESNO)==IDYES)
@@ -90,12 +90,12 @@ void IHD_cbOEP()
             MessageBoxA(0, "Could not open file!", "Fail..", MB_ICONERROR);
             StopDebug();
         }
-        BYTE* empty_mem=(BYTE*)malloc(g_fdEntrySectionRawSize);
+        BYTE* empty_mem=(BYTE*)malloc2(g_fdEntrySectionRawSize);
         memset(empty_mem, 0, g_fdEntrySectionRawSize);
         memset(&ovl, 0, sizeof(OVERLAPPED));
         ovl.Offset=g_fdEntrySectionRawOffset;
         WriteFile(hFile, empty_mem, g_fdEntrySectionRawSize, 0, &ovl);
-        free(empty_mem);
+        free2(empty_mem);
         CloseHandle(hFile);
     }
     MessageBoxA(0, "All done!", "Done", MB_ICONINFORMATION);
@@ -140,7 +140,7 @@ void IHD_cbGuardPage()
 {
     unsigned int eip=GetContextData(UE_EIP);
     unsigned int size_read=(g_fdEntrySectionOffset+g_fdEntrySectionSize+g_fdImageBase)-eip;
-    BYTE* data=(BYTE*)malloc(size_read);
+    BYTE* data=(BYTE*)malloc2(size_read);
     ReadProcessMemory(g_fdProcessInfo->hProcess, (void*)eip, data, size_read, 0);
     unsigned int bp_addr=IHD_FindJump(data, size_read, &g_reg);
     if(!bp_addr)
@@ -148,7 +148,7 @@ void IHD_cbGuardPage()
         g_ErrorMessageCallback((char*)"Could not find:\n\npushad\njmp [register]\n\nPlease contact Mr. eXoDia.", (char*)"Error!");
         StopDebug();
     }
-    free(data);
+    free2(data);
     SetHardwareBreakPoint(eip+bp_addr, UE_DR0, UE_HARDWARE_EXECUTE, 1, (void*)IHD_cbJumpOEP);
 }
 
@@ -171,14 +171,14 @@ void IHD_cbEntry()
 
 DWORD WINAPI IHD_DebugThread(LPVOID lpStartAddress) //TODO: never used
 {
-    long fdSizeOfImage = NULL;
-    FILE_STATUS_INFO inFileStatus = {0};
+    long fdSizeOfImage=0;
+    FILE_STATUS_INFO inFileStatus={0};
 
-    g_fdFileIsDll = false;
-    g_fdImageBase = NULL;
-    g_fdEntryPoint = NULL;
-    g_fdProcessInfo = NULL;
-    DWORD bytes_read = NULL;
+    g_fdFileIsDll=false;
+    g_fdImageBase=0;
+    g_fdEntryPoint=0;
+    g_fdProcessInfo=0;
+    DWORD bytes_read=0;
 
     if(IsPE32FileValidEx(g_szFileName, UE_DEPTH_DEEP, &inFileStatus))
     {
@@ -188,24 +188,24 @@ DWORD WINAPI IHD_DebugThread(LPVOID lpStartAddress) //TODO: never used
             return 0;
         }
         HANDLE hFile, fileMap;
-        g_fdEntryPoint = (long)GetPE32Data(g_szFileName, NULL, UE_OEP);
-        fdSizeOfImage = (long)GetPE32Data(g_szFileName, NULL, UE_SIZEOFIMAGE);
+        g_fdEntryPoint=(long)GetPE32Data(g_szFileName, 0, UE_OEP);
+        fdSizeOfImage=(long)GetPE32Data(g_szFileName, 0, UE_SIZEOFIMAGE);
         StaticFileLoad(g_szFileName, UE_ACCESS_READ, false, &hFile, &bytes_read, &fileMap, &IHD_va);
-        g_fdEntrySectionNumber = GetPE32SectionNumberFromVA(IHD_va, g_fdEntryPoint+GetPE32Data(g_szFileName, NULL, UE_IMAGEBASE));
+        g_fdEntrySectionNumber=GetPE32SectionNumberFromVA(IHD_va, g_fdEntryPoint+GetPE32Data(g_szFileName, 0, UE_IMAGEBASE));
         CloseHandle(hFile);
         CloseHandle(fileMap);
         g_fdEntrySectionSize= (long)GetPE32Data(g_szFileName, g_fdEntrySectionNumber, UE_SECTIONVIRTUALSIZE);
         g_fdEntrySectionRawOffset=GetPE32Data(g_szFileName, g_fdEntrySectionNumber, UE_SECTIONRAWOFFSET);
         g_fdEntrySectionRawSize=GetPE32Data(g_szFileName, g_fdEntrySectionNumber, UE_SECTIONRAWSIZE);
-        g_fdEntrySectionOffset = (long)GetPE32Data(g_szFileName, g_fdEntrySectionNumber, UE_SECTIONVIRTUALOFFSET);
-        g_fdFileIsDll = inFileStatus.FileIsDLL;
+        g_fdEntrySectionOffset=(long)GetPE32Data(g_szFileName, g_fdEntrySectionNumber, UE_SECTIONVIRTUALOFFSET);
+        g_fdFileIsDll=inFileStatus.FileIsDLL;
         if(!g_fdFileIsDll)
         {
-            g_fdProcessInfo = (LPPROCESS_INFORMATION)InitDebugEx(g_szFileName, NULL, NULL, (void*)IHD_cbEntry);
+            g_fdProcessInfo=(LPPROCESS_INFORMATION)InitDebugEx(g_szFileName, 0, 0, (void*)IHD_cbEntry);
         }
         else
         {
-            g_fdProcessInfo = (LPPROCESS_INFORMATION)InitDLLDebug(g_szFileName, false, NULL, NULL, (void*)IHD_cbEntry);
+            g_fdProcessInfo=(LPPROCESS_INFORMATION)InitDLLDebug(g_szFileName, false, 0, 0, (void*)IHD_cbEntry);
         }
         if(g_fdProcessInfo)
         {
@@ -228,8 +228,8 @@ DWORD WINAPI IHD_DebugThread(LPVOID lpStartAddress) //TODO: never used
 
 void IHD_Debugger(char* szFileName, cbErrorMessage ErrorMessageCallback)
 {
-    g_ErrorMessageCallback = ErrorMessageCallback;
-    g_szFileName = szFileName;
+    g_ErrorMessageCallback=ErrorMessageCallback;
+    g_szFileName=szFileName;
 
     CreateThread(0, 0, IHD_DebugThread, 0, 0, 0);
 }
