@@ -551,6 +551,14 @@ vector<ArmaLicenseEntry_t> LR_FilterAPIContextContainerList(vector<APIContextCon
 						if(LR_RegKeyExists(HKEY_CLASSES_ROOT, (LPCSTR)parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr.data(), (LPCSTR)"") == true)
 							wArmaLicenseEntryList.push_back(wTempArmaLicenseEntry);
 					}
+					else if((HKEY)parAPIContextContainerList.at(wI).RegOpenKeyExAContext.hKey == HKEY_CURRENT_USER)
+					{
+						wTempArmaLicenseEntry.Type = REGISTRY_KEY_ENRTY;
+						wTempArmaLicenseEntry.Path = string("HKEY_CURRENT_USER\\") + parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr;
+
+						if(LR_RegKeyExists(HKEY_CURRENT_USER, (LPCSTR)parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr.data(), (LPCSTR)"") == true)
+							wArmaLicenseEntryList.push_back(wTempArmaLicenseEntry);
+					}
             	}
             }
         }
