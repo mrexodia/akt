@@ -15,3 +15,4 @@ bin/exception_*.log
 *.layout
 *.depend
 Public/
+*.log

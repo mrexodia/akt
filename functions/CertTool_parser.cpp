@@ -428,16 +428,19 @@ void CT_ParseCerts()
             sprintf(log_msg, "%.8X", checksum);
             WritePrivateProfileStringA(section_name, "chk", log_msg, CT_szAktLogFile);
 
-            //Calculate public MD5 dword
-            memset(byte_string, 0, pub_size);
-            for(int i=0; i<pub_size; i++) //Reverse buffer
-                byte_string[pub_size-i-1]=data[i];
-            md5(hash, byte_string, pub_size); //Hash
-            md5_pub=hash[0]^hash[1]^hash[2]^hash[3]; //Xor hash result together
+            if(!cd->zero_md5_symverify)
+            {
+                //Calculate public MD5 dword
+                memset(byte_string, 0, pub_size);
+                for(int i=0; i<pub_size; i++) //Reverse buffer
+                    byte_string[pub_size-i-1]=data[i];
+                md5(hash, byte_string, pub_size); //Hash
+                md5_pub=hash[0]^hash[1]^hash[2]^hash[3]; //Xor hash result together
 
-            //Write to _cert.akt file
-            sprintf(log_msg, "%.8X", md5_pub);
-            WritePrivateProfileStringA(section_name, "md5", log_msg, CT_szAktLogFile);
+                //Write to _cert.akt file
+                sprintf(log_msg, "%.8X", md5_pub);
+                WritePrivateProfileStringA(section_name, "md5", log_msg, CT_szAktLogFile);
+            }
 
             if(CT_brute and !CT_brute_nosym)
             {
@@ -524,8 +527,10 @@ void CT_ParseCerts()
                         k+=sprintf(byte_string+k, "%c", data[i]);
                     else
                     {
-                        if(!j)
+                        if(!j and !cd->zero_md5_symverify)
                             sprintf(log_msg, "  BaseP : %s (Size=%X, Diff=%X, MD5=%.8X)", byte_string, pub_size, diff, md5_pub);
+                        else if(!j)
+                            sprintf(log_msg, "  BaseP : %s (Size=%X, Diff=%X)", byte_string, pub_size, diff);
                         else
                             sprintf(log_msg, "  Pub.X : %s", byte_string);
                         CT_AddLogMessage(list, log_msg);
@@ -545,7 +550,7 @@ void CT_ParseCerts()
 
                 //Write to _cert.akt file
                 WritePrivateProfileStringA(section_name, "pub", byte_string+add_one, CT_szAktLogFile);
-                if(level>19)
+                if(level>19 and !cd->zero_md5_symverify)
                     sprintf(log_msg, "      Y : %s (MD5=%.8X)", byte_string+add_one, md5_pub);
                 else
                     sprintf(log_msg, "      Y : %s", byte_string+add_one);

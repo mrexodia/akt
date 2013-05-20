@@ -305,6 +305,7 @@ void CT_cbCertificateFunction()
         if(ReadProcessMemory(fdProcessInfo->hProcess, (void*)retn_eax, certificate_code, mem_size, 0))
         {
             //Arma 9.60 support
+            puts("errorfuck");
             unsigned int esp=GetContextData(UE_ESP);
             unsigned int _stack=0;
             ReadProcessMemory(fdProcessInfo->hProcess, (void*)esp, &_stack, 4, 0);
@@ -314,7 +315,7 @@ void CT_cbCertificateFunction()
             unsigned int retn=CT_FindReturnPattern(return_bytes, 0x1000);
             if(!retn)
                 CT_FindReturnPattern2(return_bytes, 0x1000);
-            if(push100<retn)
+            if(push100 and push100<retn)
             {
                 unsigned int call=CT_FindCall1Pattern(return_bytes+push100, 0x1000-push100);
                 if(!call)
