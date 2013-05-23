@@ -155,8 +155,8 @@ unsigned int CT_FindNextDwordPattern(BYTE* d, unsigned int size) //TODO: never u
 
 unsigned int CT_FindReturnPattern(BYTE* d, unsigned int size)
 {
-    for(unsigned int i=0; i<size; i++) //5DC?
-        if(d[i]==0x5D and(d[i+1]>>4)==0x0C)
+    for(unsigned int i=0; i<size; i++) //5DC[2/3]
+        if(d[i]==0x5D and (d[i+1]==0xC2 or d[i+1]==0xC3))
             return i+1;
     return 0;
 }
