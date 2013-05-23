@@ -70,6 +70,7 @@ static void cbDw()
 
 static void cbVirtualProtect()
 {
+    puts("cbVirtualProtectDbg");
     DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_APISTART);
     MEMORY_BASIC_INFORMATION mbi= {0};
 
