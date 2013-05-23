@@ -28,7 +28,6 @@ static void cbDwordRetrieve()
 
 static void cbDw()
 {
-    puts("cbDw");
     unsigned int eip=GetContextData(UE_EIP);
     DeleteBPX(eip);
     BYTE* eip_data=(BYTE*)malloc2(0x1000);
@@ -81,7 +80,6 @@ static void cbDw()
 
 static void cbVirtualProtect()
 {
-    puts("cbVirtualProtectDbg");
     DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_APISTART);
     MEMORY_BASIC_INFORMATION mbi= {0};
 
