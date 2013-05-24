@@ -16,3 +16,6 @@ bin/exception_*.log
 *.depend
 Public/
 *.log
+bin/cudart32_42_9.dll
+bin/brute_sym.dll
+bin/brute_sym.dll
