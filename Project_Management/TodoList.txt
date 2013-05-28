@@ -13,3 +13,6 @@ TODO List
 - Nanomites
 - Code splicing (Redirection adn deobfuscation)
 - Check miscellaneous modules compatibility with new/old versions
+- selective brute forcing (cert number, sym?, elgamal?)
+- arma_cert_bin_info
+- better plugin interface
