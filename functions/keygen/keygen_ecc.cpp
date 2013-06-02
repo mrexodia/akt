@@ -383,7 +383,7 @@ void ECC_MakeSignature(char *Message, unsigned long length, EC_PARAMETER *public
     /* compute hash of input message  */
     BigInt_Hash(Message, length, hash_value);
 
-    AddLogMessage(log, "Message Hash (Len: 32, 0x20):", false);
+    AddLogMessage(log, "Message Hash (Len: 16, 0x10):", false);
     BigInt_ToString(hash_value, 16, log_msg);
     AddLogMessage(log, log_msg, false);
 
