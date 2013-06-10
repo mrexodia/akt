@@ -32,8 +32,8 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
         //SelectTab(hwndDlg, 4);
         if(start_ontop)
         {
-            SetWindowPos(hwndDlg, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE|SWP_SHOWWINDOW);
             CheckDlgButton(hwndDlg, IDC_CHK_ONTOP, 1);
+            SetWindowPos(hwndDlg, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE|SWP_SHOWWINDOW);
         }
     }
     return TRUE;

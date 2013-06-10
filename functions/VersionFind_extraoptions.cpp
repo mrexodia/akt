@@ -31,11 +31,7 @@ static void cbDw()
     unsigned int eip=GetContextData(UE_EIP);
     DeleteBPX(eip);
     BYTE* eip_data=(BYTE*)malloc2(0x1000);
-    if(!ReadProcessMemory(g_fdProcessInfo->hProcess, (void*)eip, eip_data, 0x1000, 0))
-    {
-        VF_FatalError(rpmerror(), g_ErrorMessageCallback);
-        return;
-    }
+    ReadProcessMemory(g_fdProcessInfo->hProcess, (void*)eip, eip_data, 0x1000, 0);
     unsigned int and20=VF_FindAnd20Pattern(eip_data, 0x1000);
     unsigned int minusreg=0;
     if(!and20)
@@ -92,20 +88,12 @@ static void cbVirtualProtect()
     unsigned int esp_addr=0;
     BYTE* sec_data=0;
     esp_addr=(long)GetContextData(UE_ESP);
-    if(!ReadProcessMemory(g_fdProcessInfo->hProcess, (const void*)((esp_addr)+4), &sec_addr, 4, 0))
-    {
-        VF_FatalError(rpmerror(), g_ErrorMessageCallback);
-        return;
-    }
+    ReadProcessMemory(g_fdProcessInfo->hProcess, (const void*)((esp_addr)+4), &sec_addr, 4, 0);
     sec_addr-=0x1000;
     VirtualQueryEx(g_fdProcessInfo->hProcess, (void*)sec_addr, &mbi, sizeof(MEMORY_BASIC_INFORMATION));
     sec_size=mbi.RegionSize;
     sec_data=(BYTE*)malloc2(sec_size);
-    if(!ReadProcessMemory(g_fdProcessInfo->hProcess, (const void*)sec_addr, sec_data, sec_size, 0))
-    {
-        VF_FatalError(rpmerror(), g_ErrorMessageCallback);
-        return;
-    }
+    ReadProcessMemory(g_fdProcessInfo->hProcess, (const void*)sec_addr, sec_data, sec_size, 0);
 
     unsigned int usbdevice=VF_FindUsbPattern(sec_data, sec_size);
     if(usbdevice)
@@ -175,21 +163,9 @@ static void cbOpenMutexA()
     unsigned int return_addr=0;
     DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"OpenMutexA", UE_APISTART);
     esp_addr=(long)GetContextData(UE_ESP);
-    if(!ReadProcessMemory(g_fdProcessInfo->hProcess, (const void*)esp_addr, &return_addr, 4, 0))
-    {
-        VF_FatalError(rpmerror(), g_ErrorMessageCallback);
-        return;
-    }
-    if(!ReadProcessMemory(g_fdProcessInfo->hProcess, (const void*)(esp_addr+12), &mutex_addr, 4, 0))
-    {
-        VF_FatalError(rpmerror(), g_ErrorMessageCallback);
-        return;
-    }
-    if(!ReadProcessMemory(g_fdProcessInfo->hProcess, (const void*)mutex_addr, &mutex_name, 20, 0))
-    {
-        VF_FatalError(rpmerror(), g_ErrorMessageCallback);
-        return;
-    }
+    ReadProcessMemory(g_fdProcessInfo->hProcess, (const void*)esp_addr, &return_addr, 4, 0);
+    ReadProcessMemory(g_fdProcessInfo->hProcess, (const void*)(esp_addr+12), &mutex_addr, 4, 0);
+    ReadProcessMemory(g_fdProcessInfo->hProcess, (const void*)mutex_addr, &mutex_name, 20, 0);
     CreateMutexA(0, FALSE, mutex_name);
     if(GetLastError()==ERROR_SUCCESS)
     {

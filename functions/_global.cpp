@@ -543,13 +543,3 @@ void UpdateHorizontalScrollLen(HWND list, const char* string)
     GetTextExtentPoint32A(hdc, string, strlen(string), &s);
     SendMessageA(list, LB_SETHORIZONTALEXTENT, s.cx+5, 0);
 }
-
-const char* rpmerror()
-{
-    return "Failed to read process memory (disable Anti-Virus?)";
-}
-
-const char* wpmerror()
-{
-    return "Failed to write process memory (disable Anti-Virus?)";
-}

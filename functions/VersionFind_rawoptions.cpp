@@ -32,11 +32,7 @@ void cbMutexReturn()
     unsigned int eip=GetContextData(UE_EIP);
     DeleteBPX(eip);
     BYTE* eip_data=(BYTE*)malloc2(100);
-    if(!ReadProcessMemory(g_fdProcessInfo->hProcess, (void*)eip, eip_data, 100, 0))
-    {
-        VF_FatalError(rpmerror(), g_ErrorMessageCallback);
-        return;
-    }
+    ReadProcessMemory(g_fdProcessInfo->hProcess, (void*)eip, eip_data, 100, 0);
     int and20=VF_FindAnd20Pattern(eip_data, 100);
     if(!and20)
         VF_FatalError("Could not find 'and [reg],20'", g_ErrorMessageCallback);
@@ -78,11 +74,7 @@ static void cbOpenMutexA()
     unsigned int return_addr=0;
     DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"OpenMutexA", UE_APISTART);
     esp_addr=(long)GetContextData(UE_ESP);
-    if(!ReadProcessMemory(g_fdProcessInfo->hProcess, (const void*)esp_addr, &return_addr, 4, 0))
-    {
-        VF_FatalError(rpmerror(), g_ErrorMessageCallback);
-        return;
-    }
+    ReadProcessMemory(g_fdProcessInfo->hProcess, (const void*)esp_addr, &return_addr, 4, 0);
     SetBPX(return_addr, UE_BREAKPOINT, (void*)cbMutexReturn);
 }
 
@@ -92,11 +84,7 @@ static void cbGetCommandLine()
     //DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"GetCommandLineA", UE_APISTART);
     //DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"GetCommandLineW", UE_APISTART);
     BYTE* data=(BYTE*)malloc2(g_fdEntrySectionSize);
-    if(!ReadProcessMemory(g_fdProcessInfo->hProcess, (void*)g_fdEntrySectionOffset, data, g_fdEntrySectionSize, 0))
-    {
-        VF_FatalError(rpmerror(), g_ErrorMessageCallback);
-        return;
-    }
+    ReadProcessMemory(g_fdProcessInfo->hProcess, (void*)g_fdEntrySectionOffset, data, g_fdEntrySectionSize, 0);
     int addr40000=VF_Find40000Pattern(data, g_fdEntrySectionSize);
     if(!addr40000)
         VF_FatalError("[DLL] Could not find 0x400000'", g_ErrorMessageCallback);

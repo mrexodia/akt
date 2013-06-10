@@ -91,7 +91,7 @@ DWORD WINAPI MSC_CurSymDebugThread(void* lpvoid)
     MSC_current_sym=0;
     MSC_fdFileIsDll=false;
     MSC_fdProcessInfo=0;
-    FILE_STATUS_INFO inFileStatus= {0};
+    FILE_STATUS_INFO inFileStatus={0};
     if(IsPE32FileValidEx(MSC_szFileName, UE_DEPTH_DEEP, &inFileStatus))
     {
         if(inFileStatus.FileIs64Bit)

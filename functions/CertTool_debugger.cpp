@@ -96,20 +96,12 @@ void CT_cbTeaDecrypt()
 {
     unsigned int esp=GetContextData(UE_ESP);
     unsigned int values[2]= {0};
-    if(!ReadProcessMemory(fdProcessInfo->hProcess, (void*)(esp+4), &values, 8, 0))
-    {
-        CT_FatalError(rpmerror());
-        return;
-    }
+    ReadProcessMemory(fdProcessInfo->hProcess, (void*)(esp+4), &values, 8, 0);
     unsigned char first_5_bytes[5]="";
     memcpy(first_5_bytes, &values[1], 4);
     first_5_bytes[4]=magic_byte_cert;
     unsigned char* new_data=(unsigned char*)malloc2(values[1]);
-    if(!ReadProcessMemory(fdProcessInfo->hProcess, (void*)values[0], new_data, values[1], 0))
-    {
-        CT_FatalError(rpmerror());
-        return;
-    }
+    ReadProcessMemory(fdProcessInfo->hProcess, (void*)values[0], new_data, values[1], 0);
     unsigned char* temp=(unsigned char*)malloc2(encrypted_cert_real_size+values[1]+5);
     if(encrypted_cert_real)
     {
@@ -149,11 +141,7 @@ void CT_cbMagicValue()
     DeleteHardwareBreakPoint(UE_DR1);
     unsigned int retrieve_addr=GetContextData(UE_EBP)-magic_ebp_sub-4;
     unsigned int magic_values[2]= {0};
-    if(!ReadProcessMemory(fdProcessInfo->hProcess, (void*)retrieve_addr, magic_values, 8, 0))
-    {
-        CT_FatalError(rpmerror());
-        return;
-    }
+    ReadProcessMemory(fdProcessInfo->hProcess, (void*)retrieve_addr, magic_values, 8, 0);
     CT_cert_data->magic1=magic_values[0];
     CT_cert_data->magic2=magic_values[1];
     if(end_big_loop)
@@ -209,11 +197,7 @@ void CT_cbGetOtherSeed()
     unsigned int eip=GetContextData(UE_EIP);
     DeleteBPX(eip);
     unsigned char reg_byte=0;
-    if(!ReadProcessMemory(fdProcessInfo->hProcess, (void*)(eip+1), &reg_byte, 1, 0))
-    {
-        CT_FatalError(rpmerror());
-        return;
-    }
+    ReadProcessMemory(fdProcessInfo->hProcess, (void*)(eip+1), &reg_byte, 1, 0);
     CT_cert_data->decrypt_addvals[other_seed_counter]=GetContextData(CT_DetermineRegisterFromByte(reg_byte));
     other_seed_counter++;
     if(other_seed_counter==4)
@@ -229,11 +213,7 @@ void CT_cbOtherSeeds()
     puts("cbOtherSeeds");
     unsigned int eip=GetContextData(UE_EIP);
     unsigned char* eip_data=(unsigned char*)malloc2(0x10000);
-    if(!ReadProcessMemory(fdProcessInfo->hProcess, (void*)eip, eip_data, 0x10000, 0))
-    {
-        CT_FatalError(rpmerror());
-        return;
-    }
+    ReadProcessMemory(fdProcessInfo->hProcess, (void*)eip, eip_data, 0x10000, 0);
     unsigned int stdcall=CT_FindStdcallPattern(eip_data, 0x10000);
     if(!stdcall)
     {
@@ -280,20 +260,12 @@ void CT_cbReturnSeed1()
     DeleteBPX(GetContextData(UE_EIP));
     unsigned int esp=GetContextData(UE_ESP);
     unsigned int _stack=0;
-    if(!ReadProcessMemory(fdProcessInfo->hProcess, (void*)esp, &_stack, 4, 0))
-    {
-        CT_FatalError(rpmerror());
-        return;
-    }
+    ReadProcessMemory(fdProcessInfo->hProcess, (void*)esp, &_stack, 4, 0);
     return_counter++;
     if(return_counter!=2)
     {
         unsigned char* return_bytes=(unsigned char*)malloc2(0x1000);
-        if(!ReadProcessMemory(fdProcessInfo->hProcess, (void*)_stack, return_bytes, 0x1000, 0))
-        {
-            CT_FatalError(rpmerror());
-            return;
-        }
+        ReadProcessMemory(fdProcessInfo->hProcess, (void*)_stack, return_bytes, 0x1000, 0);
         unsigned int retn=CT_FindReturnPattern(return_bytes, 0x1000);
         free2(return_bytes);
         if(!retn)
@@ -315,11 +287,7 @@ void CT_cbSeed1()
 {
     DeleteBPX(GetContextData(UE_EIP));
     unsigned int ecx=GetContextData(UE_ECX);
-    if(!ReadProcessMemory(fdProcessInfo->hProcess, (void*)ecx, &(CT_cert_data->decrypt_seed[0]), 4, 0))
-    {
-        CT_FatalError(rpmerror());
-        return;
-    }
+    ReadProcessMemory(fdProcessInfo->hProcess, (void*)ecx, &(CT_cert_data->decrypt_seed[0]), 4, 0);
 }
 
 void CT_cbCertificateFunction()
@@ -335,79 +303,72 @@ void CT_cbCertificateFunction()
         if(VirtualQueryEx(fdProcessInfo->hProcess, (void*)retn_eax, &mbi, sizeof(MEMORY_BASIC_INFORMATION)))
             mem_size=mbi.RegionSize-(retn_eax-(unsigned int)mbi.BaseAddress);
         BYTE* certificate_code=(BYTE*)malloc2(mem_size);
-        if(!ReadProcessMemory(fdProcessInfo->hProcess, (void*)retn_eax, certificate_code, mem_size, 0))
+        if(ReadProcessMemory(fdProcessInfo->hProcess, (void*)retn_eax, certificate_code, mem_size, 0))
+        {
+            //Arma 9.60 support
+            puts("errorfuck");
+            unsigned int esp=GetContextData(UE_ESP);
+            unsigned int _stack=0;
+            ReadProcessMemory(fdProcessInfo->hProcess, (void*)esp, &_stack, 4, 0);
+            unsigned char* return_bytes=(unsigned char*)malloc2(0x1000);
+            ReadProcessMemory(fdProcessInfo->hProcess, (void*)_stack, return_bytes, 0x1000, 0);
+            unsigned int push100=CT_FindPush100Pattern(return_bytes, 0x1000);
+            unsigned int retn=CT_FindReturnPattern(return_bytes, 0x1000);
+            if(!retn)
+                CT_FindReturnPattern2(return_bytes, 0x1000);
+            if(push100 and push100<retn)
+            {
+                unsigned int call=CT_FindCall1Pattern(return_bytes+push100, 0x1000-push100);
+                if(!call)
+                    call=CT_FindCall2Pattern(return_bytes+push100, 0x1000-push100);
+                if(!call)
+                {
+                    if(MessageBoxA(CT_shared, "Could not find call, continue?", "Continue?", MB_ICONERROR|MB_YESNO)==IDYES)
+                        if(!magic_value_addr)
+                            CT_RetrieveSaltValue();
+                }
+                else
+                {
+                    SetBPX(_stack+call+push100, UE_BREAKPOINT, (void*)CT_cbSeed1);
+                    return_counter=0;
+                    SetBPX(_stack+retn, UE_BREAKPOINT, (void*)CT_cbReturnSeed1);
+                }
+                CT_cert_data->raw_size=mem_size;
+                CT_cert_data->raw_data=(unsigned char*)malloc2(mem_size);
+                memcpy(CT_cert_data->raw_data, certificate_code, mem_size);
+            }
+            else
+            {
+                free2(return_bytes);
+                //Get raw certificate data
+                unsigned int cert_start=CT_FindCertificateMarkers(certificate_code, mem_size);
+                if(!cert_start)
+                    cert_start=CT_FindCertificateMarkers2(certificate_code, mem_size);
+                if(!cert_start)
+                {
+                    free2(certificate_code);
+                    if(MessageBoxA(CT_shared, "Could not find start markers, continue?", "Continue?", MB_ICONERROR|MB_YESNO)==IDYES)
+                    {
+                        if(!magic_value_addr)
+                            CT_RetrieveSaltValue();
+                    }
+                    else
+                        StopDebug();
+                    return;
+                }
+                CT_cert_data->raw_size=mem_size;
+                CT_cert_data->raw_data=(unsigned char*)malloc2(mem_size);
+                memcpy(CT_cert_data->raw_data, certificate_code, mem_size);
+
+                if(!magic_value_addr)
+                    CT_RetrieveSaltValue();
+            }
+        }
+        else
         {
             free2(certificate_code);
             CT_FatalError("Failed to read process memory...");
         }
-        //Arma 9.60 support
-        puts("errorfuck");
-        unsigned int esp=GetContextData(UE_ESP);
-        unsigned int _stack=0;
-        if(!ReadProcessMemory(fdProcessInfo->hProcess, (void*)esp, &_stack, 4, 0))
-        {
-            CT_FatalError(rpmerror());
-            return;
-        }
-        unsigned char* return_bytes=(unsigned char*)malloc2(0x1000);
-        if(!ReadProcessMemory(fdProcessInfo->hProcess, (void*)_stack, return_bytes, 0x1000, 0))
-        {
-            CT_FatalError(rpmerror());
-            return;
-        }
-        unsigned int push100=CT_FindPush100Pattern(return_bytes, 0x1000);
-        unsigned int retn=CT_FindReturnPattern(return_bytes, 0x1000);
-        if(!retn)
-            CT_FindReturnPattern2(return_bytes, 0x1000);
-        if(push100 and push100<retn)
-        {
-            unsigned int call=CT_FindCall1Pattern(return_bytes+push100, 0x1000-push100);
-            if(!call)
-                call=CT_FindCall2Pattern(return_bytes+push100, 0x1000-push100);
-            if(!call)
-            {
-                if(MessageBoxA(CT_shared, "Could not find call, continue?", "Continue?", MB_ICONERROR|MB_YESNO)==IDYES)
-                    if(!magic_value_addr)
-                        CT_RetrieveSaltValue();
-            }
-            else
-            {
-                SetBPX(_stack+call+push100, UE_BREAKPOINT, (void*)CT_cbSeed1);
-                return_counter=0;
-                SetBPX(_stack+retn, UE_BREAKPOINT, (void*)CT_cbReturnSeed1);
-            }
-            CT_cert_data->raw_size=mem_size;
-            CT_cert_data->raw_data=(unsigned char*)malloc2(mem_size);
-            memcpy(CT_cert_data->raw_data, certificate_code, mem_size);
-        }
-        else
-        {
-            free2(return_bytes);
-            //Get raw certificate data
-            unsigned int cert_start=CT_FindCertificateMarkers(certificate_code, mem_size);
-            if(!cert_start)
-                cert_start=CT_FindCertificateMarkers2(certificate_code, mem_size);
-            if(!cert_start)
-            {
-                free2(certificate_code);
-                if(MessageBoxA(CT_shared, "Could not find start markers, continue?", "Continue?", MB_ICONERROR|MB_YESNO)==IDYES)
-                {
-                    if(!magic_value_addr)
-                        CT_RetrieveSaltValue();
-                }
-                else
-                    StopDebug();
-                return;
-            }
-            CT_cert_data->raw_size=mem_size;
-            CT_cert_data->raw_data=(unsigned char*)malloc2(mem_size);
-            memcpy(CT_cert_data->raw_data, certificate_code, mem_size);
-
-            if(!magic_value_addr)
-                CT_RetrieveSaltValue();
-        }
-
-
     }
     else
         DeleteHardwareBreakPoint(UE_DR0);
@@ -418,28 +379,12 @@ void CT_cbVirtualProtect()
     DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_APISTART);
     long esp_addr=GetContextData(UE_ESP);
     unsigned int security_code_base=0,security_code_size=0;
-    if(!ReadProcessMemory(fdProcessInfo->hProcess, (void*)(esp_addr+4), &security_code_base, 4, 0))
-    {
-        CT_FatalError(rpmerror());
-        return;
-    }
-    if(!ReadProcessMemory(fdProcessInfo->hProcess, (void*)(esp_addr+8), &security_code_size, 4, 0))
-    {
-        CT_FatalError(rpmerror());
-        return;
-    }
+    ReadProcessMemory(fdProcessInfo->hProcess, (void*)(esp_addr+4), &security_code_base, 4, 0);
+    ReadProcessMemory(fdProcessInfo->hProcess, (void*)(esp_addr+8), &security_code_size, 4, 0);
     BYTE* security_code=(BYTE*)malloc2(security_code_size);
     BYTE* header_code=(BYTE*)malloc2(0x1000);
-    if(!ReadProcessMemory(fdProcessInfo->hProcess, (void*)security_code_base, security_code, security_code_size, 0))
-    {
-        CT_FatalError(rpmerror());
-        return;
-    }
-    if(!ReadProcessMemory(fdProcessInfo->hProcess, (void*)(security_code_base-0x1000), header_code, 0x1000, 0))
-    {
-        CT_FatalError(rpmerror());
-        return;
-    }
+    ReadProcessMemory(fdProcessInfo->hProcess, (void*)security_code_base, security_code, security_code_size, 0);
+    ReadProcessMemory(fdProcessInfo->hProcess, (void*)(security_code_base-0x1000), header_code, 0x1000, 0);
     IMAGE_DOS_HEADER *pdh=(IMAGE_DOS_HEADER*)((DWORD)header_code);
     IMAGE_NT_HEADERS *pnth=(IMAGE_NT_HEADERS*)((DWORD)header_code+pdh->e_lfanew);
     CT_cert_data->timestamp=pnth->FileHeader.TimeDateStamp;
@@ -530,21 +475,9 @@ void CT_cbOpenMutexA()
     unsigned int return_addr=0;
     DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"OpenMutexA", UE_APISTART);
     esp_addr=(long)GetContextData(UE_ESP);
-    if(!ReadProcessMemory(fdProcessInfo->hProcess, (const void*)esp_addr, &return_addr, 4, 0))
-    {
-        CT_FatalError(rpmerror());
-        return;
-    }
-    if(!ReadProcessMemory(fdProcessInfo->hProcess, (const void*)(esp_addr+12), &mutex_addr, 4, 0))
-    {
-        CT_FatalError(rpmerror());
-        return;
-    }
-    if(!ReadProcessMemory(fdProcessInfo->hProcess, (const void*)mutex_addr, &mutex_name, 20, 0))
-    {
-        CT_FatalError(rpmerror());
-        return;
-    }
+    ReadProcessMemory(fdProcessInfo->hProcess, (const void*)esp_addr, &return_addr, 4, 0);
+    ReadProcessMemory(fdProcessInfo->hProcess, (const void*)(esp_addr+12), &mutex_addr, 4, 0);
+    ReadProcessMemory(fdProcessInfo->hProcess, (const void*)mutex_addr, &mutex_name, 20, 0);
     CreateMutexA(0, FALSE, mutex_name);
     if(GetLastError()==ERROR_SUCCESS)
         SetAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_BREAKPOINT, UE_APISTART, (void*)CT_cbVirtualProtect);

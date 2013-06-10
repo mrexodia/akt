@@ -335,7 +335,7 @@ DWORD WINAPI MSC_GetProjectID(void* lpvoid)
     MSC_isdebugging=true;
     MSC_fdFileIsDll=false;
     MSC_fdProcessInfo=0;
-    FILE_STATUS_INFO inFileStatus= {0};
+    FILE_STATUS_INFO inFileStatus={0};
     if(IsPE32FileValidEx(MSC_szFileName, UE_DEPTH_DEEP, &inFileStatus))
     {
         if(inFileStatus.FileIs64Bit)

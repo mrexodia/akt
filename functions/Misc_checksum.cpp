@@ -143,7 +143,7 @@ DWORD WINAPI MSC_GetSalt(void* lpvoid)
     MSC_isdebugging=true;
     MSC_fdFileIsDll=false;
     MSC_fdProcessInfo=0;
-    FILE_STATUS_INFO inFileStatus= {0};
+    FILE_STATUS_INFO inFileStatus={0};
     if(IsPE32FileValidEx(MSC_szFileName, UE_DEPTH_DEEP, &inFileStatus))
     {
         if(inFileStatus.FileIs64Bit)
@@ -387,56 +387,59 @@ void MSC_CHK_cbCertificateFunction()
         MSC_cert_func_count=0;
         long retn_eax=GetContextData(UE_EAX);
         BYTE* certificate_code=(BYTE*)malloc2(0x10000);
-        if(!ReadProcessMemory(MSC_fdProcessInfo->hProcess, (void*)retn_eax, certificate_code, 0x10000, 0))
+        if(ReadProcessMemory(MSC_fdProcessInfo->hProcess, (void*)retn_eax, certificate_code, 0x10000, 0))
         {
-            free2(certificate_code);
-            MSC_FatalError("Failed to read process memory...");
-        }
-        //Arma 9.60 support
-        unsigned int esp=GetContextData(UE_ESP);
-        unsigned int _stack=0;
-        ReadProcessMemory(MSC_fdProcessInfo->hProcess, (void*)esp, &_stack, 4, 0);
-        unsigned char* return_bytes=(unsigned char*)malloc2(0x1000);
-        ReadProcessMemory(MSC_fdProcessInfo->hProcess, (void*)_stack, return_bytes, 0x1000, 0);
-        unsigned int push100=MSC_FindPush100Pattern(return_bytes, 0x1000);
-        unsigned int retn=MSC_FindReturnPattern(return_bytes, 0x1000);
-        if(!retn)
-            MSC_FindReturnPattern2(return_bytes, 0x1000);
-        if(!retn)
-        {
-            MSC_FatalError("Could not find return...");
-            free2(certificate_code);
-            return;
-        }
-        if(push100<retn)
-        {
-            unsigned int call=MSC_FindCall1Pattern(return_bytes+push100, 0x1000-push100);
-            if(!call)
-                call=MSC_FindCall2Pattern(return_bytes+push100, 0x1000-push100);
-            if(!call)
+            //Arma 9.60 support
+            unsigned int esp=GetContextData(UE_ESP);
+            unsigned int _stack=0;
+            ReadProcessMemory(MSC_fdProcessInfo->hProcess, (void*)esp, &_stack, 4, 0);
+            unsigned char* return_bytes=(unsigned char*)malloc2(0x1000);
+            ReadProcessMemory(MSC_fdProcessInfo->hProcess, (void*)_stack, return_bytes, 0x1000, 0);
+            unsigned int push100=MSC_FindPush100Pattern(return_bytes, 0x1000);
+            unsigned int retn=MSC_FindReturnPattern(return_bytes, 0x1000);
+            if(!retn)
+                MSC_FindReturnPattern2(return_bytes, 0x1000);
+            if(!retn)
             {
-                MSC_FatalError("Could not find call...");
+                MSC_FatalError("Could not find return...");
                 free2(certificate_code);
                 return;
             }
+            if(push100<retn)
+            {
+                unsigned int call=MSC_FindCall1Pattern(return_bytes+push100, 0x1000-push100);
+                if(!call)
+                    call=MSC_FindCall2Pattern(return_bytes+push100, 0x1000-push100);
+                if(!call)
+                {
+                    MSC_FatalError("Could not find call...");
+                    free2(certificate_code);
+                    return;
+                }
+                else
+                {
+                    MSC_CHK_raw_data=certificate_code;
+                    SetBPX(_stack+call+push100, UE_BREAKPOINT, (void*)MSC_CHK_cbSeed1);
+                    MSC_CHK_return_counter=0;
+                    SetBPX(_stack+retn, UE_BREAKPOINT, (void*)MSC_CHK_cbReturnSeed1);
+                }
+            }
             else
             {
-                MSC_CHK_raw_data=certificate_code;
-                SetBPX(_stack+call+push100, UE_BREAKPOINT, (void*)MSC_CHK_cbSeed1);
-                MSC_CHK_return_counter=0;
-                SetBPX(_stack+retn, UE_BREAKPOINT, (void*)MSC_CHK_cbReturnSeed1);
+                free2(return_bytes);
+                EnableWindow(GetDlgItem(MSC_shared, IDC_CHK_FOUNDCHECKSUM), 1);
+                bool found=false;
+                if(FindDwordInMemory(certificate_code, MSC_checksum, 0x10000))
+                    found=true;
+                CheckDlgButton(MSC_shared, IDC_CHK_FOUNDCHECKSUM, found);
+                free2(certificate_code);
+                StopDebug();
             }
         }
         else
         {
-            free2(return_bytes);
-            EnableWindow(GetDlgItem(MSC_shared, IDC_CHK_FOUNDCHECKSUM), 1);
-            bool found=false;
-            if(FindDwordInMemory(certificate_code, MSC_checksum, 0x10000))
-                found=true;
-            CheckDlgButton(MSC_shared, IDC_CHK_FOUNDCHECKSUM, found);
             free2(certificate_code);
-            StopDebug();
+            MSC_FatalError("Failed to read process memory...");
         }
     }
     else
@@ -505,7 +508,7 @@ DWORD WINAPI MSC_FindChecksum(void* lpvoid)
     MSC_isdebugging=true;
     MSC_fdFileIsDll=false;
     MSC_fdProcessInfo=0;
-    FILE_STATUS_INFO inFileStatus= {0};
+    FILE_STATUS_INFO inFileStatus={0};
     if(IsPE32FileValidEx(MSC_szFileName, UE_DEPTH_DEEP, &inFileStatus))
     {
         HANDLE hFile, fileMap;

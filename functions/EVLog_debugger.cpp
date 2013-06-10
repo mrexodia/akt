@@ -297,7 +297,7 @@ DWORD WINAPI EV_DebugThread(LPVOID lpStartAddress)
     EV_fdProcessInfo=0;
     EV_bpvp_set=false;
     DWORD EV_bytes_read=0;
-    FILE_STATUS_INFO inFileStatus= {0};
+    FILE_STATUS_INFO inFileStatus={0};
     if(IsPE32FileValidEx(EV_szFileName, UE_DEPTH_DEEP, &inFileStatus))
     {
         HANDLE hFile, fileMap;

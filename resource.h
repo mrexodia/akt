@@ -112,7 +112,6 @@
 #define IDC_BTN_GETPROJECTID                    1023
 #define IDC_EDT_OTHER1                          1023
 #define IDC_RADIO_BACKUPFIXED                   1023
-#define IDC_CHK_OVERLAY                         1024
 #define IDC_EDT_OTHER2                          1024
 #define IDC_RADIO_BACKUPMAIN                    1024
 #define IDC_EDT_FIXCLOCKKEY                     1025

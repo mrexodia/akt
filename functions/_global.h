@@ -56,8 +56,6 @@ bool FixIsDebuggerPresent(HANDLE hProcess, bool hide);
 void* malloc2(size_t size);
 void free2(void *address);
 void UpdateHorizontalScrollLen(HWND list, const char* string);
-const char* wpmerror();
-const char* rpmerror();
 
 /**
 Structures

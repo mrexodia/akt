@@ -40,8 +40,6 @@ BOOL CALLBACK MSC_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
         memset(MSC_projectID, 0, 65536);
         MSC_SD_list=GetDlgItem(hwndDlg, IDC_LIST_SECTIONS);
         EnableWindow(GetDlgItem(hwndDlg, IDC_BTN_DELETESECTIONS), 0);
-        EnableWindow(GetDlgItem(hwndDlg, IDC_CHK_WATERMARK), 0);
-        EnableWindow(GetDlgItem(hwndDlg, IDC_CHK_OVERLAY), 0);
         EnableWindow(GetDlgItem(hwndDlg, IDC_BTN_GENERATE), 0);
         EnableWindow(GetDlgItem(hwndDlg, IDC_BTN_FINDCHECKSUM), 0);
         EnableWindow(GetDlgItem(hwndDlg, IDC_CHK_FOUNDCHECKSUM), 0);
@@ -66,8 +64,6 @@ BOOL CALLBACK MSC_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             i--;
         MSC_program_dir[i]=0;
         SetDlgItemTextA(hwndDlg, IDC_EDT_FILE, MSC_szFileName);
-        EnableWindow(GetDlgItem(hwndDlg, IDC_CHK_WATERMARK), 0);
-        EnableWindow(GetDlgItem(hwndDlg, IDC_CHK_OVERLAY), 0);
         EnableWindow(GetDlgItem(hwndDlg, IDC_BTN_DELETESECTIONS), 0);
     }
     return TRUE;
@@ -434,44 +430,6 @@ BOOL CALLBACK MSC_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
         {
             if(MSC_szFileName[0])
                 MSC_SD_LoadFile(hwndDlg);
-        }
-        return TRUE;
-
-        case IDC_CHK_OVERLAY: //Section deleter
-        {
-            int len=strlen(MSC_szFileName);
-            while(MSC_szFileName[len]!='\\')
-                len--;
-
-            char filename[256]="";
-            strcpy(filename, MSC_szFileName+len+1);
-
-            len=strlen(filename);
-            int start=len;
-            for(int i=0; i<len; i++)
-                if(filename[i]=='.')
-                {
-                    start=i;
-                    break;
-                }
-            strcpy(filename+start, "_overlay.bin");
-            OPENFILENAME ofstruct;
-            memset(&ofstruct, 0, sizeof(ofstruct));
-            ofstruct.lStructSize=sizeof(ofstruct);
-            ofstruct.hwndOwner=hwndDlg;
-            ofstruct.hInstance=hInst;
-            ofstruct.lpstrFilter="Dump files (*.bin)\0*.bin\0\0";
-            ofstruct.lpstrFile=filename;
-            ofstruct.nMaxFile=256;
-            ofstruct.lpstrInitialDir=MSC_program_dir;
-            ofstruct.lpstrTitle="Save file";
-            ofstruct.lpstrDefExt="bin";
-            ofstruct.Flags=OFN_EXTENSIONDIFFERENT|OFN_HIDEREADONLY|OFN_NONETWORKBUTTON|OFN_OVERWRITEPROMPT;
-            GetSaveFileName(&ofstruct);
-            if(MSC_SD_DumpOverlay(filename))
-                MessageBoxA(hwndDlg, "Overlay dumped!", "Success!", MB_ICONINFORMATION);
-            else
-                MessageBoxA(hwndDlg, "Could not dump overlay...", "Error...", MB_ICONERROR);
         }
         return TRUE;
 
