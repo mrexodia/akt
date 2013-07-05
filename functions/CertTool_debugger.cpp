@@ -210,6 +210,7 @@ void CT_cbGetOtherSeed()
 
 void CT_cbOtherSeeds()
 {
+    puts("cbOtherSeeds");
     unsigned int eip=GetContextData(UE_EIP);
     unsigned char* eip_data=(unsigned char*)malloc2(0x10000);
     ReadProcessMemory(fdProcessInfo->hProcess, (void*)eip, eip_data, 0x10000, 0);
@@ -305,6 +306,7 @@ void CT_cbCertificateFunction()
         if(ReadProcessMemory(fdProcessInfo->hProcess, (void*)retn_eax, certificate_code, mem_size, 0))
         {
             //Arma 9.60 support
+            puts("errorfuck");
             unsigned int esp=GetContextData(UE_ESP);
             unsigned int _stack=0;
             ReadProcessMemory(fdProcessInfo->hProcess, (void*)esp, &_stack, 4, 0);
@@ -314,7 +316,7 @@ void CT_cbCertificateFunction()
             unsigned int retn=CT_FindReturnPattern(return_bytes, 0x1000);
             if(!retn)
                 CT_FindReturnPattern2(return_bytes, 0x1000);
-            if(push100<retn)
+            if(push100 and push100<retn)
             {
                 unsigned int call=CT_FindCall1Pattern(return_bytes+push100, 0x1000-push100);
                 if(!call)
@@ -357,29 +359,6 @@ void CT_cbCertificateFunction()
                 CT_cert_data->raw_size=mem_size;
                 CT_cert_data->raw_data=(unsigned char*)malloc2(mem_size);
                 memcpy(CT_cert_data->raw_data, certificate_code, mem_size);
-                /*cert_start+=4;
-                CT_cert_data->initial_diff=cert_start+1;
-                unsigned int cert_end=CT_FindCertificateEndMarkers(certificate_code+cert_start, mem_size-cert_start);
-                if(cert_end) //Unsigned/Default certificates are not stored here...
-                {
-                    CT_cert_data->raw_size=cert_end;
-                    CT_cert_data->raw_data=(unsigned char*)malloc2(cert_end);
-                    memcpy(CT_cert_data->raw_data, certificate_code+cert_start, cert_end);
-                    CT_cert_data->raw_data++;
-                    CT_cert_data->raw_size--;
-                }
-
-                //Get first dword
-                memcpy(&CT_cert_data->first_dw, certificate_code, 4);
-
-                //Get project id
-                short projectid_size=0;
-                memcpy(&projectid_size, certificate_code, 2);
-                CT_cert_data->projectid=(char*)malloc2(projectid_size+1);
-                memset(CT_cert_data->projectid, 0, projectid_size+1);
-                memcpy(CT_cert_data->projectid, certificate_code+2, projectid_size);
-
-                free2(certificate_code);*/
 
                 if(!magic_value_addr)
                     CT_RetrieveSaltValue();
@@ -456,7 +435,8 @@ void CT_cbVirtualProtect()
                     if(noteax)
                     {
                         noteax+=tea_decrypt;
-                        end_big_loop=CT_FindEndLoopPattern(security_code+noteax, security_code_size-noteax);
+                        end_big_loop=CT_FindReturnPattern(security_code+noteax, security_code_size-noteax);
+                        //end_big_loop=CT_FindEndLoopPattern(security_code+noteax, security_code_size-noteax);
                         if(end_big_loop)
                         {
                             end_big_loop+=noteax+security_code_base;
@@ -472,15 +452,17 @@ void CT_cbVirtualProtect()
 
     if(CT_FindECDSAVerify(security_code, security_code_size))
         CT_cert_data->checksumv8=true;
-
-    //Salt
-    salt_func_addr=FindSalt1Pattern(security_code, security_code_size); //v9.60
-    if(!salt_func_addr)
-        salt_func_addr=FindSalt2Pattern(security_code, security_code_size);
-    if(salt_func_addr)
+    if(CT_cert_data->timestamp>0x4C100000) //v7.40 (just before)
     {
-        memcpy(salt_code, (void*)(salt_func_addr+security_code), 60);
-        salt_func_addr+=(unsigned int)security_code_base;
+        //Salt
+        salt_func_addr=FindSalt1Pattern(security_code, security_code_size); //v9.60
+        if(!salt_func_addr)
+            salt_func_addr=FindSalt2Pattern(security_code, security_code_size);
+        if(salt_func_addr)
+        {
+            memcpy(salt_code, (void*)(salt_func_addr+security_code), 60);
+            salt_func_addr+=(unsigned int)security_code_base;
+        }
     }
     free2(security_code);
 }
@@ -550,7 +532,7 @@ DWORD WINAPI CT_FindCertificates(void* lpvoid)
     CT_cert_data=(CERT_DATA*)malloc2(sizeof(CERT_DATA));
     memset(CT_cert_data, 0, sizeof(CERT_DATA));
     InitVariables(program_dir, (CT_DATA*)CT_cert_data, StopDebug, 1, GetParent(CT_shared));
-    FILE_STATUS_INFO inFileStatus={0};
+    FILE_STATUS_INFO inFileStatus= {0};
     CT_time1=GetTickCount();
     if(IsPE32FileValidEx(CT_szFileName, UE_DEPTH_DEEP, &inFileStatus))
     {

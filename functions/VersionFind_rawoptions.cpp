@@ -81,42 +81,51 @@ static void cbOpenMutexA()
 
 static void cbGetCommandLine()
 {
-    DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"GetCommandLineA", UE_APISTART);
-    DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"GetCommandLineW", UE_APISTART);
+    //DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"GetCommandLineA", UE_APISTART);
+    //DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"GetCommandLineW", UE_APISTART);
     BYTE* data=(BYTE*)malloc2(g_fdEntrySectionSize);
     ReadProcessMemory(g_fdProcessInfo->hProcess, (void*)g_fdEntrySectionOffset, data, g_fdEntrySectionSize, 0);
-    int and40000=VF_FindAnd40000Pattern(data, g_fdEntrySectionSize);
-    if(!and40000)
-        VF_FatalError("Could not find 'and [reg],40000'", g_ErrorMessageCallback);
-    unsigned int andreg=data[and40000+1]&0x0F;
+    int addr40000=VF_Find40000Pattern(data, g_fdEntrySectionSize);
+    if(!addr40000)
+        VF_FatalError("[DLL] Could not find 0x400000'", g_ErrorMessageCallback);
     g_raw_options_reg=0xFFFFFFFF;
-    switch(andreg)
+    if(data[addr40000-1]==0x25)
     {
-    case 0:
         g_raw_options_reg=UE_EAX;
-        break;
-    case 1:
-        g_raw_options_reg=UE_ECX;
-        break;
-    case 2:
-        g_raw_options_reg=UE_EDX;
-        break;
-    case 3:
-        g_raw_options_reg=UE_EBX;
-        break;
-    case 5:
-        g_raw_options_reg=UE_EBP;
-        break;
-    case 6:
-        g_raw_options_reg=UE_ESI;
-        break;
-    case 7:
-        g_raw_options_reg=UE_EDI;
-        break;
+        addr40000--;
+    }
+    else
+    {
+        unsigned int andreg=data[addr40000-1]&0x0F;
+        switch(andreg)
+        {
+        case 0:
+            g_raw_options_reg=UE_EAX;
+            break;
+        case 1:
+            g_raw_options_reg=UE_ECX;
+            break;
+        case 2:
+            g_raw_options_reg=UE_EDX;
+            break;
+        case 3:
+            g_raw_options_reg=UE_EBX;
+            break;
+        case 5:
+            g_raw_options_reg=UE_EBP;
+            break;
+        case 6:
+            g_raw_options_reg=UE_ESI;
+            break;
+        case 7:
+            g_raw_options_reg=UE_EDI;
+            break;
+        }
+        addr40000-=2;
     }
     if(g_raw_options_reg==0xFFFFFFFF)
         VF_FatalError("Could not determine raw options register", g_ErrorMessageCallback);
-    SetBPX((and40000+g_fdEntrySectionOffset), UE_BREAKPOINT, (void*)cbRetrieveRawOptions);
+    SetBPX((addr40000+g_fdEntrySectionOffset), UE_BREAKPOINT, (void*)cbRetrieveRawOptions);
 }
 
 
@@ -128,8 +137,9 @@ static void cbEntry()
     else
     {
         g_fdEntrySectionOffset+=GetDebuggedDLLBaseAddress();
-        SetAPIBreakPoint((char*)"kernel32.dll", (char*)"GetCommandLineA", UE_BREAKPOINT, UE_APISTART, (void*)cbGetCommandLine);
-        SetAPIBreakPoint((char*)"kernel32.dll", (char*)"GetCommandLineW", UE_BREAKPOINT, UE_APISTART, (void*)cbGetCommandLine);
+        cbGetCommandLine();
+        //SetAPIBreakPoint((char*)"kernel32.dll", (char*)"GetCommandLineA", UE_BREAKPOINT, UE_APISTART, (void*)cbGetCommandLine);
+        //SetAPIBreakPoint((char*)"kernel32.dll", (char*)"GetCommandLineW", UE_BREAKPOINT, UE_APISTART, (void*)cbGetCommandLine);
     }
 }
 

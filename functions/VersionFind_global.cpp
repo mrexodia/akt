@@ -26,14 +26,21 @@ unsigned int VF_FindAnd20Pattern(BYTE* d, unsigned int size)
 }
 
 
-unsigned int VF_FindAnd40000Pattern(BYTE* d, unsigned int size)
+unsigned int VF_Find40000Pattern(BYTE* d, unsigned int size)
 {
-    for(unsigned int i=0; i<size; i++) //81E?00000400
-        if(d[i]==0x81 and(d[i+1]>>4)==0x0E and d[i+2]==0x00 and d[i+3]==0x00 and d[i+4]==0x04 and d[i+5]==0x00)
+    for(unsigned int i=0; i<size; i++) //00000400
+        if(d[i]==0x00 and d[i+1]==0x00 and d[i+2]==0x04 and d[i+3]==0x00)
             return i;
     return 0;
 }
 
+unsigned int VF_FindShrPattern(BYTE* d, unsigned int size)
+{
+    for(unsigned int i=0; i<size; i++) //C1E?0?
+        if(d[i]==0xC1 and (d[i+1]>>4)==0x0E and (d[i+2]>>4)==0x00)
+            return i;
+    return 0;
+}
 
 bool VF_IsMinimalProtection(char* szFileName, ULONG_PTR va, long parSectionNumber)
 {

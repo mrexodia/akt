@@ -33,9 +33,19 @@ static void cbDw()
     BYTE* eip_data=(BYTE*)malloc2(0x1000);
     ReadProcessMemory(g_fdProcessInfo->hProcess, (void*)eip, eip_data, 0x1000, 0);
     unsigned int and20=VF_FindAnd20Pattern(eip_data, 0x1000);
+    unsigned int minusreg=0;
     if(!and20)
-        VF_FatalError("Could not find 'and [reg],20", g_ErrorMessageCallback);
+    {
+        and20=VF_FindShrPattern(eip_data, 0x1000);
+        if(!and20)
+        {
+            VF_FatalError("Could not find 'and [reg],20", g_ErrorMessageCallback);
+            return;
+        }
+        minusreg=8;
+    }
     unsigned int andreg=eip_data[and20+1]&0x0F;
+    andreg-=minusreg;
     g_extra_options_reg=0xFFFFFFFF;
     switch(andreg)
     {
@@ -95,7 +105,8 @@ static void cbVirtualProtect()
         unsigned int invalidkey=0;
         for(int i=usb_push; i>0; i--)
         {
-            if(sec_data[i]==0x6A and(sec_data[i+1]>>4)==0x00 and sec_data[i+2]==0x6A and(sec_data[i+3]>>4)==0x00 and sec_data[i+4]==0x68)
+            if(sec_data[i]==0x68 and (sec_data[i+5]>>4)==0x0B and sec_data[i+10]==0xE8)
+                //if(sec_data[i]==0x6A and(sec_data[i+1]>>4)==0x00 and sec_data[i+2]==0x6A and(sec_data[i+3]>>4)==0x00 and sec_data[i+4]==0x68)
             {
                 invalidkey=i;
                 break;
@@ -181,7 +192,7 @@ static void cbEntry()
 
 void VF_ExtraOptions(char* szFileName, unsigned int* extra_options, cbErrorMessage ErrorMessageCallback)
 {
-    FILE_STATUS_INFO inFileStatus={0};
+    FILE_STATUS_INFO inFileStatus= {0};
 
     gPtrExtraOptions=extra_options;
     g_fdFileIsDll=false;
