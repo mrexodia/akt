@@ -1,5 +1,8 @@
 #include "Misc_sectiondeleter.h"
 
+static unsigned int overlay_size=0;
+static unsigned char* overlay_dump=0;
+
 bool MSC_SD_IsArmadilloProtected(char* va)
 {
     unsigned int* va1=(unsigned int*)(va+0x3c);
@@ -10,6 +13,53 @@ bool MSC_SD_IsArmadilloProtected(char* va)
     return true;
 }
 
+bool MSC_SD_DumpOverlay(const char* filename)
+{
+    HANDLE hFile=CreateFileA(filename, GENERIC_WRITE, 0, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+    if(hFile==INVALID_HANDLE_VALUE)
+        return false;
+    SetFilePointer(hFile, 0, 0, FILE_BEGIN);
+    SetEndOfFile(hFile);
+    DWORD written=0;
+    if(!WriteFile(hFile, overlay_dump, overlay_size, &written, 0))
+    {
+        CloseHandle(hFile);
+        return false;
+    }
+    CloseHandle(hFile);
+    return true;
+}
+
+unsigned int MSC_SD_HasOverlay(char* va, unsigned int filesize)
+{
+    char a[256];
+    strcpy(a,"hasoverlay");
+    if(overlay_dump)
+        free2(overlay_dump);
+    IMAGE_DOS_HEADER *pdh;
+    IMAGE_NT_HEADERS *pnth;
+    IMAGE_SECTION_HEADER *psh;
+    pdh=(IMAGE_DOS_HEADER*)((DWORD)va);
+    if(pdh->e_magic!=IMAGE_DOS_SIGNATURE)
+        return false;
+    pnth=(IMAGE_NT_HEADERS*)((DWORD)va+pdh->e_lfanew);
+    if(IsBadReadPtr(pnth, 4))
+        return false;
+    if(pnth->Signature!=IMAGE_NT_SIGNATURE)
+        return false;
+    if(pnth->FileHeader.Machine!=IMAGE_FILE_MACHINE_I386)
+        return false;
+    psh=(IMAGE_SECTION_HEADER*)((DWORD)(pnth)+pnth->FileHeader.SizeOfOptionalHeader+sizeof(IMAGE_FILE_HEADER)+sizeof(DWORD));
+    int lastsection=pnth->FileHeader.NumberOfSections-1;
+    unsigned int sizeofimage=psh[lastsection].PointerToRawData+psh[lastsection].SizeOfRawData;
+    if(sizeofimage==filesize)
+        return 0;
+    unsigned int overlaysize=filesize-sizeofimage;
+    overlay_dump=(unsigned char*)malloc2(overlaysize);
+    memcpy(overlay_dump, va+sizeofimage, overlaysize);
+    return overlaysize;
+}
+
 bool MSC_SD_IsValidPe(char* va)
 {
     IMAGE_DOS_HEADER *pdh=(IMAGE_DOS_HEADER*)((DWORD)va);
@@ -18,7 +68,7 @@ bool MSC_SD_IsValidPe(char* va)
         IMAGE_NT_HEADERS *pnth=(IMAGE_NT_HEADERS*)((DWORD)va+pdh->e_lfanew);
         if(!IsBadReadPtr(pnth, 4))
         {
-            if(pnth->Signature==IMAGE_NT_SIGNATURE)
+            if(pnth->Signature==IMAGE_NT_SIGNATURE and pnth->FileHeader.Machine==IMAGE_FILE_MACHINE_I386)
                 return true;
         }
     }
@@ -109,7 +159,7 @@ void MSC_SD_LoadFile(HWND hwndDlg)
     if(!MSC_SD_IsValidPe(data))
     {
         free2(data);
-        MessageBoxA(hwndDlg, "Invalid PE file...", "Error!", MB_ICONERROR);
+        MessageBoxA(hwndDlg, "Invalid PE file (64 bit is not supported!)...", "Error!", MB_ICONERROR);
         return;
     }
 
@@ -172,6 +222,10 @@ void MSC_SD_LoadFile(HWND hwndDlg)
         SendMessageA(MSC_SD_list, LB_ADDSTRING, 0, (LPARAM)name);
     }
     bool haswatermark=MSC_SD_IsArmadilloProtected(data);
+    overlay_size=MSC_SD_HasOverlay(data, filesize);
+    bool hasoverlay=false;
+    if(overlay_size)
+        hasoverlay=true;
     bool continue_analysis=true;
     if(MSC_SD_section_info.resource_section and MSC_SD_section_info.code_section and(MSC_SD_section_info.resource_section>MSC_SD_section_info.code_section))
     {
@@ -195,6 +249,8 @@ void MSC_SD_LoadFile(HWND hwndDlg)
     }
     EnableWindow(GetDlgItem(hwndDlg, IDC_CHK_WATERMARK), haswatermark);
     CheckDlgButton(hwndDlg, IDC_CHK_WATERMARK, haswatermark);
+    EnableWindow(GetDlgItem(hwndDlg, IDC_CHK_OVERLAY), hasoverlay);
+    CheckDlgButton(hwndDlg, IDC_CHK_OVERLAY, hasoverlay);
     free2(data);
     EnableWindow(GetDlgItem(hwndDlg, IDC_BTN_DELETESECTIONS), 1);
 }

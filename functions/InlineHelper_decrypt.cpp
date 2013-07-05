@@ -172,7 +172,7 @@ void IHD_cbEntry()
 DWORD WINAPI IHD_DebugThread(LPVOID lpStartAddress) //TODO: never used
 {
     long fdSizeOfImage=0;
-    FILE_STATUS_INFO inFileStatus={0};
+    FILE_STATUS_INFO inFileStatus= {0};
 
     g_fdFileIsDll=false;
     g_fdImageBase=0;

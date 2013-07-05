@@ -201,10 +201,10 @@ void IH_cbOutputDebugStringA() //Callback for OutputDebugStringA
     if(g_OutputDebugStringAMinorCount==2)
     {
         // Declare some variables
-        unsigned int originalCRCVals[5]={0};  // Original CRC values array
+        unsigned int originalCRCVals[5]= {0}; // Original CRC values array
         int CRCBase=0; 						// Stack difference for retrieving the CRC values
         unsigned int ebp_addr=GetContextData(UE_EBP),esp_addr=GetContextData(UE_ESP),bp_addr=0;
-        BYTE search_bytes[1024]={0xFF};
+        BYTE search_bytes[1024]= {0xFF};
 
         g_OutputDebugStringAMinorCount=0;
 
@@ -397,7 +397,7 @@ DWORD WINAPI IH_DebugThread(LPVOID lpStartAddress) //Thread for debugging
     DWORD IH_bytes_read=0;
 
 
-    FILE_STATUS_INFO inFileStatus={0};
+    FILE_STATUS_INFO inFileStatus= {0};
     if(IsPE32FileValidEx(g_szFileName, UE_DEPTH_DEEP, &inFileStatus))
     {
         if(inFileStatus.FileIs64Bit)
@@ -455,7 +455,7 @@ DWORD WINAPI IH_DebugThread(LPVOID lpStartAddress) //Thread for debugging
 
 bool IH_Debugger(char* szFileName, IH_InlineHelperData_t* ptrTargetData, cbStd EndingCallback, cbErrorMessage ErrorMessageCallback)
 {
-    FILE_STATUS_INFO fileStatus={0};
+    FILE_STATUS_INFO fileStatus= {0};
     bool bFileIsDll;
 
     g_EndingCallback=EndingCallback;

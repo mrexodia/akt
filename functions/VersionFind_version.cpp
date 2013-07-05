@@ -24,7 +24,11 @@ static cbErrorMessage g_ErrorMessageCallback=0;
 static void cbGetVersion()
 {
     DeleteBPX(GetContextData(UE_EIP));
-    ReadProcessMemory(g_fdProcessInfo->hProcess, (void*)g_version_decrypt_buffer, g_szVersion, 10, 0);
+    if(!ReadProcessMemory(g_fdProcessInfo->hProcess, (void*)g_version_decrypt_buffer, g_szVersion, 10, 0))
+    {
+        VF_FatalError(rpmerror(), g_ErrorMessageCallback);
+        return;
+    }
     StopDebug();
 }
 
@@ -33,7 +37,11 @@ static void cbOnDecryptVersion()
 {
     DeleteBPX(GetContextData(UE_EIP));
     unsigned int esp=GetContextData(UE_ESP);
-    ReadProcessMemory(g_fdProcessInfo->hProcess, (void*)(esp+4), &g_version_decrypt_buffer, 4, 0);
+    if(!ReadProcessMemory(g_fdProcessInfo->hProcess, (void*)(esp+4), &g_version_decrypt_buffer, 4, 0))
+    {
+        VF_FatalError(rpmerror(), g_ErrorMessageCallback);
+        return;
+    }
     SetBPX((g_version_decrypt_call+5), UE_BREAKPOINT, (void*)cbGetVersion);
 }
 
@@ -51,7 +59,11 @@ static void cbDecryptCall()
     DeleteBPX(GetContextData(UE_EIP));
     unsigned int esp=GetContextData(UE_ESP);
     unsigned int retn=0;
-    ReadProcessMemory(g_fdProcessInfo->hProcess, (void*)esp, &retn, 4, 0);
+    if(!ReadProcessMemory(g_fdProcessInfo->hProcess, (void*)esp, &retn, 4, 0))
+    {
+        VF_FatalError(rpmerror(), g_ErrorMessageCallback);
+        return;
+    }
     SetBPX(retn, UE_BREAKPOINT, (void*)cbReturnDecryptCall);
 }
 
@@ -65,12 +77,20 @@ static void cbVirtualProtect()
     unsigned int esp_addr=0;
     BYTE* sec_data=0;
     esp_addr=(long)GetContextData(UE_ESP);
-    ReadProcessMemory(g_fdProcessInfo->hProcess, (const void*)((esp_addr)+4), &sec_addr, 4, 0);
+    if(!ReadProcessMemory(g_fdProcessInfo->hProcess, (const void*)((esp_addr)+4), &sec_addr, 4, 0))
+    {
+        VF_FatalError(rpmerror(), g_ErrorMessageCallback);
+        return;
+    }
     sec_addr-=0x1000;
     VirtualQueryEx(g_fdProcessInfo->hProcess, (void*)sec_addr, &mbi, sizeof(MEMORY_BASIC_INFORMATION));
     sec_size=mbi.RegionSize;
     sec_data=(BYTE*)malloc2(sec_size);
-    ReadProcessMemory(g_fdProcessInfo->hProcess, (const void*)sec_addr, sec_data, sec_size, 0);
+    if(!ReadProcessMemory(g_fdProcessInfo->hProcess, (const void*)sec_addr, sec_data, sec_size, 0))
+    {
+        VF_FatalError(rpmerror(), g_ErrorMessageCallback);
+        return;
+    }
     unsigned int armversion_addr=VF_FindarmVersion(sec_data, sec_size);
     if(!armversion_addr)
         VF_FatalError("Could not find '<armVersion'", g_ErrorMessageCallback);
@@ -114,9 +134,21 @@ static void cbOpenMutexA()
     unsigned int return_addr=0;
     DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"OpenMutexA", UE_APISTART);
     esp_addr=(long)GetContextData(UE_ESP);
-    ReadProcessMemory(g_fdProcessInfo->hProcess, (const void*)esp_addr, &return_addr, 4, 0);
-    ReadProcessMemory(g_fdProcessInfo->hProcess, (const void*)(esp_addr+12), &mutex_addr, 4, 0);
-    ReadProcessMemory(g_fdProcessInfo->hProcess, (const void*)mutex_addr, &mutex_name, 20, 0);
+    if(!ReadProcessMemory(g_fdProcessInfo->hProcess, (const void*)esp_addr, &return_addr, 4, 0))
+    {
+        VF_FatalError(rpmerror(), g_ErrorMessageCallback);
+        return;
+    }
+    if(!ReadProcessMemory(g_fdProcessInfo->hProcess, (const void*)(esp_addr+12), &mutex_addr, 4, 0))
+    {
+        VF_FatalError(rpmerror(), g_ErrorMessageCallback);
+        return;
+    }
+    if(!ReadProcessMemory(g_fdProcessInfo->hProcess, (const void*)mutex_addr, &mutex_name, 20, 0))
+    {
+        VF_FatalError(rpmerror(), g_ErrorMessageCallback);
+        return;
+    }
     CreateMutexA(0, FALSE, mutex_name);
     if(GetLastError()==ERROR_SUCCESS)
         SetAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_BREAKPOINT, UE_APISTART, (void*)cbVirtualProtect);
@@ -141,7 +173,7 @@ static void cbEntry()
 
 void VF_Version(char* szFileName, char* szVersion, cbErrorMessage ErrorMessageCallback)
 {
-    FILE_STATUS_INFO inFileStatus={0};
+    FILE_STATUS_INFO inFileStatus= {0};
 
     g_szVersion=szVersion;
     g_fdFileIsDll=false;
