@@ -473,7 +473,8 @@ void CT_ParseCerts()
                 ShowWindow(GetDlgItem(hwndDlg, IDC_PROGRESS_BRUTE), 1);
 
                 //Start brute force
-                BruteStart(alg, &chklist, 0, 0xFFFFFFFF, cd->salt);
+                unsigned long param=cd->salt;
+                BruteStart(alg, &chklist, 0, 0xFFFFFFFF, &param);
 
                 if(CT_brute_symverify)
                 {

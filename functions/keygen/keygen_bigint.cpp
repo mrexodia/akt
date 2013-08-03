@@ -9,12 +9,14 @@
 /* private */
 void BigInt_Realloc(BigInt n, int newcount, int copydata)
 {
-    if(newcount<0) newcount=0;
+    if(newcount<0)
+        newcount=0;
     if(newcount<n->alloc)
     {
         if(copydata)
         {
-            if(newcount>n->length) memset(n->digits+n->length, 0, (newcount-n->length)*sizeof(DIGIT));
+            if(newcount>n->length)
+                memset(n->digits+n->length, 0, (newcount-n->length)*sizeof(DIGIT));
             n->length=newcount;
         }
         else
@@ -106,13 +108,15 @@ void BigInt_Dump(BigInt n, const char *title)
 
 int BigInt_IsEven(BigInt n)
 {
-    if(n->length<1) return 1;
+    if(n->length<1)
+        return 1;
     return !(n->digits[0] & 0x01);
 }
 
 int BigInt_IsOdd(BigInt n)
 {
-    if(n->length<1) return 0;
+    if(n->length<1)
+        return 0;
     return (n->digits[0] & 0x01);
 }
 
@@ -196,7 +200,7 @@ unsigned long BigInt_GetU(BigInt n)
 
 BigInt BigInt_Zero(void)
 {
-    static BigInt zero=0;
+    static BigInt zero=0;BigIntBase
     if(!zero) zero=BigInt_Create();
     return zero;
 }
