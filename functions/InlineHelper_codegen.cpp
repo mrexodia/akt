@@ -53,9 +53,9 @@ void IH_GenerateAsmCode(const char* szFileName, char* codeText, bool fileIsDll, 
             targetData.OutputDebugStringA_Addr-imgbase,
             targetData.VirtualProtect_Addr-imgbase,
             targetData.VirtualProtect_Addr-imgbase,
-            targetData.SecurityAddrRegister,
             targetData.OutputDebugStringA_Addr-imgbase,
             crc_replace_code,
             szModuleName,
-            targetData.OEP-imgbase);
+            targetData.OEP-imgbase,
+            targetData.SecurityAddrRegister);
 }

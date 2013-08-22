@@ -185,9 +185,12 @@ BOOL CALLBACK IH_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
                         if(!g_TargetData.ImageBase)
                             g_TargetData.ImageBase=0x400000;
 
+                        ShowWindow(GetParent(hwndDlg), 0);
                         PluginFunction(PLUGIN_INST, hwndDlg, g_TargetData.SecurityAddrRegister, sg_szAKTDirectory, g_TargetData.ImageBase);
+                        ShowWindow(GetParent(hwndDlg), 1);
                         FreeLibrary(PLUGIN_INST);
                         SetForegroundWindow(hwndDlg);
+
                     }
                 }
             }

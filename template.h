@@ -69,11 +69,7 @@ pop edi\r\n\
 pushad\r\n\
 pushfd\r\n\
 call @getimagebase\r\n\
-;PLACE YOUR CODE AFTER THIS (security base is in %s, imagebase in EBP)\r\n\
-;PLACE YOUR CODE BEFORE THIS\r\n\
-popfd\r\n\
-popad\r\n\
-jmp eax\r\n\
+jmp @usercode\r\n\
 @vp_hook_end:\r\n\
 \r\n\
 pop eax\r\n\
@@ -139,4 +135,10 @@ mov dword ptr ds:[esi+1],eax\r\n\
 ; Hook OutputDebugStringA\r\n\
 \r\n\
 popad\r\n\
-jmp $%s.%X ;rva of oep"
+jmp $%s.%X ;rva of oep\r\n\
+@usercode:\r\n\
+;PLACE YOUR CODE AFTER THIS (security base is in %s, imagebase in EBP)\r\n\
+;PLACE YOUR CODE BEFORE THIS\r\n\
+popfd\r\n\
+popad\r\n\
+jmp eax"
