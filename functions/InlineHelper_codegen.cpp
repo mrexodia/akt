@@ -58,27 +58,4 @@ void IH_GenerateAsmCode(const char* szFileName, char* codeText, bool fileIsDll, 
             crc_replace_code,
             szModuleName,
             targetData.OEP-imgbase);
-    /*if(!fileIsDll)
-    {
-        sprintf(codeText, template_text+1,
-                targetData.EmptyEntry,
-                targetData.OutputDebugStringA_Addr,
-                targetData.VirtualProtect_Addr,
-                targetData.OEP,
-                targetData.OutputDebugCount,
-                crc_replace_code,
-                targetData.SecurityAddrRegister);
-    }
-    else
-    {
-        sprintf(codeText, dll_template_text+1,
-                targetData.EmptyEntry,
-                targetData.OutputDebugStringA_Addr,
-                targetData.VirtualProtect_Addr,
-                targetData.WriteProcessMemory_Addr,
-                targetData.OEP,
-                targetData.OutputDebugCount,
-                crc_replace_code,
-                targetData.SecurityAddrRegister);
-    }*/
 }

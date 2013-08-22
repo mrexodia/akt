@@ -69,7 +69,6 @@ pop edi
 pushad
 pushfd
 ;real hook here
-%s
 ;real hook here
 popfd
 popad

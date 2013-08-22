@@ -1,0 +1,19 @@
+start:
+
+lea edi, dword ptr ds:[eax+47340] ; Security!GetEnvA
+mov byte ptr ds:[edi],0E9
+mov eax, dword ptr ds:[690098] ; GetEnvironmentVariableA
+sub eax,edi
+sub eax,5
+inc edi
+mov dword ptr ds:[edi], eax
+mov ebx,dword ptr ds:[690070] ; SetEnvironmentVariableA
+jmp @over_data
+
+format 0: lea edi, dword ptr ds:[eax+0%X]\r\nmov byte ptr ds:[edi],0E9\r\nmov eax, dword ptr ds:[0%X]\r\nsub eax,edi\r\nsub eax,5\r\ninc edi\r\nmov dword ptr ds:[edi], eax\r\nmov ebx,dword ptr ds:[0%X]\r\njmp @over_data\r\n
+format 1: push @%d_val\r\npush @%d_var\r\ncall ebx\r\n
+format 2: @%d_var:\r\n\"%s\\0\"\r\n@%d_val:\r\n\"%s\\0\"\r\n
+
+final:
+
+sprintf(current_code, "%s@over_data:\r\n", current_code);

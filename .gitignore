@@ -1,10 +1,12 @@
-bin/Armadillo_KeyTool.exe
+Armadillo_KeyTool.exe
+plugins/*/bin
+plugins/*/obj
 .f
 CppCheckResults.xml
 SNDB4/
 
 # Ignore Object files
-obj/*
+/obj
 
 # Ignore Eclipse Project
 .project
