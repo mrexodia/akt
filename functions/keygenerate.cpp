@@ -214,7 +214,16 @@ BOOL CALLBACK KG_DlgKeyGenerate(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM l
             SetDlgItemTextA(hwndDlg, IDC_EDT_SYM, sym);
 
             GetDlgItemTextA(hwndDlg, IDC_EDT_PVT, pvt, 512);
-            GetDlgItemTextA(hwndDlg, IDC_EDT_Y, y, 512);
+            int len=GetDlgItemTextA(hwndDlg, IDC_EDT_Y, y, 512);
+            int comma_count=0;
+            for(int i=0; i<len; i++)
+                if(y[i]==',')
+                    comma_count++;
+            if(comma_count!=2)
+            {
+                AddLogMessage(GetDlgItem(hwndDlg, IDC_EDT_ADVLOG), "Invalid ECDSA Public format...\nUse: ", true);
+                return TRUE;
+            }
             bool baboon=IsDlgButtonChecked(hwndDlg, IDC_CHK_BABOON);
             if(((!*pvt) or(!*y)) and keygenerate_level!=-1 and !baboon)
             {
@@ -233,10 +242,10 @@ BOOL CALLBACK KG_DlgKeyGenerate(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM l
 
             int date=GetDlgItemInt(hwndDlg, IDC_EDT_DATE, 0, 0);
             int other0=GetDlgItemInt(hwndDlg, IDC_EDT_OTHER0, 0, 0)&65535;
-            int other1=GetDlgItemInt(hwndDlg, IDC_EDT_OTHER1, 0, 0);
-            int other2=GetDlgItemInt(hwndDlg, IDC_EDT_OTHER2, 0, 0);
-            int other3=GetDlgItemInt(hwndDlg, IDC_EDT_OTHER3, 0, 0);
-            int other4=GetDlgItemInt(hwndDlg, IDC_EDT_OTHER4, 0, 0);
+            int other1=GetDlgItemInt(hwndDlg, IDC_EDT_OTHER1, 0, 0)&65535;
+            int other2=GetDlgItemInt(hwndDlg, IDC_EDT_OTHER2, 0, 0)&65535;
+            int other3=GetDlgItemInt(hwndDlg, IDC_EDT_OTHER3, 0, 0)&65535;
+            int other4=GetDlgItemInt(hwndDlg, IDC_EDT_OTHER4, 0, 0)&65535;
 
             SetDlgItemInt(hwndDlg, IDC_EDT_DATE, date, 1);
             if(IsDlgButtonChecked(hwndDlg, IDC_CHK_MODKEY))

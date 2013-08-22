@@ -1,116 +1,142 @@
-#define template_text "\0<%08X>\r\n\
+#define template_text "\0<$%s.%X>\r\n\
 pushad\r\n\
-mov ebx, dword ptr ds:[0%X] ; OutputDebugStringA\r\n\
-mov edi, dword ptr ds:[0%X] ; VirtualProtect\r\n\
-lea esi, dword ptr ds:[@oldprotect] ; oldprotect\r\n\
-push esi\r\n\
-push 40\r\n\
-push 5\r\n\
-push ebx ;OutputDebugString\r\n\
-call edi ;VirtualProtect\r\n\
-mov byte ptr ds:[ebx], 0E9\r\n\
-lea eax, dword ptr ds:[@hook_OutputDebugStringA-5]\r\n\
-sub eax, ebx\r\n\
-mov dword ptr ds:[ebx+1], eax\r\n\
-push esi\r\n\
-push 40\r\n\
-push 5\r\n\
-push edi ;VirtualProtect\r\n\
-call edi ;VirtualProtect\r\n\
-mov byte ptr ds:[edi], 0E9\r\n\
-lea eax, dword ptr ds:[@hook_VirtualProtect-5]\r\n\
-sub eax, edi\r\n\
-mov dword ptr ds:[edi+1], eax\r\n\
-mov eax, @jmp_VirtualProtect\r\n\
-sub edi, eax\r\n\
-mov dword ptr ds:[@jmp_VirtualProtect+1], edi\r\n\
-popad\r\n\
-jmp 0%X ;OEP\r\n\
-@oldprotect:\r\n\
-\"\\0\\0\\0\\0\"\r\n\
-@counter1:\r\n\
-\"\\x%02X\\0\\0\\0\"\r\n\
-@counter2:\r\n\
-\"\\x01\"\r\n\
-@hook_OutputDebugStringA:\r\n\
-dec dword ptr ds:[@counter1]\r\n\
-jnz short @not_done\r\n\
-%s\r\n\
-@not_done:\r\n\
-xor eax,eax\r\n\
-inc eax\r\n\
-retn 4\r\n\
-@hook_VirtualProtect:\r\n\
-pushfd\r\n\
-cmp byte ptr ds:[@counter2], 0\r\n\
-je short @already_done\r\n\
-dec byte ptr ds:[@counter2]\r\n\
-pushad\r\n\
-;PLACE YOUR CODE AFTER THIS (security base is in %s)\r\n\r\n\
-;PLACE YOUR CODE BEFORE THIS\r\n\
-popad\r\n\
-@already_done:\r\n\
-popfd\r\n\
-push ebp\r\n\
-mov ebp,esp\r\n\
-@jmp_VirtualProtect:\r\n\
-\"\\xE9\\0\\0\\0\\0\""
-
-#define dll_template_text "\0<%08X>\r\n\
-pushad\r\n\
-mov ebx, dword ptr ds:[0%X] ; OutputDebugStringA\r\n\
-mov esi, dword ptr ds:[0%X] ; VirtualProtect\r\n\
-mov edi, dword ptr ds:[0%X] ; WriteProcessMemory\r\n\
-lea ebp, dword ptr ds:[@write_bytes] ; write_bytes\r\n\
-lea eax, dword ptr ds:[@hook_OutputDebugStringA-5]\r\n\
-sub eax, ebx ; OutputDebugStringA\r\n\
-mov dword ptr ds:[ebp+1], eax\r\n\
-push 0\r\n\
-push 5\r\n\
-push ebp\r\n\
-push ebx ; OutputDebugStringA\r\n\
-push -1\r\n\
-call edi ; WriteProcessMemory\r\n\
-lea eax, dword ptr ds:[@hook_VirtualProtect-5]\r\n\
-sub eax, esi ; VirtualProtect\r\n\
-mov dword ptr ds:[ebp+1], eax\r\n\
-push 0\r\n\
-push 5\r\n\
-push ebp\r\n\
+call @f\r\n\
+@@:\r\n\
+pop ebp\r\n\
+sub ebp,%X ;newentry+5-imagebase\r\n\
+;imagebase stuff\r\n\
+call @f\r\n\
+@getimagebase:\r\n\
+mov ebp,0FFFFFFFF\r\n\
+ret\r\n\
+@@:\r\n\
+pop eax\r\n\
+mov dword ptr ds:[eax+1],ebp\r\n\
+;imagebase stuff\r\n\
+mov ebx, dword ptr ds:[ebp+%X] ; OutputDebugStringA\r\n\
+mov esi, dword ptr ds:[ebp+%X] ; VirtualProtect\r\n\
+\r\n\
+; Change page protection\r\n\
+call @f\r\n\
+\"\\x00\\x00\\x00\\x00\" ;oldprotect\r\n\
+@@:\r\n\
+push 40 ;newprotect\r\n\
+push 50 ;size\r\n\
 push esi ; VirtualProtect\r\n\
-push -1\r\n\
-call edi ; WriteProcessMemory\r\n\
-mov eax, @jmp_VirtualProtect\r\n\
-sub esi, eax\r\n\
-mov dword ptr ds:[@jmp_VirtualProtect+1], esi\r\n\
+call esi ; VirtualProtect\r\n\
+call @f\r\n\
+\"\\x00\\x00\\x00\\x00\" ;oldprotect\r\n\
+@@:\r\n\
+push 40 ;newprotect\r\n\
+push 50 ;size\r\n\
+push ebx ; OutputDebugStringA\r\n\
+call esi ; VirtualProtect\r\n\
+\r\n\
+; Hook VirtualProtect\r\n\
+call @vp_skip\r\n\
+@vp_original_bytes:\r\n\
+call @f\r\n\
+\"\\x90\\x90\\x90\\x90\\x90\"\r\n\
+@@:\r\n\
+jmp short @vp_hook_back\r\n\
+@vp_skip:\r\n\
+pop edi\r\n\
+add edi,5\r\n\
+mov ecx,5\r\n\
+rep movs byte ptr es:[edi],byte ptr ds:[esi]\r\n\
+sub esi,5\r\n\
+mov byte ptr ds:[esi],0E9\r\n\
+call @vp_hook_end\r\n\
+\r\n\
+@hook_VirtualProtect:\r\n\
+push edi\r\n\
+push esi\r\n\
+push ecx\r\n\
+push ebp\r\n\
+jmp short @vp_original_bytes\r\n\
+@vp_hook_back:\r\n\
+pop esi\r\n\
+call @getimagebase\r\n\
+mov eax,dword ptr ds:[ebp+%X] ; VirtualProtect\r\n\
+mov edi,eax\r\n\
+mov ecx,5\r\n\
+rep movs byte ptr es:[edi],byte ptr ds:[esi]\r\n\
+pop ebp\r\n\
+pop ecx\r\n\
+pop esi\r\n\
+pop edi\r\n\
+\r\n\
+pushad\r\n\
+pushfd\r\n\
+call @getimagebase\r\n\
+;PLACE YOUR CODE AFTER THIS (security base is in %s, imagebase in EBP)\r\n\
+;PLACE YOUR CODE BEFORE THIS\r\n\
+popfd\r\n\
 popad\r\n\
-jmp 0%X ;OEP\r\n\
-@write_bytes:\r\n\
-\"\\xE9\\0\\0\\0\\0\\0\"\r\n\
-@counter1:\r\n\
-\"\\x%02X\\0\\0\\0\"\r\n\
-@counter2:\r\n\
-\"\\x01\"\r\n\
+jmp eax\r\n\
+@vp_hook_end:\r\n\
+\r\n\
+pop eax\r\n\
+sub eax,5\r\n\
+sub eax,esi\r\n\
+mov dword ptr ds:[esi+1],eax\r\n\
+; Hook VirtualProtect\r\n\
+\r\n\
+; Hook OutputDebugStringA\r\n\
+call @od_skip\r\n\
+@od_original_bytes:\r\n\
+call @f\r\n\
+\"\\x90\\x90\\x90\\x90\\x90\"\r\n\
+@@:\r\n\
+jmp short @od_hook_back\r\n\
+@od_skip:\r\n\
+pop edi\r\n\
+add edi,5\r\n\
+mov esi,ebx\r\n\
+mov ecx,5\r\n\
+rep movs byte ptr es:[edi],byte ptr ds:[esi]\r\n\
+sub esi,5\r\n\
+mov byte ptr ds:[esi],0E9\r\n\
+call @od_hook_end\r\n\
+\r\n\
 @hook_OutputDebugStringA:\r\n\
-dec dword ptr ds:[@counter1]\r\n\
-jnz short @not_done\r\n\
-%s\r\n\
-@not_done:\r\n\
+call @f\r\n\
+\"\\x02\" ;counter\r\n\
+@@:\r\n\
+pop eax\r\n\
+dec byte ptr ds:[eax]\r\n\
+jz short @od_execute_hook\r\n\
 xor eax,eax\r\n\
 inc eax\r\n\
-retn 4\r\n\
-@hook_VirtualProtect:\r\n\
-pushfd\r\n\
-cmp byte ptr ds:[@counter2], 0\r\n\
-je short @already_done\r\n\
-dec byte ptr ds:[@counter2]\r\n\
-pushad\r\n\
-;PLACE YOUR CODE AFTER THIS (security base is in %s)\r\n\r\n\
-;PLACE YOUR CODE BEFORE THIS\r\n\
-popad\r\n\
-@already_done:\r\n\
-popfd\r\n\
+ret 4\r\n\
+@od_execute_hook:\r\n\
+push edi\r\n\
+push esi\r\n\
+push ecx\r\n\
 push ebp\r\n\
-mov ebp,esp\r\n\
-@jmp_VirtualProtect:\r\n\
-\"\\xE9\\0\\0\\0\\0\""
+jmp short @od_original_bytes\r\n\
+@od_hook_back:\r\n\
+pop esi\r\n\
+call @getimagebase\r\n\
+mov eax,dword ptr ds:[ebp+%X] ; OutputDebugStringA\r\n\
+mov edi,eax\r\n\
+mov ecx,5\r\n\
+rep movs byte ptr es:[edi],byte ptr ds:[esi]\r\n\
+pop ebp\r\n\
+pop ecx\r\n\
+pop esi\r\n\
+pop edi\r\n\
+push eax\r\n\
+%s\r\n\
+pop eax\r\n\
+jmp eax\r\n\
+\r\n\
+@od_hook_end:\r\n\
+pop eax\r\n\
+sub eax,5\r\n\
+sub eax,esi\r\n\
+mov dword ptr ds:[esi+1],eax\r\n\
+; Hook OutputDebugStringA\r\n\
+\r\n\
+popad\r\n\
+jmp $%s.%X ;rva of oep"

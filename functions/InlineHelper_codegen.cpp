@@ -3,8 +3,22 @@
 /**********************************************************************
  *						Functions
  *********************************************************************/
-void IH_GenerateAsmCode(char* codeText, bool fileIsDll, IH_InlineHelperData_t targetData)
+void IH_GenerateAsmCode(const char* szFileName, char* codeText, bool fileIsDll, IH_InlineHelperData_t targetData)
 {
+    char szModuleName[256]="";
+    int len=strlen(szFileName);
+    while(szFileName[len]!='\\')
+        len--;
+    strcpy(szModuleName, szFileName+len+1);
+    len=strlen(szModuleName);
+    for(int i=0; i<len; i++)
+        if(szModuleName[i]=='.')
+        {
+            szModuleName[i]=0;
+            break;
+        }
+    if(strlen(szModuleName)>8)
+        szModuleName[8]=0;
     char crc_replace_code[2048]="";
     if(targetData.Arma960)
     {
@@ -19,7 +33,7 @@ void IH_GenerateAsmCode(char* codeText, bool fileIsDll, IH_InlineHelperData_t ta
     }
     else
     {
-        sprintf(crc_replace_code, "mov dword ptr ds:[ebp-0%X],0%X\r\nmov dword ptr ds:[ebp-%X],0%X\r\nmov dword ptr ds:[ebp-%X],0%X\r\nmov dword ptr ds:[ebp-%X],0%X\r\nmov dword ptr ds:[ebp-%X],0%X\r\n",
+        sprintf(crc_replace_code, "mov dword ptr ds:[ebp-0%X],0%X\r\nmov dword ptr ds:[ebp-%X],0%X\r\nmov dword ptr ds:[ebp-%X],0%X\r\nmov dword ptr ds:[ebp-%X],0%X\r\nmov dword ptr ds:[ebp-%X],0%X",
                 targetData.CRCBase,
                 targetData.CrcOriginalVals[0],
                 targetData.CRCBase+8,
@@ -31,7 +45,20 @@ void IH_GenerateAsmCode(char* codeText, bool fileIsDll, IH_InlineHelperData_t ta
                 targetData.CRCBase+20,
                 targetData.CrcOriginalVals[4]);
     }
-    if(!fileIsDll)
+    unsigned int imgbase=targetData.ImageBase;
+    sprintf(codeText, template_text+1,
+            szModuleName,
+            targetData.EmptyEntry-imgbase,
+            targetData.EmptyEntry+6-imgbase,
+            targetData.OutputDebugStringA_Addr-imgbase,
+            targetData.VirtualProtect_Addr-imgbase,
+            targetData.VirtualProtect_Addr-imgbase,
+            targetData.SecurityAddrRegister,
+            targetData.OutputDebugStringA_Addr-imgbase,
+            crc_replace_code,
+            szModuleName,
+            targetData.OEP-imgbase);
+    /*if(!fileIsDll)
     {
         sprintf(codeText, template_text+1,
                 targetData.EmptyEntry,
@@ -53,5 +80,5 @@ void IH_GenerateAsmCode(char* codeText, bool fileIsDll, IH_InlineHelperData_t ta
                 targetData.OutputDebugCount,
                 crc_replace_code,
                 targetData.SecurityAddrRegister);
-    }
+    }*/
 }

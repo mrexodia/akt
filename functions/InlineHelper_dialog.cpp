@@ -3,16 +3,16 @@
 /**********************************************************************
  *						Module Variables
  *********************************************************************/
-char g_szFileName[256]=""; 				// Debugged program filename
+static char g_szFileName[256]=""; 				// Debugged program filename
 static char g_szTargetDir[256]=""; 		// String for the directory of the debugged program
 
-bool g_FileIsDll=false; 					// Flag for DLL
+static bool g_FileIsDll=false; 					// Flag for DLL
 
 static char g_codeText[2048]=""; 			// String for the inline asm code
 
-IH_InlineHelperData_t g_TargetData;
+static IH_InlineHelperData_t g_TargetData;
 
-HWND g_HWND; 								// HWND of the main window
+static HWND g_HWND; 								// HWND of the main window
 
 
 /**********************************************************************
@@ -109,7 +109,7 @@ BOOL CALLBACK IH_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             long newflags=(long)GetPE32Data(patch_filename, g_TargetData.EntrySectionNumber, UE_SECTIONFLAGS);
             SetPE32Data(patch_filename, g_TargetData.EntrySectionNumber, UE_SECTIONFLAGS, (newflags|0x80000000));
 
-            IH_GenerateAsmCode(g_codeText, g_FileIsDll, g_TargetData);
+            IH_GenerateAsmCode(g_szFileName, g_codeText, g_FileIsDll, g_TargetData);
             CopyToClipboard(g_codeText);
             MessageBoxA(hwndDlg, "1) Open the file you just saved with OllyDbg\n2) Open Multimate Assembler v1.5+\n3) Paste the code\n4) Modify the code to do something with the Security DLL\n5) Save the patched file with OllyDbg\n6) Enjoy!", "Instructions", MB_ICONINFORMATION);
         }
@@ -128,7 +128,7 @@ BOOL CALLBACK IH_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             NoFocus();
             if(g_codeText[0])
             {
-                IH_GenerateAsmCode(g_codeText, g_FileIsDll, g_TargetData);
+                IH_GenerateAsmCode(g_szFileName, g_codeText, g_FileIsDll, g_TargetData);
                 CopyToClipboard(g_codeText);
                 MessageBoxA(hwndDlg, "Code copied to clipboard!", "Yay!", MB_ICONINFORMATION);
             }
@@ -276,7 +276,7 @@ void IH_DebugEnd_Callback(void)
     SetDlgItemTextA(g_HWND, IDC_EDT_OEP, szBuffer);
 
     // Generate code
-    IH_GenerateAsmCode(g_codeText, g_FileIsDll, g_TargetData);
+    IH_GenerateAsmCode(g_szFileName, g_codeText, g_FileIsDll, g_TargetData);
 
     EnableWindow(GetDlgItem(g_HWND, IDC_BTN_INLINE), TRUE);
     EnableWindow(GetDlgItem(g_HWND, IDC_BTN_COPY), TRUE);

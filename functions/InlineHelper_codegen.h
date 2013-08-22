@@ -7,6 +7,6 @@
 /**********************************************************************
  *						Prototypes
  *********************************************************************/
-void IH_GenerateAsmCode(char* codeText, bool fileIsDll, IH_InlineHelperData_t TargetData);
+void IH_GenerateAsmCode(const char* szFileName, char* codeText, bool fileIsDll, IH_InlineHelperData_t TargetData);
 
 #endif

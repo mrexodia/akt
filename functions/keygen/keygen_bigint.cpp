@@ -200,8 +200,9 @@ unsigned long BigInt_GetU(BigInt n)
 
 BigInt BigInt_Zero(void)
 {
-    static BigInt zero=0;BigIntBase
-    if(!zero) zero=BigInt_Create();
+    static BigInt zero=0;
+    if(!zero)
+        zero=BigInt_Create();
     return zero;
 }
 

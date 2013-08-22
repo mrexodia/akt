@@ -246,7 +246,12 @@ void CT_cbOtherSeeds()
     }
     eip_data+=stdcall;
     unsigned int size=0x10000-stdcall;
-    unsigned int retn=CT_FindReturnPattern(eip_data, size);
+    unsigned int retn=size=CT_FindReturnPattern(eip_data, size);
+    if(!retn)
+    {
+        CT_FatalError("Could not find RET");
+            return;
+    }
 
     unsigned int and_addrs[4]= {0};
 
@@ -255,14 +260,13 @@ void CT_cbOtherSeeds()
         and_addrs[i]=CT_FindAndPattern2(eip_data, size);
         if(!and_addrs[i])
             and_addrs[i]=CT_FindAndPattern1(eip_data, size);
-        if(!and_addrs[i] or and_addrs[i]>retn)
+        if(!and_addrs[i])
         {
             CT_FatalError("Could not find AND [REG],[VAL]");
             return;
         }
         size-=and_addrs[i];
         eip_data+=and_addrs[i];
-        retn-=and_addrs[i];
         if(i)
             and_addrs[i]+=and_addrs[i-1];
     }
@@ -406,8 +410,6 @@ void CT_cbCertificateFunction()
             if(!magic_value_addr)
                 CT_RetrieveSaltValue();
         }
-
-
     }
     else
         DeleteHardwareBreakPoint(UE_DR0);
