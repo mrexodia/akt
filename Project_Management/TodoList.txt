@@ -1,7 +1,7 @@
 TODO List
 - Import .akt files for certs and keygen
 - Interaction with the Certs tab (copy sym, copy pub etc)
-- Inline: relocations support (for dlls) or relocatable inline code (both can be done easily)
+- Inline: relocations support (for dlls) or relocatable inline code (both can be done easily) -done!-
 - Decrypt text1 (For inline patching)
 - Automatic assembly using multimate assembler (can be done becasue I have a private lib from the creator of multimate assembler)
 - Auto add 'GetProcAddress' for OutputDebugStringA (when needed, v5)
@@ -16,3 +16,4 @@ TODO List
 - selective brute forcing (cert number, sym?, elgamal?)
 - arma_cert_bin_info
 - better plugin interface
+- brute force all certificate at once, to save time
