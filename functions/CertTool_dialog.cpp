@@ -65,10 +65,113 @@ BOOL CALLBACK CT_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     }
     return TRUE;
 
+    case WM_CONTEXTMENU:
+    {
+        if(GetDlgCtrlID((HWND)wParam)==IDC_LIST_CERT) //double click
+        {
+            LeftClick();
+            LeftClick();
+        }
+    }
+    return TRUE;
+
     case WM_COMMAND:
     {
         switch(LOWORD(wParam))
         {
+        case IDC_LIST_CERT:
+        {
+            switch(HIWORD(wParam))
+            {
+            case LBN_DBLCLK: //double/right click
+            {
+                HWND list=GetDlgItem(hwndDlg, IDC_LIST_CERT);
+                int cursel=SendMessageA(list, LB_GETCURSEL, 0, 0);
+                char str[256]="";
+                SendMessageA(list, LB_GETTEXT, cursel, (LPARAM)str);
+                if(!strlen(str) or strstr(str, "Global Information:") or strstr(str, "Public Certificate Information:") or strstr(str, "Intercepted Libraries:"))
+                    return TRUE;
+                if(strstr(str, "BaseP")) //handle base point (md5, diff, basep)
+                {
+                    char* b=str+10;
+                    unsigned int basep=0;
+                    unsigned int size=0;
+                    unsigned int diff=0;
+                    unsigned int md5=0;
+                    sscanf(b, "%u (Size=%X, Diff=%X, MD5=%08X)", &basep, &size, &diff, &md5);
+                    HMENU myMenu=0;
+                    myMenu=CreatePopupMenu();
+                    AppendMenu(myMenu, MF_STRING, 4, "&MD5");
+                    AppendMenu(myMenu, MF_STRING, 1, "&BaseP");
+                    AppendMenu(myMenu, MF_STRING, 2, "&Size");
+                    AppendMenu(myMenu, MF_STRING, 3, "&Diff");
+                    POINT cursorPos;
+                    GetCursorPos(&cursorPos);
+                    SetForegroundWindow(hwndDlg);
+                    UINT MenuItemClicked=TrackPopupMenu(myMenu, TPM_RETURNCMD|TPM_NONOTIFY, cursorPos.x, cursorPos.y, 0, hwndDlg, 0);
+                    SendMessage(hwndDlg, WM_NULL, 0, 0);
+                    switch(MenuItemClicked)
+                    {
+                    case 1:
+                        sprintf(str, "%u", basep);
+                        break;
+                    case 2:
+                        sprintf(str, "%X", size);
+                        break;
+                    case 3:
+                        sprintf(str, "%X", diff);
+                        break;
+                    case 4:
+                        sprintf(str, "%.8X", md5);
+                        break;
+                    }
+                    //sprintf(str, "%u\n%X\n%X\n%.8X", basep, size, diff, md5);
+                    //MessageBoxA(hwndDlg, str, "BaseP", 0);
+                }
+                else if(strstr(str, " Level ")) //handle level
+                {
+                    int leveladd=-1; //signed v2 is standard
+                    if(strstr(str, "Short V3"))
+                        leveladd=19;
+                    else if(strstr(str, "Signed V3"))
+                        leveladd=9;
+                    int len=strlen(str)-1;
+                    if(str[len]!=':')
+                        return TRUE;
+                    str[len]=0; //remove ':'
+                    len--;
+                    while(isdigit(str[len]))
+                        len--;
+                    int level=0;
+                    sscanf(str+len, "%d", &level);
+                    level+=leveladd;
+                    sprintf(str, "%X", level);
+                    //MessageBoxA(hwndDlg, str, "Raw Level (HEX)", 0);
+                }
+                else if(str[0]==' ' and str[1]==' ' and (str[2]=='+' or str[2]=='-')) //intercepted library
+                {
+                    strcpy(str, str+3);
+                    //MessageBoxA(hwndDlg, str+3, "Library Name", 0);
+                }
+                else if(str[13]==':') //Global Information
+                {
+                    strcpy(str, str+15);
+                    //MessageBoxA(hwndDlg, str+15, "Global Information", 0);
+                }
+                else if(str[8]==':') //Certificate Information
+                {
+                    strcpy(str, str+10);
+                    //MessageBoxA(hwndDlg, str+10, "Certificate Information", 0);
+                }
+                CopyToClipboard(str);
+                MessageBeep(MB_ICONINFORMATION);
+                MessageBoxA(hwndDlg, str, "str", 0);
+            }
+            break;
+            }
+        }
+        return TRUE;
+
         case IDC_BTN_PAUSE:
         {
             NoFocus();

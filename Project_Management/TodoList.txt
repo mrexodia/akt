@@ -1,6 +1,6 @@
 TODO List
 - Import .akt files for certs and keygen
-- Interaction with the Certs tab (copy sym, copy pub etc)
+- Interaction with the Certs tab (copy sym, copy pub etc) -done!-
 - Inline: relocations support (for dlls) or relocatable inline code (both can be done easily) -done!-
 - Decrypt text1 (For inline patching)
 - Automatic assembly using multimate assembler (can be done becasue I have a private lib from the creator of multimate assembler)
@@ -11,7 +11,7 @@ TODO List
 - Watermark removing (for custom build)
 - Random number brute/verification
 - Nanomites
-- Code splicing (Redirection adn deobfuscation)
+- Code splicing (Redirection and deobfuscation)
 - Check miscellaneous modules compatibility with new/old versions
 - selective brute forcing (cert number, sym?, elgamal?)
 - arma_cert_bin_info

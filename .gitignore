@@ -18,6 +18,6 @@ bin/exception_*.log
 *.depend
 Public/
 *.log
-bin/cudart32_42_9.dll
+bin/cudart*.dll
 bin/brute_sym.dll
 armadillo_analysis_custombuild_download.txt
