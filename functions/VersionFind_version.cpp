@@ -99,7 +99,7 @@ static void cbVirtualProtect()
     if(!push_addr)
         VF_FatalError("Could not find reference to '<armVersion'", g_ErrorMessageCallback);
     int call_decrypt=push_addr;
-    while(sec_data[call_decrypt]!=0xE8)
+    while(sec_data[call_decrypt]!=0xE8) //TODO: fix this!!
         call_decrypt--;
     unsigned int call_dw=0;
     memcpy(&call_dw, (sec_data+call_decrypt+1), 4);

@@ -239,13 +239,7 @@ void ReadIniFile(HWND hwndDlg, const char* ini_file_drop)
     SetDlgItemTextA(hwndDlg, IDC_EDT_PUBVALS_OLD, cur_pub_text);
     sprintf(temp_name, "%X", strlen(cur_pub_text));
     SetDlgItemTextA(hwndDlg, IDC_EDT_PUBVALS_OLD_LEN, temp_name);
-    if(md5_replace_addr)
-        sprintf(base_code, base_code_format+1, register_used, cert_function_addr, register_used, md5_replace_addr, cur_md5_text);
-    else
-        sprintf(base_code, base_code_format2+1, register_used, cert_function_addr);
-    SetDlgItemTextA(hwndDlg, IDC_EDT_CODE_BASE, base_code);
     EnableWindow(GetDlgItem(hwndDlg, IDC_EDT_TEMPLATE), 1);
-    EnableWindow(GetDlgItem(hwndDlg, IDC_BTN_COPY_BASE), 1);
 }
 
 bool Initialize(HWND hwndDlg)
@@ -286,8 +280,7 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             SendMessageA(hwndDlg, WM_SETICON, ICON_SMALL, (LPARAM)ico);
         }
         EnableWindow(GetDlgItem(hwndDlg, IDC_EDT_TEMPLATE), 0);
-        EnableWindow(GetDlgItem(hwndDlg, IDC_BTN_COPY_REPL), 0);
-        EnableWindow(GetDlgItem(hwndDlg, IDC_BTN_COPY_BASE), 0);
+        EnableWindow(GetDlgItem(hwndDlg, IDC_BTN_COPY_CODE), 0);
         if(!Initialize(hwndDlg))
         {
             MessageBoxA(hwndDlg, "Something went wrong during the initialization of the plugin.\n\nMaybe the file you are loading is unsupported, please contact me\n(Mr. eXoDia) at mr.exodia.tpodt@gmail.com, I can fix it...", "Error...", MB_ICONERROR);
@@ -375,9 +368,9 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
                     SetDlgItemTextA(hwndDlg, IDC_EDT_PUBVALS_OLD, cur_pub_text);
                     sprintf(temp_name, "%X", strlen(cur_pub_text));
                     SetDlgItemTextA(hwndDlg, IDC_EDT_PUBVALS_OLD_LEN, temp_name);
-                    sprintf(base_code, base_code_format+1, register_used, cert_function_addr, register_used, md5_replace_addr, cur_md5_text);
-                    SetDlgItemTextA(hwndDlg, IDC_EDT_CODE_BASE, base_code);
-                    EnableWindow(GetDlgItem(hwndDlg, IDC_BTN_COPY_BASE), 1);
+                    //sprintf(base_code, base_code_format+1, register_used, cert_function_addr, register_used, md5_replace_addr, cur_md5_text);
+                    //SetDlgItemTextA(hwndDlg, IDC_EDT_CODE, base_code);
+                    EnableWindow(GetDlgItem(hwndDlg, IDC_BTN_COPY_CODE), 0);
                     SetDlgItemTextA(hwndDlg, IDC_EDT_PUBVALS_NEW, "");
                 }
             }
@@ -442,30 +435,49 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
                     strcpy(replaced_pub_string, new_pub);
 
                 if(projectid)
-                    sprintf(repl_code, repl_code_format2+1, first_dword_text, proj_diff, new_byte, cur_dif_text, new_pub_len, replaced_pub_string);
+                    sprintf(repl_code, repl_code_format,
+                            first_dword_text,
+                            proj_diff,
+                            new_byte,
+                            cur_dif_text,
+                            replaced_pub_string,
+                            new_pub_len);
                 else
-                    sprintf(repl_code, repl_code_format+1, first_dword_text, cur_dif_text, new_pub_len, replaced_pub_string);
-                SetDlgItemTextA(hwndDlg, IDC_EDT_CODE_REPL, repl_code);
-                EnableWindow(GetDlgItem(hwndDlg, IDC_BTN_COPY_REPL), 1);
+                    sprintf(repl_code, repl_code_format2,
+                            first_dword_text,
+                            cur_dif_text,
+                            replaced_pub_string,
+                            new_pub_len);
+
+                if(md5_replace_addr)
+                    sprintf(base_code, base_code_format,
+                            register_used,
+                            cert_function_addr,
+                            repl_code,
+                            register_used,
+                            md5_replace_addr,
+                            cur_md5_text);
+                else
+                    sprintf(base_code, base_code_format2,
+                            register_used,
+                            cert_function_addr,
+                            repl_code);
+
+                //TODO: fix this
+                SetDlgItemTextA(hwndDlg, IDC_EDT_CODE, base_code);
+                EnableWindow(GetDlgItem(hwndDlg, IDC_BTN_COPY_CODE), 1);
             }
             else
             {
-                SetDlgItemTextA(hwndDlg, IDC_EDT_CODE_REPL, "");
-                EnableWindow(GetDlgItem(hwndDlg, IDC_BTN_COPY_REPL), 0);
+                SetDlgItemTextA(hwndDlg, IDC_EDT_CODE, "");
+                EnableWindow(GetDlgItem(hwndDlg, IDC_BTN_COPY_CODE), 0);
             }
         }
         return TRUE;
 
-        case IDC_BTN_COPY_BASE:
+        case IDC_BTN_COPY_CODE:
         {
             CopyToClipboard(base_code);
-            MessageBeep(MB_ICONINFORMATION);
-        }
-        return TRUE;
-
-        case IDC_BTN_COPY_REPL:
-        {
-            CopyToClipboard(repl_code);
             MessageBeep(MB_ICONINFORMATION);
         }
         return TRUE;

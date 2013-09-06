@@ -1,4 +1,4 @@
-#define template_text "\0<$%s.%X>\r\n\
+#define template_text "<$%s.%X>\r\n\
 pushad\r\n\
 call @f\r\n\
 @@:\r\n\
@@ -57,8 +57,7 @@ jmp short @vp_original_bytes\r\n\
 @vp_hook_back:\r\n\
 pop esi\r\n\
 call @getimagebase\r\n\
-mov eax,dword ptr ds:[ebp+%X] ; VirtualProtect\r\n\
-mov edi,eax\r\n\
+mov edi,dword ptr ds:[ebp+%X] ; VirtualProtect\r\n\
 mov ecx,5\r\n\
 rep movs byte ptr es:[edi],byte ptr ds:[esi]\r\n\
 pop ebp\r\n\
@@ -141,4 +140,8 @@ jmp $%s.%X ;rva of oep\r\n\
 ;PLACE YOUR CODE BEFORE THIS\r\n\
 popfd\r\n\
 popad\r\n\
+push ebp\r\n\
+call @getimagebase\r\n\
+mov eax, dword ptr ds:[ebp+%X] ; VirtualProtect\r\n\
+pop ebp\r\n\
 jmp eax"

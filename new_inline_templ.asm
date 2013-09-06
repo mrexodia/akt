@@ -57,8 +57,7 @@ jmp short @vp_original_bytes
 @vp_hook_back:
 pop esi
 call @getimagebase
-mov eax,dword ptr ds:[ebp+%X] ; VirtualProtect
-mov edi,eax
+mov edi,dword ptr ds:[ebp+%X] ; VirtualProtect
 mov ecx,5
 rep movs byte ptr es:[edi],byte ptr ds:[esi]
 pop ebp

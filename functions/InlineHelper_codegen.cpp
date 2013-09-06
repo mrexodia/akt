@@ -11,7 +11,7 @@ void IH_GenerateAsmCode(const char* szFileName, char* codeText, bool fileIsDll, 
         len--;
     strcpy(szModuleName, szFileName+len+1);
     len=strlen(szModuleName);
-    for(int i=0; i<len; i++)
+    for(int i=len-1; i!=0; i++)
         if(szModuleName[i]=='.')
         {
             szModuleName[i]=0;
@@ -19,10 +19,14 @@ void IH_GenerateAsmCode(const char* szFileName, char* codeText, bool fileIsDll, 
         }
     if(strlen(szModuleName)>8)
         szModuleName[8]=0;
+    len=strlen(szModuleName);
+    for(int i=0; i<len; i++)
+        if(szModuleName[i]==' ')
+            szModuleName[i]='_';
     char crc_replace_code[2048]="";
     if(targetData.Arma960)
     {
-        sprintf(crc_replace_code, "mov dword ptr ds:[ebp-0%X],0%X\r\nmov eax,dword ptr ds:[esp]\r\nmov eax,dword ptr ds:[eax+0%X]\r\nmov dword ptr ds:[eax],0%X\r\nmov dword ptr ds:[eax+4],0%X\r\nmov dword ptr ds:[eax+8],0%X\r\nmov dword ptr ds:[eax+0C],0%X",
+        sprintf(crc_replace_code, "mov dword ptr ds:[ebp-0%X],0%X\r\nmov eax,dword ptr ds:[esp+4]\r\nmov eax,dword ptr ds:[eax+0%X]\r\nmov dword ptr ds:[eax],0%X\r\nmov dword ptr ds:[eax+4],0%X\r\nmov dword ptr ds:[eax+8],0%X\r\nmov dword ptr ds:[eax+0C],0%X",
                 targetData.CRCBase,
                 targetData.CrcOriginalVals[0],
                 targetData.Arma960_add,
@@ -46,7 +50,7 @@ void IH_GenerateAsmCode(const char* szFileName, char* codeText, bool fileIsDll, 
                 targetData.CrcOriginalVals[4]);
     }
     unsigned int imgbase=targetData.ImageBase;
-    sprintf(codeText, template_text+1,
+    sprintf(codeText, template_text,
             szModuleName,
             targetData.EmptyEntry-imgbase,
             targetData.EmptyEntry+6-imgbase,
@@ -57,5 +61,6 @@ void IH_GenerateAsmCode(const char* szFileName, char* codeText, bool fileIsDll, 
             crc_replace_code,
             szModuleName,
             targetData.OEP-imgbase,
-            targetData.SecurityAddrRegister);
+            targetData.SecurityAddrRegister,
+            targetData.VirtualProtect_Addr-imgbase);
 }

@@ -219,7 +219,7 @@ BOOL CALLBACK KG_DlgKeyGenerate(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM l
             for(int i=0; i<len; i++)
                 if(y[i]==',')
                     comma_count++;
-            if(comma_count!=2)
+            if(keygenerate_level==29 and comma_count!=2)
             {
                 AddLogMessage(GetDlgItem(hwndDlg, IDC_EDT_ADVLOG), "Invalid ECDSA Public format...\nUse: ", true);
                 return TRUE;
