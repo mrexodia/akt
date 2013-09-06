@@ -1,4 +1,3 @@
-Armadillo_KeyTool.exe
 plugins/*/bin
 plugins/*/obj
 .f
@@ -7,10 +6,6 @@ SNDB4/
 
 # Ignore Object files
 /obj
-
-# Ignore Eclipse Project
-.project
-.cproject
 Armadillo_KeyTool.cscope_file_list
 bin/plugins/
 bin/exception_*.log
@@ -21,3 +16,4 @@ Public/
 bin/cudart*.dll
 bin/brute_sym.dll
 armadillo_analysis_custombuild_download.txt
+Armadillo_KeyTool.bmarks
