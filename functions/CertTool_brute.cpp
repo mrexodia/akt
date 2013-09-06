@@ -28,7 +28,9 @@ bool InitializeSymBruteLibrary(HWND hwndDlg)
 {
     if(hBrute)
         FreeLibrary(hBrute);
-    hBrute=LoadLibraryA("brute_sym.dll");
+    hBrute=LoadLibraryA("brute_sym_prvt.dll");
+    if(!hBrute)
+        hBrute=LoadLibraryA("brute_sym.dll");
     if(hBrute)
     {
         BruteStart=(BRUTESTART)GetProcAddress(hBrute, "BruteStart");
