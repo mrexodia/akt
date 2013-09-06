@@ -1,5 +1,7 @@
 plugins/*/bin
 plugins/*/obj
+brute_sym/bin
+brute_sym/obj
 .f
 CppCheckResults.xml
 SNDB4/
