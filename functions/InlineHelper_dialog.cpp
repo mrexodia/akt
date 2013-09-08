@@ -280,7 +280,7 @@ void IH_DebugEnd_Callback(void)
 
     // Generate code
     IH_GenerateAsmCode(g_szFileName, g_codeText, g_FileIsDll, g_TargetData);
-
+    SetEnvironmentVariableA("DEBUG HERE", "");
     EnableWindow(GetDlgItem(g_HWND, IDC_BTN_INLINE), TRUE);
     EnableWindow(GetDlgItem(g_HWND, IDC_BTN_COPY), TRUE);
     DragAcceptFiles(g_HWND, TRUE);

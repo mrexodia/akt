@@ -165,7 +165,7 @@ BOOL CALLBACK CT_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 }
                 CopyToClipboard(str);
                 MessageBeep(MB_ICONINFORMATION);
-                MessageBoxA(hwndDlg, str, "str", 0);
+                //MessageBoxA(hwndDlg, str, "str", 0);
             }
             break;
             }
