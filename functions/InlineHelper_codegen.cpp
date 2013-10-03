@@ -3,26 +3,8 @@
 /**********************************************************************
  *						Functions
  *********************************************************************/
-void IH_GenerateAsmCode(const char* szFileName, char* codeText, bool fileIsDll, IH_InlineHelperData_t targetData)
+void IH_GenerateAsmCode(char* codeText, IH_InlineHelperData_t targetData)
 {
-    char szModuleName[256]="";
-    int len=strlen(szFileName);
-    while(szFileName[len]!='\\')
-        len--;
-    strcpy(szModuleName, szFileName+len+1);
-    len=strlen(szModuleName);
-    for(int i=len-1; i!=0; i++)
-        if(szModuleName[i]=='.')
-        {
-            szModuleName[i]=0;
-            break;
-        }
-    if(strlen(szModuleName)>8)
-        szModuleName[8]=0;
-    len=strlen(szModuleName);
-    for(int i=0; i<len; i++)
-        if(szModuleName[i]==' ')
-            szModuleName[i]='_';
     char crc_replace_code[2048]="";
     if(targetData.Arma960)
     {
@@ -51,7 +33,6 @@ void IH_GenerateAsmCode(const char* szFileName, char* codeText, bool fileIsDll, 
     }
     unsigned int imgbase=targetData.ImageBase;
     sprintf(codeText, template_text,
-            szModuleName,
             targetData.EmptyEntry-imgbase,
             targetData.EmptyEntry+6-imgbase,
             targetData.OutputDebugStringA_Addr-imgbase,
@@ -59,7 +40,6 @@ void IH_GenerateAsmCode(const char* szFileName, char* codeText, bool fileIsDll, 
             targetData.VirtualProtect_Addr-imgbase,
             targetData.OutputDebugStringA_Addr-imgbase,
             crc_replace_code,
-            szModuleName,
             targetData.OEP-imgbase,
             targetData.SecurityAddrRegister,
             targetData.VirtualProtect_Addr-imgbase);

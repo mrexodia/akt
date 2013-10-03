@@ -219,12 +219,12 @@ BOOL CALLBACK KG_DlgKeyGenerate(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM l
             for(int i=0; i<len; i++)
                 if(y[i]==',')
                     comma_count++;
-            if(keygenerate_level==29 and comma_count!=2)
+            bool baboon=IsDlgButtonChecked(hwndDlg, IDC_CHK_BABOON);
+            if(keygenerate_level==29 and comma_count!=2 and !baboon)
             {
                 AddLogMessage(GetDlgItem(hwndDlg, IDC_EDT_ADVLOG), "Invalid ECDSA Public format...\nUse: ", true);
                 return TRUE;
             }
-            bool baboon=IsDlgButtonChecked(hwndDlg, IDC_CHK_BABOON);
             if(((!*pvt) or(!*y)) and keygenerate_level!=-1 and !baboon)
             {
                 if(GetDlgItemTextA(hwndDlg, IDC_EDT_TEMPLATE, templ, 512))

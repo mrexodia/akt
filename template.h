@@ -1,4 +1,4 @@
-#define template_text "<$%s.%X>\r\n\
+#define template_text "<$.%X>\r\n\
 pushad\r\n\
 call @f\r\n\
 @@:\r\n\
@@ -134,7 +134,7 @@ mov dword ptr ds:[esi+1],eax\r\n\
 ; Hook OutputDebugStringA\r\n\
 \r\n\
 popad\r\n\
-jmp $%s.%X ;rva of oep\r\n\
+jmp $.%X ;rva of oep\r\n\
 @usercode:\r\n\
 ;PLACE YOUR CODE AFTER THIS (security base is in %s, imagebase in EBP)\r\n\
 ;PLACE YOUR CODE BEFORE THIS\r\n\
