@@ -132,6 +132,13 @@ BOOL CALLBACK VF_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     }
     return TRUE;
 
+    case WM_BROWSE:
+    {
+        strcpy(g_szFileName, (const char*)wParam);
+        CreateThread(0, 0, VF_DebugThread, 0, 0, 0);
+    }
+    return TRUE;
+
     case WM_DROPFILES:
     {
         DragQueryFileA((HDROP)wParam, 0, g_szFileName, 256);

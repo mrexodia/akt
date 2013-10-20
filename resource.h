@@ -18,6 +18,7 @@
 #define DLG_NANO                                113
 #define IDC_BTN_GENERATE                        1000
 #define IDC_CHK_BRUTESHUTDOWN                   1000
+#define IDC_BTN_BROWSE                          1001
 #define IDC_BTN_OK                              1001
 #define IDC_EDT_PVT                             1001
 #define IDC_CHK_LOGFILE                         1002

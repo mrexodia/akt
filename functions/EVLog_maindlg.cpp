@@ -19,6 +19,19 @@ BOOL CALLBACK EV_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     }
     return TRUE;
 
+    case WM_BROWSE:
+    {
+        SendMessageA(EV_list_hwnd, LB_RESETCONTENT, 0, 0);
+        strcpy(EV_szFileName, (const char*)wParam);
+        strcpy(EV_program_dir, EV_szFileName);
+        int i=strlen(EV_program_dir);
+        while(EV_program_dir[i]!='\\')
+            i--;
+        EV_program_dir[i]=0;
+        CreateThread(0, 0, EV_DebugThread, 0, 0, 0);
+    }
+    return TRUE;
+
     case WM_DROPFILES:
     {
         SendMessageA(EV_list_hwnd, LB_RESETCONTENT, 0, 0);

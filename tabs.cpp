@@ -1,4 +1,6 @@
 #include "tabs.h"
+#include "resource.h"
+#include "functions\_global.h"
 
 HBRUSH g_hbrBkgnd=CreateSolidBrush(0);
 
@@ -51,6 +53,7 @@ void OnSelChanged(HWND hwndDlg)
     //Set some local variables for code size
     HWND* dlg_hwnd=&pHdr->dlg_hwnd[iSel]; //Should save a little memory, we just set a local variable with a pointer
     //DragAcceptFiles(pHdr->hwndTab, pHdr->accept_files[iSel]); //Accept files when specified to do so...
+    EnableWindow(GetDlgItem(hwndDlg, IDC_BTN_BROWSE), pHdr->accept_files[iSel]); //enable browse button
     DragAcceptFiles(pHdr->hwndTab, 1); //Accept files when specified to do so...
     HWND* hwnd_dis=&pHdr->hwndDisplay; //Same trick here
     //Disable and hide the old window (so use input stays)
@@ -88,13 +91,29 @@ void SelectTab(HWND hwndDlg, int id)
 BOOL CALLBACK notify_hook(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     DLGHDR* pHdr=(DLGHDR*)GetWindowLong(hwndDlg, GWL_USERDATA);
+    int iSel=TabCtrl_GetCurSel(pHdr->hwndTab);
     switch(uMsg)
     {
     case WM_HELP:
     {
-        int iSel=TabCtrl_GetCurSel(pHdr->hwndTab);
         if(pHdr->handles_help[iSel])
             SendMessageA(pHdr->dlg_hwnd[iSel], WM_HELP, wParam, lParam);
+    }
+    break;
+
+    case WM_COMMAND:
+    {
+        switch(LOWORD(wParam))
+        {
+        case IDC_BTN_BROWSE:
+        {
+            static char filename[1024]="";
+            if(!BrowseFileOpen(hwndDlg, "Executables (*.exe, *.dll)\0*.exe;*.dll", 0, filename, 1024, 0))
+                return TRUE;
+            SendMessageA(pHdr->dlg_hwnd[iSel], WM_BROWSE, (WPARAM)filename, 0);
+        }
+        return TRUE;
+        }
     }
     break;
 

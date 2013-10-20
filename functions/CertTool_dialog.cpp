@@ -34,6 +34,37 @@ BOOL CALLBACK CT_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     }
     return TRUE;
 
+    case WM_BROWSE:
+    {
+        if(CT_isdebugging)
+            return TRUE;
+        strcpy(CT_szFileName, (const char*)wParam);
+        strcpy(CT_szProgramDir, CT_szFileName);
+        int len=strlen(CT_szProgramDir);
+        while(CT_szProgramDir[len]!='\\')
+            len--;
+        CT_szProgramDir[len]=0;
+        strcpy(CT_szLogFile, CT_szFileName);
+        len=strlen(CT_szLogFile);
+        while(CT_szLogFile[len]!='.' and len)
+            len--;
+        if(len)
+            CT_szLogFile[len]=0;
+        strcpy(CT_szAktLogFile, CT_szLogFile);
+        strcpy(CT_szCryptCertFile, CT_szLogFile);
+        strcpy(CT_szRawCertFile, CT_szLogFile);
+        strcpy(CT_szStolenKeysRaw, CT_szLogFile);
+        strcpy(CT_szStolenKeysLog, CT_szLogFile);
+        strcat(CT_szLogFile, "_cert.log");
+        strcat(CT_szAktLogFile, "_cert.akt");
+        strcat(CT_szCryptCertFile, "_cert.bin");
+        strcat(CT_szRawCertFile, "_raw.cert");
+        strcat(CT_szStolenKeysRaw, "_stolen.keys");
+        strcat(CT_szStolenKeysLog, "_stolenkeys.log");
+        SetDlgItemTextA(hwndDlg, IDC_EDT_FILE, CT_szFileName);
+    }
+    return TRUE;
+
     case WM_DROPFILES:
     {
         if(CT_isdebugging)
@@ -97,11 +128,12 @@ BOOL CALLBACK CT_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
                     unsigned int basep=0;
                     unsigned int size=0;
                     unsigned int diff=0;
-                    unsigned int md5=0;
-                    sscanf(b, "%u (Size=%X, Diff=%X, MD5=%08X)", &basep, &size, &diff, &md5);
+                    unsigned int md5_=0;
+                    int total_scanned=sscanf(b, "%u (Size=%X, Diff=%X, MD5=%08X)", &basep, &size, &diff, &md5_);
                     HMENU myMenu=0;
                     myMenu=CreatePopupMenu();
-                    AppendMenu(myMenu, MF_STRING, 4, "&MD5");
+                    if(total_scanned==4)
+                        AppendMenu(myMenu, MF_STRING, 4, "&MD5");
                     AppendMenu(myMenu, MF_STRING, 1, "&BaseP");
                     AppendMenu(myMenu, MF_STRING, 2, "&Size");
                     AppendMenu(myMenu, MF_STRING, 3, "&Diff");
@@ -112,6 +144,8 @@ BOOL CALLBACK CT_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
                     SendMessage(hwndDlg, WM_NULL, 0, 0);
                     switch(MenuItemClicked)
                     {
+                    case 0: //user clicked outside
+                        return TRUE;
                     case 1:
                         sprintf(str, "%u", basep);
                         break;
@@ -122,7 +156,7 @@ BOOL CALLBACK CT_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
                         sprintf(str, "%X", diff);
                         break;
                     case 4:
-                        sprintf(str, "%.8X", md5);
+                        sprintf(str, "%.8X", md5_);
                         break;
                     }
                     //sprintf(str, "%u\n%X\n%X\n%.8X", basep, size, diff, md5);
@@ -147,6 +181,37 @@ BOOL CALLBACK CT_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
                     level+=leveladd;
                     sprintf(str, "%X", level);
                     //MessageBoxA(hwndDlg, str, "Raw Level (HEX)", 0);
+                }
+                else if(strstr(str, "Y")) //Handle Y
+                {
+                    char* b=str+10;
+                    char y[256]="";
+                    unsigned int md5_=0;
+                    if(sscanf(b, "%s (MD5=%08X)", y, &md5_)==2) //has MD5
+                    {
+                        HMENU myMenu=0;
+                        myMenu=CreatePopupMenu();
+                        AppendMenu(myMenu, MF_STRING, 1, "&Y");
+                        AppendMenu(myMenu, MF_STRING, 2, "&MD5");
+                        POINT cursorPos;
+                        GetCursorPos(&cursorPos);
+                        SetForegroundWindow(hwndDlg);
+                        UINT MenuItemClicked=TrackPopupMenu(myMenu, TPM_RETURNCMD|TPM_NONOTIFY, cursorPos.x, cursorPos.y, 0, hwndDlg, 0);
+                        SendMessage(hwndDlg, WM_NULL, 0, 0);
+                        switch(MenuItemClicked)
+                        {
+                        case 0: //user clicked outside
+                            return TRUE;
+                        case 1:
+                            strcpy(str, y);
+                            break;
+                        case 2:
+                            sprintf(str, "%.8X", md5_);
+                            break;
+                        }
+                    }
+                    else
+                        strcpy(str, y);
                 }
                 else if(str[0]==' ' and str[1]==' ' and (str[2]=='+' or str[2]=='-')) //intercepted library
                 {

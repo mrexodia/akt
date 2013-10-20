@@ -471,6 +471,8 @@ void CT_cbVirtualProtect()
         if(end_search and md5_move and md5_move>end_search) //Arma with MD5=0 in SymVerify
             CT_cert_data->zero_md5_symverify=true;
     }
+    else if(CT_cert_data->timestamp<0x49000000) //~v6 (before sometimes it failed)
+        CT_cert_data->zero_md5_symverify=true;
 
     //Encrypted cert data
     unsigned int push400=CT_FindDecryptKey1Pattern(security_code, security_code_size);

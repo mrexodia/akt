@@ -55,6 +55,23 @@ BOOL CALLBACK MSC_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     }
     return TRUE;
 
+    case WM_BROWSE:
+    {
+        if(MSC_isdebugging)
+            return TRUE;
+        strcpy(MSC_szFileName, (const char*)wParam);
+        strcpy(MSC_program_dir, MSC_szFileName);
+        int i=strlen(MSC_program_dir);
+        while(MSC_program_dir[i]!='\\')
+            i--;
+        MSC_program_dir[i]=0;
+        SetDlgItemTextA(hwndDlg, IDC_EDT_FILE, MSC_szFileName);
+        EnableWindow(GetDlgItem(hwndDlg, IDC_CHK_WATERMARK), 0);
+        EnableWindow(GetDlgItem(hwndDlg, IDC_CHK_OVERLAY), 0);
+        EnableWindow(GetDlgItem(hwndDlg, IDC_BTN_DELETESECTIONS), 0);
+    }
+    return TRUE;
+
     case WM_DROPFILES:
     {
         if(MSC_isdebugging)

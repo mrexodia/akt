@@ -40,6 +40,29 @@ BOOL CALLBACK IH_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     }
     return TRUE;
 
+    case WM_BROWSE:
+    {
+        strcpy(g_szFileName, (const char*)wParam);
+        //Retrieve the directory of the file.
+        int i=strlen(g_szFileName)-1;
+        int j=0;
+        while(g_szFileName[i]!='\\')
+        {
+            i--;
+            j++;
+        }
+        strncpy(g_szTargetDir, g_szFileName, strlen(g_szFileName)-j-1);
+
+        //Retrieve stuff.
+        EnableWindow(GetDlgItem(g_HWND, IDC_BTN_INLINE), FALSE);
+        EnableWindow(GetDlgItem(g_HWND, IDC_BTN_COPY), FALSE);
+        SendDlgItemMessageA(g_HWND, IDC_EDT_OEP, EM_SETREADONLY, 0, 0); //Enable change of OEP...
+        DragAcceptFiles(g_HWND, FALSE);
+
+        g_FileIsDll=IH_Debugger(g_szFileName, &g_TargetData, IH_DebugEnd_Callback, IH_ErrorMessageCallback);
+    }
+    return TRUE;
+
     case WM_DROPFILES:
     {
         //Get the dropped file name.
@@ -61,7 +84,7 @@ BOOL CALLBACK IH_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
         SendDlgItemMessageA(g_HWND, IDC_EDT_OEP, EM_SETREADONLY, 0, 0); //Enable change of OEP...
         DragAcceptFiles(g_HWND, FALSE);
 
-        IH_Debugger(g_szFileName, &g_TargetData, IH_DebugEnd_Callback, IH_ErrorMessageCallback);
+        g_FileIsDll=IH_Debugger(g_szFileName, &g_TargetData, IH_DebugEnd_Callback, IH_ErrorMessageCallback);
     }
     return TRUE;
 

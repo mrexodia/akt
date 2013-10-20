@@ -258,12 +258,13 @@ STYLE DS_3DLOOK | DS_CENTER | DS_SHELLFONT | WS_CAPTION | WS_VISIBLE | WS_GROUP 
 CAPTION ""
 FONT 8, "Courier New"
 {
-    CTEXT           "Drag && Drop a file to get started...", IDC_STATIC, 39, 224, 165, 8, WS_TABSTOP | SS_CENTER
+    CTEXT           "Drag && Drop here...", IDC_STATIC, 39, 224, 128, 8, WS_TABSTOP | SS_CENTER
     PUSHBUTTON      "E&xit", IDC_BTN_EXIT, 237, 221, 32, 14
     PUSHBUTTON      "A&bout", IDC_BTN_ABOUT, 271, 221, 32, 14
     AUTOCHECKBOX    "&OnTop", IDC_CHK_ONTOP, 6, 224, 32, 8
     CONTROL         "", IDC_TAB1, WC_TABCONTROL, WS_TABSTOP, 2, 2, 302, 216
     PUSHBUTTON      "&Help", IDC_BTN_HELP, 204, 221, 32, 14
+    PUSHBUTTON      "Bro&wse", IDC_BTN_BROWSE, 169, 221, 33, 14
 }
 
 
@@ -440,8 +441,8 @@ IDI_ICON2          ICON           ".\\16x16.ico"
 //
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 1 VERSIONINFO
-    FILEVERSION     0,2,2,5
-    PRODUCTVERSION  0,2,2,5
+    FILEVERSION     0,2,2,7
+    PRODUCTVERSION  0,2,2,7
     FILEOS          VOS_UNKNOWN
     FILETYPE        VFT_UNKNOWN
     FILESUBTYPE     VFT2_UNKNOWN
@@ -453,7 +454,7 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
         BLOCK "080904E4"
         {
             VALUE "FileDescription", "Armadillo Key Tool\0"
-            VALUE "FileVersion", "0.2.2.5\0"
+            VALUE "FileVersion", "0.2.2.7\0"
             VALUE "LegalCopyright", "Mr. eXoDia"
             VALUE "CompanyName", "Mr. eXoDia\0"
         }

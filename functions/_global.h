@@ -5,6 +5,9 @@
 #define WINVER 0x0501
 #define _WIN32_IE 0x0500
 
+//file browse
+#define WM_BROWSE WM_USER
+
 #include <string>
 #include <vector>
 #include <windows.h>
@@ -58,6 +61,7 @@ void free2(void *address);
 void UpdateHorizontalScrollLen(HWND list, const char* string);
 const char* wpmerror();
 const char* rpmerror();
+bool BrowseFileOpen(HWND owner, const char* filter, const char* defext, char* filename, int filename_size, const char* init_dir);
 
 /**
 Structures
