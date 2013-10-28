@@ -298,36 +298,30 @@ DWORD WINAPI EV_DebugThread(LPVOID lpStartAddress)
     EV_bpvp_set=false;
     DWORD EV_bytes_read=0;
     FILE_STATUS_INFO inFileStatus= {0};
-    if(IsPE32FileValidEx(EV_szFileName, UE_DEPTH_DEEP, &inFileStatus))
+    IsPE32FileValidEx(EV_szFileName, UE_DEPTH_SURFACE, &inFileStatus);
+    HANDLE hFile, fileMap;
+    EV_fdEntryPoint=(long)GetPE32Data(EV_szFileName, 0, UE_OEP);
+    StaticFileLoad(EV_szFileName, UE_ACCESS_READ, false, &hFile, &EV_bytes_read, &fileMap, &EV_va);
+    StaticFileClose(hFile);
+    EV_fdFileIsDll=inFileStatus.FileIsDLL;
+    if(!EV_fdFileIsDll)
     {
-        HANDLE hFile, fileMap;
-        EV_fdEntryPoint=(long)GetPE32Data(EV_szFileName, 0, UE_OEP);
-        StaticFileLoad(EV_szFileName, UE_ACCESS_READ, false, &hFile, &EV_bytes_read, &fileMap, &EV_va);
-        StaticFileClose(hFile);
-        EV_fdFileIsDll=inFileStatus.FileIsDLL;
-        if(!EV_fdFileIsDll)
-        {
-            EV_fdProcessInfo=(LPPROCESS_INFORMATION)InitDebugEx(EV_szFileName, 0, 0, (void*)EV_cbEntry);
-        }
-        else
-        {
-            EV_fdProcessInfo=(LPPROCESS_INFORMATION)InitDLLDebug(EV_szFileName, false, 0, 0, (void*)EV_cbEntry);
-        }
-        if(EV_fdProcessInfo)
-        {
-            DebugLoop();
-            RemoveListDuplicates(EV_shared, IDC_LIST);
-            return 0;
-        }
-        else
-        {
-            MessageBoxA(EV_shared, "Something went wrong during initialization...", "Error!", MB_ICONERROR);
-            return 0;
-        }
+        EV_fdProcessInfo=(LPPROCESS_INFORMATION)InitDebugEx(EV_szFileName, 0, 0, (void*)EV_cbEntry);
     }
     else
     {
-        MessageBoxA(EV_shared, "This is not a valid PE file...", "Error!", MB_ICONERROR);
+        EV_fdProcessInfo=(LPPROCESS_INFORMATION)InitDLLDebug(EV_szFileName, false, 0, 0, (void*)EV_cbEntry);
+    }
+    if(EV_fdProcessInfo)
+    {
+        DebugLoop();
+        RemoveListDuplicates(EV_shared, IDC_LIST);
+        return 0;
+    }
+    else
+    {
+        MessageBoxA(EV_shared, "Something went wrong during initialization...", "Error!", MB_ICONERROR);
+        return 0;
     }
     return 1;
 }

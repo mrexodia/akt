@@ -398,56 +398,50 @@ DWORD WINAPI IH_DebugThread(LPVOID lpStartAddress) //Thread for debugging
 
 
     FILE_STATUS_INFO inFileStatus= {0};
-    if(IsPE32FileValidEx(g_szFileName, UE_DEPTH_DEEP, &inFileStatus))
+    IsPE32FileValidEx(g_szFileName, UE_DEPTH_SURFACE, &inFileStatus);
+    if(inFileStatus.FileIs64Bit)
     {
-        if(inFileStatus.FileIs64Bit)
-        {
-            g_ErrorMessageCallback((char*)"64-bit files are not (yet) supported!", (char*)"Error!");
-            return 0;
-        }
-        HANDLE hFile, fileMap;
-        ULONG_PTR va;
+        g_ErrorMessageCallback((char*)"64-bit files are not (yet) supported!", (char*)"Error!");
+        return 0;
+    }
+    HANDLE hFile, fileMap;
+    ULONG_PTR va;
 
-        //g_fdImageBase=(long)GetPE32Data(g_szFileName, 0, UE_IMAGEBASE);
-        //g_PtrTargetData->ImageBase=g_fdImageBase;
+    //g_fdImageBase=(long)GetPE32Data(g_szFileName, 0, UE_IMAGEBASE);
+    //g_PtrTargetData->ImageBase=g_fdImageBase;
 
-        g_fdEntryPoint=(long)GetPE32Data(g_szFileName, 0, UE_OEP);
+    g_fdEntryPoint=(long)GetPE32Data(g_szFileName, 0, UE_OEP);
 
-        StaticFileLoad(g_szFileName, UE_ACCESS_READ, false, &hFile, &IH_bytes_read, &fileMap, &va);
+    StaticFileLoad(g_szFileName, UE_ACCESS_READ, false, &hFile, &IH_bytes_read, &fileMap, &va);
 
-        g_fdEntrySectionNumber=GetPE32SectionNumberFromVA(va, g_fdEntryPoint+GetPE32Data(g_szFileName, 0, UE_IMAGEBASE));
-        g_PtrTargetData->EntrySectionNumber=g_fdEntrySectionNumber;
+    g_fdEntrySectionNumber=GetPE32SectionNumberFromVA(va, g_fdEntryPoint+GetPE32Data(g_szFileName, 0, UE_IMAGEBASE));
+    g_PtrTargetData->EntrySectionNumber=g_fdEntrySectionNumber;
 
-        StaticFileClose(hFile);
-        g_fdEntrySectionSize= (long)GetPE32Data(g_szFileName, g_fdEntrySectionNumber, UE_SECTIONVIRTUALSIZE);
-        g_fdEntrySectionOffset=(long)GetPE32Data(g_szFileName, g_fdEntrySectionNumber, UE_SECTIONVIRTUALOFFSET);
+    StaticFileClose(hFile);
+    g_fdEntrySectionSize= (long)GetPE32Data(g_szFileName, g_fdEntrySectionNumber, UE_SECTIONVIRTUALSIZE);
+    g_fdEntrySectionOffset=(long)GetPE32Data(g_szFileName, g_fdEntrySectionNumber, UE_SECTIONVIRTUALOFFSET);
 
-        g_bFileIsDll=inFileStatus.FileIsDLL;
+    g_bFileIsDll=inFileStatus.FileIsDLL;
 
 
-        if(g_bFileIsDll==false)
-        {
-            IH_fdProcessInfo=(LPPROCESS_INFORMATION)InitDebugEx(g_szFileName, 0, 0, (void*)IH_cbEntryPoint);
-        }
-        else
-        {
-            IH_fdProcessInfo=(LPPROCESS_INFORMATION)InitDLLDebug(g_szFileName, false, 0, 0, (void*)IH_cbDllEntryPoint);
-        }
-
-        if(IH_fdProcessInfo)
-        {
-            DebugLoop();
-            return 0;
-        }
-        else
-        {
-            g_ErrorMessageCallback((char*)"Something went wrong during initialization...", (char*)"Error!");
-            return 0;
-        }
+    if(g_bFileIsDll==false)
+    {
+        IH_fdProcessInfo=(LPPROCESS_INFORMATION)InitDebugEx(g_szFileName, 0, 0, (void*)IH_cbEntryPoint);
     }
     else
     {
-        g_ErrorMessageCallback((char*)"This is not a valid PE file...", (char*)"Error!");
+        IH_fdProcessInfo=(LPPROCESS_INFORMATION)InitDLLDebug(g_szFileName, false, 0, 0, (void*)IH_cbDllEntryPoint);
+    }
+
+    if(IH_fdProcessInfo)
+    {
+        DebugLoop();
+        return 0;
+    }
+    else
+    {
+        g_ErrorMessageCallback((char*)"Something went wrong during initialization...", (char*)"Error!");
+        return 0;
     }
     return 1;
 }
@@ -465,17 +459,10 @@ bool IH_Debugger(char* szFileName, IH_InlineHelperData_t* ptrTargetData, cbStd E
 
     memset(g_PtrTargetData, 0, sizeof(IH_InlineHelperData_t));
 
-    if(IsPE32FileValidEx(szFileName, UE_DEPTH_DEEP, &fileStatus))
-    {
-        bFileIsDll=fileStatus.FileIsDLL;
-        CreateThread(0, 0, IH_DebugThread, 0, 0, 0);
-        return bFileIsDll;
-    }
-    else
-    {
-        ErrorMessageCallback((char*)"This is not a valid PE file...", (char*)"Error!");
-        return false;
-    }
+    IsPE32FileValidEx(szFileName, UE_DEPTH_SURFACE, &fileStatus);
+    bFileIsDll=fileStatus.FileIsDLL;
+    CreateThread(0, 0, IH_DebugThread, 0, 0, 0);
+    return bFileIsDll;
 }
 
 

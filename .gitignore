@@ -15,6 +15,7 @@ bin/exception_*.log
 *.depend
 Public/
 *.log
+*.bmarks
 bin/cudart*.dll
 bin/brute_sym.dll
 armadillo_analysis_custombuild_download.txt

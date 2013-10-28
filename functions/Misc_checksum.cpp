@@ -144,46 +144,40 @@ DWORD WINAPI MSC_GetSalt(void* lpvoid)
     MSC_fdFileIsDll=false;
     MSC_fdProcessInfo=0;
     FILE_STATUS_INFO inFileStatus= {0};
-    if(IsPE32FileValidEx(MSC_szFileName, UE_DEPTH_DEEP, &inFileStatus))
+    IsPE32FileValidEx(MSC_szFileName, UE_DEPTH_SURFACE, &inFileStatus);
+    if(inFileStatus.FileIs64Bit)
     {
-        if(inFileStatus.FileIs64Bit)
-        {
-            MessageBoxA(MSC_shared, "64-bit files are not (yet) supported!", "Error!", MB_ICONERROR);
-            return 0;
-        }
-        HANDLE hFile, fileMap;
-        ULONG_PTR va;
-        DWORD bytes_read=0;
-        StaticFileLoad(MSC_szFileName, UE_ACCESS_READ, false, &hFile, &bytes_read, &fileMap, &va);
-        if(!IsArmadilloProtected(va))
-        {
-            EnableWindow(btn, 1);
-            MSC_isdebugging=false;
-            MessageBoxA(MSC_shared, "Not armadillo protected...", "Error!", MB_ICONERROR);
-            return 0;
-        }
-        StaticFileClose(hFile);
-        MSC_fdFileIsDll=inFileStatus.FileIsDLL;
-        if(!MSC_fdFileIsDll)
-        {
-            MSC_fdProcessInfo=(LPPROCESS_INFORMATION)InitDebugEx(MSC_szFileName, 0, 0, (void*)MSC_SALT_cbEntry);
-        }
-        else
-        {
-            MSC_fdProcessInfo=(LPPROCESS_INFORMATION)InitDLLDebug(MSC_szFileName, false, 0, 0, (void*)MSC_SALT_cbEntry);
-        }
-        if(MSC_fdProcessInfo)
-        {
-            DebugLoop();
-        }
-        else
-        {
-            MessageBoxA(MSC_shared, "Something went wrong during initialization...", "Error!", MB_ICONERROR);
-        }
+        MessageBoxA(MSC_shared, "64-bit files are not (yet) supported!", "Error!", MB_ICONERROR);
+        return 0;
+    }
+    HANDLE hFile, fileMap;
+    ULONG_PTR va;
+    DWORD bytes_read=0;
+    StaticFileLoad(MSC_szFileName, UE_ACCESS_READ, false, &hFile, &bytes_read, &fileMap, &va);
+    if(!IsArmadilloProtected(va))
+    {
+        EnableWindow(btn, 1);
+        MSC_isdebugging=false;
+        MessageBoxA(MSC_shared, "Not armadillo protected...", "Error!", MB_ICONERROR);
+        return 0;
+    }
+    StaticFileClose(hFile);
+    MSC_fdFileIsDll=inFileStatus.FileIsDLL;
+    if(!MSC_fdFileIsDll)
+    {
+        MSC_fdProcessInfo=(LPPROCESS_INFORMATION)InitDebugEx(MSC_szFileName, 0, 0, (void*)MSC_SALT_cbEntry);
     }
     else
     {
-        MessageBoxA(MSC_shared, "This is not a valid PE file...", "Error!", MB_ICONERROR);
+        MSC_fdProcessInfo=(LPPROCESS_INFORMATION)InitDLLDebug(MSC_szFileName, false, 0, 0, (void*)MSC_SALT_cbEntry);
+    }
+    if(MSC_fdProcessInfo)
+    {
+        DebugLoop();
+    }
+    else
+    {
+        MessageBoxA(MSC_shared, "Something went wrong during initialization...", "Error!", MB_ICONERROR);
     }
     EnableWindow(btn, 1);
     MSC_isdebugging=false;
@@ -506,41 +500,35 @@ DWORD WINAPI MSC_FindChecksum(void* lpvoid)
     MSC_fdFileIsDll=false;
     MSC_fdProcessInfo=0;
     FILE_STATUS_INFO inFileStatus= {0};
-    if(IsPE32FileValidEx(MSC_szFileName, UE_DEPTH_DEEP, &inFileStatus))
+    IsPE32FileValidEx(MSC_szFileName, UE_DEPTH_SURFACE, &inFileStatus);
+    HANDLE hFile, fileMap;
+    ULONG_PTR va;
+    DWORD bytes_read=0;
+    StaticFileLoad(MSC_szFileName, UE_ACCESS_READ, false, &hFile, &bytes_read, &fileMap, &va);
+    if(!IsArmadilloProtected(va))
     {
-        HANDLE hFile, fileMap;
-        ULONG_PTR va;
-        DWORD bytes_read=0;
-        StaticFileLoad(MSC_szFileName, UE_ACCESS_READ, false, &hFile, &bytes_read, &fileMap, &va);
-        if(!IsArmadilloProtected(va))
-        {
-            EnableWindow(btn, 1);
-            MSC_isdebugging=false;
-            MessageBoxA(MSC_shared, "Not armadillo protected...", "Error!", MB_ICONERROR);
-            return 0;
-        }
-        StaticFileClose(hFile);
-        MSC_fdFileIsDll=inFileStatus.FileIsDLL;
-        if(!MSC_fdFileIsDll)
-        {
-            MSC_fdProcessInfo=(LPPROCESS_INFORMATION)InitDebugEx(MSC_szFileName, 0, 0, (void*)MSC_CHK_cbEntry);
-        }
-        else
-        {
-            MSC_fdProcessInfo=(LPPROCESS_INFORMATION)InitDLLDebug(MSC_szFileName, false, 0, 0, (void*)MSC_CHK_cbEntry);
-        }
-        if(MSC_fdProcessInfo)
-        {
-            DebugLoop();
-        }
-        else
-        {
-            MessageBoxA(MSC_shared, "Something went wrong during initialization...", "Error!", MB_ICONERROR);
-        }
+        EnableWindow(btn, 1);
+        MSC_isdebugging=false;
+        MessageBoxA(MSC_shared, "Not armadillo protected...", "Error!", MB_ICONERROR);
+        return 0;
+    }
+    StaticFileClose(hFile);
+    MSC_fdFileIsDll=inFileStatus.FileIsDLL;
+    if(!MSC_fdFileIsDll)
+    {
+        MSC_fdProcessInfo=(LPPROCESS_INFORMATION)InitDebugEx(MSC_szFileName, 0, 0, (void*)MSC_CHK_cbEntry);
     }
     else
     {
-        MessageBoxA(MSC_shared, "This is not a valid PE file...", "Error!", MB_ICONERROR);
+        MSC_fdProcessInfo=(LPPROCESS_INFORMATION)InitDLLDebug(MSC_szFileName, false, 0, 0, (void*)MSC_CHK_cbEntry);
+    }
+    if(MSC_fdProcessInfo)
+    {
+        DebugLoop();
+    }
+    else
+    {
+        MessageBoxA(MSC_shared, "Something went wrong during initialization...", "Error!", MB_ICONERROR);
     }
     EnableWindow(btn, 1);
     MSC_isdebugging=false;

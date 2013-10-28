@@ -180,33 +180,29 @@ void VF_Version(char* szFileName, char* szVersion, cbErrorMessage ErrorMessageCa
     g_fdProcessInfo=0;
     g_ErrorMessageCallback=ErrorMessageCallback;
 
-    if(IsPE32FileValidEx(szFileName, UE_DEPTH_SURFACE, &inFileStatus))
+    IsPE32FileValidEx(szFileName, UE_DEPTH_SURFACE, &inFileStatus);
+    if(inFileStatus.FileIs64Bit)
     {
-        if(inFileStatus.FileIs64Bit)
-        {
-            ErrorMessageCallback((char*)"64-bit files are not (yet) supported!", (char*)"Error!");
-            return;
-        }
-        HANDLE hFile, fileMap;
-        ULONG_PTR va;
-        DWORD bytes_read=0;
-        StaticFileLoad(szFileName, UE_ACCESS_READ, false, &hFile, &bytes_read, &fileMap, &va);
-        if(!IsArmadilloProtected(va))
-        {
-            ErrorMessageCallback((char*)"Not armadillo protected...", (char*)"Error!");
-            return;
-        }
-        StaticFileClose(hFile);
-        g_fdFileIsDll=inFileStatus.FileIsDLL;
-        if(!g_fdFileIsDll)
-            g_fdProcessInfo=(LPPROCESS_INFORMATION)InitDebugEx(szFileName, 0, 0, (void*)cbEntry);
-        else
-            g_fdProcessInfo=(LPPROCESS_INFORMATION)InitDLLDebug(szFileName, false, 0, 0, (void*)cbEntry);
-        if(g_fdProcessInfo)
-            DebugLoop();
-        else
-            ErrorMessageCallback((char*)"Something went wrong during initialization...", (char*)"Error!");
+        ErrorMessageCallback((char*)"64-bit files are not (yet) supported!", (char*)"Error!");
+        return;
     }
+    HANDLE hFile, fileMap;
+    ULONG_PTR va;
+    DWORD bytes_read=0;
+    StaticFileLoad(szFileName, UE_ACCESS_READ, false, &hFile, &bytes_read, &fileMap, &va);
+    if(!IsArmadilloProtected(va))
+    {
+        ErrorMessageCallback((char*)"Not armadillo protected...", (char*)"Error!");
+        return;
+    }
+    StaticFileClose(hFile);
+    g_fdFileIsDll=inFileStatus.FileIsDLL;
+    if(!g_fdFileIsDll)
+        g_fdProcessInfo=(LPPROCESS_INFORMATION)InitDebugEx(szFileName, 0, 0, (void*)cbEntry);
     else
-        ErrorMessageCallback((char*)"This is not a valid PE file...", (char*)"Error!");
+        g_fdProcessInfo=(LPPROCESS_INFORMATION)InitDLLDebug(szFileName, false, 0, 0, (void*)cbEntry);
+    if(g_fdProcessInfo)
+        DebugLoop();
+    else
+        ErrorMessageCallback((char*)"Something went wrong during initialization...", (char*)"Error!");
 }

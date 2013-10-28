@@ -180,47 +180,41 @@ DWORD WINAPI IHD_DebugThread(LPVOID lpStartAddress) //TODO: never used
     g_fdProcessInfo=0;
     DWORD bytes_read=0;
 
-    if(IsPE32FileValidEx(g_szFileName, UE_DEPTH_DEEP, &inFileStatus))
+    IsPE32FileValidEx(g_szFileName, UE_DEPTH_SURFACE, &inFileStatus);
+    if(inFileStatus.FileIs64Bit)
     {
-        if(inFileStatus.FileIs64Bit)
-        {
-            g_ErrorMessageCallback((char*)"64-bit files are not (yet) supported!", (char*)"Error!");
-            return 0;
-        }
-        HANDLE hFile, fileMap;
-        g_fdEntryPoint=(long)GetPE32Data(g_szFileName, 0, UE_OEP);
-        fdSizeOfImage=(long)GetPE32Data(g_szFileName, 0, UE_SIZEOFIMAGE);
-        StaticFileLoad(g_szFileName, UE_ACCESS_READ, false, &hFile, &bytes_read, &fileMap, &IHD_va);
-        g_fdEntrySectionNumber=GetPE32SectionNumberFromVA(IHD_va, g_fdEntryPoint+GetPE32Data(g_szFileName, 0, UE_IMAGEBASE));
-        CloseHandle(hFile);
-        CloseHandle(fileMap);
-        g_fdEntrySectionSize= (long)GetPE32Data(g_szFileName, g_fdEntrySectionNumber, UE_SECTIONVIRTUALSIZE);
-        g_fdEntrySectionRawOffset=GetPE32Data(g_szFileName, g_fdEntrySectionNumber, UE_SECTIONRAWOFFSET);
-        g_fdEntrySectionRawSize=GetPE32Data(g_szFileName, g_fdEntrySectionNumber, UE_SECTIONRAWSIZE);
-        g_fdEntrySectionOffset=(long)GetPE32Data(g_szFileName, g_fdEntrySectionNumber, UE_SECTIONVIRTUALOFFSET);
-        g_fdFileIsDll=inFileStatus.FileIsDLL;
-        if(!g_fdFileIsDll)
-        {
-            g_fdProcessInfo=(LPPROCESS_INFORMATION)InitDebugEx(g_szFileName, 0, 0, (void*)IHD_cbEntry);
-        }
-        else
-        {
-            g_fdProcessInfo=(LPPROCESS_INFORMATION)InitDLLDebug(g_szFileName, false, 0, 0, (void*)IHD_cbEntry);
-        }
-        if(g_fdProcessInfo)
-        {
-            DebugLoop();
-            return 0;
-        }
-        else
-        {
-            g_ErrorMessageCallback((char*)"Something went wrong during initialization...", (char*)"Error!");
-            return 0;
-        }
+        g_ErrorMessageCallback((char*)"64-bit files are not (yet) supported!", (char*)"Error!");
+        return 0;
+    }
+    HANDLE hFile, fileMap;
+    g_fdEntryPoint=(long)GetPE32Data(g_szFileName, 0, UE_OEP);
+    fdSizeOfImage=(long)GetPE32Data(g_szFileName, 0, UE_SIZEOFIMAGE);
+    StaticFileLoad(g_szFileName, UE_ACCESS_READ, false, &hFile, &bytes_read, &fileMap, &IHD_va);
+    g_fdEntrySectionNumber=GetPE32SectionNumberFromVA(IHD_va, g_fdEntryPoint+GetPE32Data(g_szFileName, 0, UE_IMAGEBASE));
+    CloseHandle(hFile);
+    CloseHandle(fileMap);
+    g_fdEntrySectionSize= (long)GetPE32Data(g_szFileName, g_fdEntrySectionNumber, UE_SECTIONVIRTUALSIZE);
+    g_fdEntrySectionRawOffset=GetPE32Data(g_szFileName, g_fdEntrySectionNumber, UE_SECTIONRAWOFFSET);
+    g_fdEntrySectionRawSize=GetPE32Data(g_szFileName, g_fdEntrySectionNumber, UE_SECTIONRAWSIZE);
+    g_fdEntrySectionOffset=(long)GetPE32Data(g_szFileName, g_fdEntrySectionNumber, UE_SECTIONVIRTUALOFFSET);
+    g_fdFileIsDll=inFileStatus.FileIsDLL;
+    if(!g_fdFileIsDll)
+    {
+        g_fdProcessInfo=(LPPROCESS_INFORMATION)InitDebugEx(g_szFileName, 0, 0, (void*)IHD_cbEntry);
     }
     else
     {
-        g_ErrorMessageCallback((char*)"This is not a valid PE file...", (char*)"Error!");
+        g_fdProcessInfo=(LPPROCESS_INFORMATION)InitDLLDebug(g_szFileName, false, 0, 0, (void*)IHD_cbEntry);
+    }
+    if(g_fdProcessInfo)
+    {
+        DebugLoop();
+        return 0;
+    }
+    else
+    {
+        g_ErrorMessageCallback((char*)"Something went wrong during initialization...", (char*)"Error!");
+        return 0;
     }
     return 1;
 }

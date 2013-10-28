@@ -10,11 +10,6 @@
 
 
 
-LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
-LOADERX86          BINARY         "TitanEngine\\LibraryLoader.bin"
-
-
-
 //
 // Dialog resources
 //
@@ -442,7 +437,7 @@ IDI_ICON2          ICON           ".\\16x16.ico"
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 1 VERSIONINFO
     FILEVERSION     0,2,2,7
-    PRODUCTVERSION  0,2,2,7
+    PRODUCTVERSION  0,2,2,8
     FILEOS          VOS_UNKNOWN
     FILETYPE        VFT_UNKNOWN
     FILESUBTYPE     VFT2_UNKNOWN
@@ -454,7 +449,7 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
         BLOCK "080904E4"
         {
             VALUE "FileDescription", "Armadillo Key Tool\0"
-            VALUE "FileVersion", "0.2.2.7\0"
+            VALUE "FileVersion", "0.2.2.8\0"
             VALUE "LegalCopyright", "Mr. eXoDia"
             VALUE "CompanyName", "Mr. eXoDia\0"
         }

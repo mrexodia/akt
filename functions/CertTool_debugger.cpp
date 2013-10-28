@@ -250,7 +250,7 @@ void CT_cbOtherSeeds()
     if(!retn)
     {
         CT_FatalError("Could not find RET");
-            return;
+        return;
     }
 
     unsigned int and_addrs[4]= {0};
@@ -605,42 +605,38 @@ DWORD WINAPI CT_FindCertificates(void* lpvoid)
     InitVariables(program_dir, (CT_DATA*)CT_cert_data, StopDebug, 1, GetParent(CT_shared));
     FILE_STATUS_INFO inFileStatus= {0};
     CT_time1=GetTickCount();
-    if(IsPE32FileValidEx(CT_szFileName, UE_DEPTH_DEEP, &inFileStatus))
+    IsPE32FileValidEx(CT_szFileName, UE_DEPTH_SURFACE, &inFileStatus);
+    if(inFileStatus.FileIs64Bit)
     {
-        if(inFileStatus.FileIs64Bit)
-        {
-            MessageBoxA(CT_shared, "64-bit files are not (yet) supported!", "Error!", MB_ICONERROR);
-            return 0;
-        }
-        HANDLE hFile, fileMap;
-        ULONG_PTR va;
-        DWORD bytes_read=0;
-        StaticFileLoad(CT_szFileName, UE_ACCESS_READ, false, &hFile, &bytes_read, &fileMap, &va);
-        if(!IsArmadilloProtected(va))
-        {
-            InitVariables(program_dir, 0, StopDebug, 0, 0);
-            CT_isdebugging=false;
-            MessageBoxA(CT_shared, "Not armadillo protected...", "Error!", MB_ICONERROR);
-            return 0;
-        }
-        StaticFileClose(hFile);
-        fdFileIsDll=inFileStatus.FileIsDLL;
-        if(!fdFileIsDll)
-            fdProcessInfo=(LPPROCESS_INFORMATION)InitDebugEx(CT_szFileName, 0, 0, (void*)CT_cbEntry);
-        else
-            fdProcessInfo=(LPPROCESS_INFORMATION)InitDLLDebug(CT_szFileName, false, 0, 0, (void*)CT_cbEntry);
-        if(fdProcessInfo)
-        {
-            EnableWindow(GetDlgItem(CT_shared, IDC_BTN_START), 0);
-            DebugLoop();
-            InitVariables(program_dir, 0, StopDebug, 0, 0);
-            CT_ParseCerts();
-        }
-        else
-            MessageBoxA(CT_shared, "Something went wrong during initialization...", "Error!", MB_ICONERROR);
+        MessageBoxA(CT_shared, "64-bit files are not (yet) supported!", "Error!", MB_ICONERROR);
+        return 0;
+    }
+    HANDLE hFile, fileMap;
+    ULONG_PTR va;
+    DWORD bytes_read=0;
+    StaticFileLoad(CT_szFileName, UE_ACCESS_READ, false, &hFile, &bytes_read, &fileMap, &va);
+    if(!IsArmadilloProtected(va))
+    {
+        InitVariables(program_dir, 0, StopDebug, 0, 0);
+        CT_isdebugging=false;
+        MessageBoxA(CT_shared, "Not armadillo protected...", "Error!", MB_ICONERROR);
+        return 0;
+    }
+    StaticFileClose(hFile);
+    fdFileIsDll=inFileStatus.FileIsDLL;
+    if(!fdFileIsDll)
+        fdProcessInfo=(LPPROCESS_INFORMATION)InitDebugEx(CT_szFileName, 0, 0, (void*)CT_cbEntry);
+    else
+        fdProcessInfo=(LPPROCESS_INFORMATION)InitDLLDebug(CT_szFileName, false, 0, 0, (void*)CT_cbEntry);
+    if(fdProcessInfo)
+    {
+        EnableWindow(GetDlgItem(CT_shared, IDC_BTN_START), 0);
+        DebugLoop();
+        InitVariables(program_dir, 0, StopDebug, 0, 0);
+        CT_ParseCerts();
     }
     else
-        MessageBoxA(CT_shared, "This is not a valid PE file...", "Error!", MB_ICONERROR);
+        MessageBoxA(CT_shared, "Something went wrong during initialization...", "Error!", MB_ICONERROR);
     InitVariables(program_dir, 0, StopDebug, 0, 0);
     CT_isdebugging=false;
     return 0;
