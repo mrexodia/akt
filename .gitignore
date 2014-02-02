@@ -17,6 +17,7 @@ Public/
 *.log
 *.bmarks
 bin/cudart*.dll
+bin/Armadillo_KeyTool.exe
 bin/brute_sym.dll
 armadillo_analysis_custombuild_download.txt
 Armadillo_KeyTool.bmarks
