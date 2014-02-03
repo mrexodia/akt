@@ -584,7 +584,7 @@ BOOL CALLBACK MSC_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 UpdateHorizontalScrollLen(list, "");
             //TODO: remove this
             char command[256]="";
-            sprintf(command, "start %s INFO", MSC_szFileName);
+            sprintf(command, "\"%s\" INFO", MSC_szFileName);
             system(command);
         }
         return TRUE;
