@@ -8,7 +8,7 @@ static char g_szTargetDir[256]=""; 		// String for the directory of the debugged
 
 static bool g_FileIsDll=false; 					// Flag for DLL
 
-static char g_codeText[2048]=""; 			// String for the inline asm code
+static char g_codeText[4096]=""; 			// String for the inline asm code
 
 static IH_InlineHelperData_t g_TargetData;
 
