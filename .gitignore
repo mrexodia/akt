@@ -22,3 +22,4 @@ bin/brute_sym.dll
 armadillo_analysis_custombuild_download.txt
 Armadillo_KeyTool.bmarks
 bin/brute_sym_prvt.dll
+*.ini
