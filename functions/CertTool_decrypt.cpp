@@ -20,7 +20,7 @@ unsigned char* CT_GetCryptBytes(unsigned int seed, unsigned int size)
     unsigned char* arry=(unsigned char*)malloc2(size+4);
     memset(arry, 0, size+4);
     for(unsigned int x=0; x<size+4; x++)
-        arry[x]=CT_NextRandomRange(256);
+        arry[x]=(unsigned char)(CT_NextRandomRange(256)&0xFF);
     return arry+4; //Skip first 4 bytes
 }
 

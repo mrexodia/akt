@@ -292,8 +292,8 @@ void IH_cbVirtualProtect() // Callback for VirtualProtect
     DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_APISTART);
     SetAPIBreakPoint((char*)"kernel32.dll", (char*)"OutputDebugStringA", UE_BREAKPOINT, UE_APISTART, (void*)IH_cbOutputDebugStringA);
 
-    long security_addr=0,esp_addr=0,code_size=0;
-    esp_addr=(long)GetContextData(UE_ESP);
+    unsigned int security_addr=0,esp_addr=0,code_size=0;
+    esp_addr=(unsigned int)GetContextData(UE_ESP);
     ReadProcessMemory(IH_fdProcessInfo->hProcess, (const void*)(esp_addr+4), &security_addr, 4, 0);
     ReadProcessMemory(IH_fdProcessInfo->hProcess, (const void*)(esp_addr+8), &code_size, 4, 0);
 

@@ -11,21 +11,21 @@ char FormatTextHex_format[1024]=""; //String for hex format
 
 UINT DetermineRegisterFromText(char* reg_text)
 {
-    if(!strnicmp(reg_text, "edi", 3))
+    if(!_strnicmp(reg_text, "edi", 3))
         return UE_EDI;
-    if(!strnicmp(reg_text, "esi", 3))
+    if(!_strnicmp(reg_text, "esi", 3))
         return UE_ESI;
-    if(!strnicmp(reg_text, "ebx", 3))
+    if(!_strnicmp(reg_text, "ebx", 3))
         return UE_EBX;
-    if(!strnicmp(reg_text, "edx", 3))
+    if(!_strnicmp(reg_text, "edx", 3))
         return UE_EDX;
-    if(!strnicmp(reg_text, "ecx", 3))
+    if(!_strnicmp(reg_text, "ecx", 3))
         return UE_ECX;
-    if(!strnicmp(reg_text, "eax", 3))
+    if(!_strnicmp(reg_text, "eax", 3))
         return UE_EAX;
-    if(!strnicmp(reg_text, "ebp", 3))
+    if(!_strnicmp(reg_text, "ebp", 3))
         return UE_EBP;
-    if(!strnicmp(reg_text, "esp", 3))
+    if(!_strnicmp(reg_text, "esp", 3))
         return UE_ESP;
     return 0;
 }
@@ -567,5 +567,5 @@ bool BrowseFileOpen(HWND owner, const char* filter, const char* defext, char* fi
     ofstruct.lpstrInitialDir=init_dir;
     ofstruct.lpstrDefExt=defext;
     ofstruct.Flags=OFN_EXTENSIONDIFFERENT|OFN_HIDEREADONLY|OFN_NONETWORKBUTTON;
-    return GetOpenFileNameA(&ofstruct);
+    return !!GetOpenFileNameA(&ofstruct);
 }

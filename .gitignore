@@ -23,3 +23,9 @@ armadillo_analysis_custombuild_download.txt
 Armadillo_KeyTool.bmarks
 bin/brute_sym_prvt.dll
 *.ini
+*.suo
+*sdf
+*.opensdf
+ipch/
+Win32/
+*.pdb

@@ -779,7 +779,7 @@ const char* CreateSignedKey(int level, unsigned int symmetric_key, unsigned int 
     keylength=c-keybytes;
 
     //Append keystring
-    if(keystring and keystring[0])
+    if(keystring && keystring[0])
     {
         strcpy(keystr, keystring);
         //keystr[85]=0; //maximum 85 characters...
@@ -994,7 +994,7 @@ unsigned short MakeDate(unsigned int year, unsigned int month, unsigned int day)
     tm.tm_hour=0;
     tm.tm_min=0;
     tm.tm_sec=0;
-    unsigned long seconds=mktime(&tm);
+    unsigned long seconds=(unsigned long)mktime(&tm);
     if(seconds==(unsigned long)(-1))
         return (unsigned short)(-1);
 

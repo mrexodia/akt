@@ -140,7 +140,7 @@ static void cbVirtualProtect()
             len=Disasm(&MyDisasm);
             if(len!=UNKNOWN_OPCODE)
             {
-                if(!strncasecmp(MyDisasm.Instruction.Mnemonic, "call", 4))
+                if(!_strnicmp(MyDisasm.Instruction.Mnemonic, "call", 4))
                     call_count++;
                 if(call_count==2)
                     break;

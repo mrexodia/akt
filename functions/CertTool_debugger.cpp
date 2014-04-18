@@ -602,7 +602,6 @@ DWORD WINAPI CT_FindCertificates(void* lpvoid)
     }
     CT_cert_data=(CERT_DATA*)malloc2(sizeof(CERT_DATA));
     memset(CT_cert_data, 0, sizeof(CERT_DATA));
-    InitVariables(program_dir, (CT_DATA*)CT_cert_data, StopDebug, 1, GetParent(CT_shared));
     FILE_STATUS_INFO inFileStatus= {0};
     CT_time1=GetTickCount();
     IsPE32FileValidEx(CT_szFileName, UE_DEPTH_SURFACE, &inFileStatus);
@@ -617,7 +616,6 @@ DWORD WINAPI CT_FindCertificates(void* lpvoid)
     StaticFileLoad(CT_szFileName, UE_ACCESS_READ, false, &hFile, &bytes_read, &fileMap, &va);
     if(!IsArmadilloProtected(va))
     {
-        InitVariables(program_dir, 0, StopDebug, 0, 0);
         CT_isdebugging=false;
         MessageBoxA(CT_shared, "Not armadillo protected...", "Error!", MB_ICONERROR);
         return 0;
@@ -632,12 +630,10 @@ DWORD WINAPI CT_FindCertificates(void* lpvoid)
     {
         EnableWindow(GetDlgItem(CT_shared, IDC_BTN_START), 0);
         DebugLoop();
-        InitVariables(program_dir, 0, StopDebug, 0, 0);
         CT_ParseCerts();
     }
     else
         MessageBoxA(CT_shared, "Something went wrong during initialization...", "Error!", MB_ICONERROR);
-    InitVariables(program_dir, 0, StopDebug, 0, 0);
     CT_isdebugging=false;
     return 0;
 }

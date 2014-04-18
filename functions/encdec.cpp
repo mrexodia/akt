@@ -36,7 +36,7 @@ BOOL CALLBACK DlgEncDec(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             unsigned char keybytes[512]= {0};
             if(GetDlgItemTextA(hwndDlg, IDC_EDT_ENCODED, serial, 512))
             {
-                int keylength=DecodeShortV3(serial, IsDlgButtonChecked(hwndDlg, IDC_CHK_LVL10_DECODE), keybytes, 512);
+                int keylength=DecodeShortV3(serial, !!IsDlgButtonChecked(hwndDlg, IDC_CHK_LVL10_DECODE), keybytes, 512);
                 ByteArrayToString(keybytes, keybytes_string, keylength, 1024);
                 SetDlgItemTextA(hwndDlg, IDC_EDT_DECODED, keybytes_string);
                 SetFocus(GetDlgItem(hwndDlg, IDC_EDT_DECODED));
@@ -52,7 +52,7 @@ BOOL CALLBACK DlgEncDec(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             if(GetDlgItemTextA(hwndDlg, IDC_EDT_DECODED, keybytes_string, 1024))
             {
                 int keylength=StringToByteArray(keybytes_string, keybytes, 512);
-                strcpy(serial, EncodeShortV3(keybytes, keylength, IsDlgButtonChecked(hwndDlg, IDC_CHK_LVL10_ENCODE)));
+                strcpy(serial, EncodeShortV3(keybytes, keylength, !!IsDlgButtonChecked(hwndDlg, IDC_CHK_LVL10_ENCODE)));
                 SetDlgItemTextA(hwndDlg, IDC_EDT_ENCODED, serial);
                 SetFocus(GetDlgItem(hwndDlg, IDC_EDT_ENCODED));
             }

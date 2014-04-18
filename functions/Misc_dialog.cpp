@@ -222,7 +222,7 @@ BOOL CALLBACK MSC_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             {
                 int len=strlen(MSC_szFileName);
                 char* ext=MSC_szFileName+(len-3);
-                if(!strcasecmp(ext, "bin"))
+                if(!_stricmp(ext, "bin"))
                     AppendMenuA(myMenu, MF_STRING, 2, "&Use Selected File...");
             }
 
@@ -260,7 +260,7 @@ BOOL CALLBACK MSC_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
         case IDC_CHK_CHECKALLMD5: //VerifySym
         {
-            MSC_VR_check_all_md5=IsDlgButtonChecked(hwndDlg, IDC_CHK_CHECKALLMD5);
+            MSC_VR_check_all_md5=!!IsDlgButtonChecked(hwndDlg, IDC_CHK_CHECKALLMD5);
             bool enable=true;
             if(MSC_VR_check_all_md5)
                 enable=false;
@@ -287,7 +287,7 @@ BOOL CALLBACK MSC_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             {
                 int len=strlen(MSC_szFileName);
                 char* ext=MSC_szFileName+(len-3);
-                if(!strcasecmp(ext, "txt"))
+                if(!_stricmp(ext, "txt"))
                     AppendMenuA(myMenu, MF_STRING, 2, "&Use Selected File...");
             }
 
@@ -500,7 +500,7 @@ BOOL CALLBACK MSC_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 if(MessageBoxA(hwndDlg, "Could not create backup, continue?", "Question", MB_ICONQUESTION|MB_YESNO)==IDNO)
                     return TRUE;
 
-            bool removedwatermark=IsDlgButtonChecked(hwndDlg, IDC_CHK_WATERMARK);
+            bool removedwatermark=!!IsDlgButtonChecked(hwndDlg, IDC_CHK_WATERMARK);
             if(removedwatermark)
             {
                 if(!MSC_SD_RemoveWatermark(hwndDlg))

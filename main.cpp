@@ -13,7 +13,7 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
         char rnd_title[256]="";
         WORD rnd_word[2]= {0};
-        rnd_word[0]=GetTickCount();
+        rnd_word[0]=(GetTickCount()&0xFFFF);
         sprintf(rnd_title, "[%.04X] %s", rnd_word[0]^rnd_word[1], caption);
         SetWindowTextA(hwndDlg, rnd_title);
         SendMessageA(hwndDlg, WM_SETICON, ICON_BIG, (LPARAM)LoadIconA(hInst, MAKEINTRESOURCE(IDI_ICON1)));
@@ -51,7 +51,7 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
         case IDC_CHK_ONTOP:
         {
             NoFocus();
-            start_ontop=IsDlgButtonChecked(hwndDlg, LOWORD(wParam));
+            start_ontop=!!IsDlgButtonChecked(hwndDlg, LOWORD(wParam));
             if(start_ontop)
                 SetWindowPos(hwndDlg, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE|SWP_SHOWWINDOW);
             else

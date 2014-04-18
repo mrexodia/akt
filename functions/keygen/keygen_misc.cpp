@@ -8,7 +8,7 @@
 
 void AddLogMessage(HWND log, const char* m, bool first)
 {
-    if(!log or !m or !m[0])
+    if(!log || !m || !m[0])
         return;
 
     char old_log[4096]="";
@@ -106,7 +106,7 @@ void NoTimeZoneStuff(void) //TODO: never used
     if(firstrun)
     {
         _timezone=0;
-        putenv("TZ=GMT0");
+        _putenv("TZ=GMT0");
         firstrun=0;
     }
 }

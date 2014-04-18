@@ -1,4 +1,0 @@
-EXPORTS
-    AddExceptionHandler @1
-    InitVariables @2
-    RemoveExceptionHandler @3

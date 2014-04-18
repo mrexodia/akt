@@ -15,10 +15,10 @@
 					<Add option="-s" />
 					<Add library=".\exception\libexception.a" />
 					<Add library=".\TitanEngine\TitanEngine_x86.a" />
+					<Add library=".\BeaEngine\libBeaEngine.a" />
 					<Add library="libimagehlp.a" />
 					<Add library="libpsapi.a" />
 					<Add library="libcomdlg32.a" />
-					<Add library=".\BeaEngine\BeaEngine.lib" />
 				</Linker>
 			</Target>
 		</Build>
@@ -34,7 +34,6 @@
 		</Linker>
 		<Unit filename="BeaEngine/BeaEngine.h" />
 		<Unit filename="TitanEngine/TitanEngine.h" />
-		<Unit filename="exception/akt_exception.h" />
 		<Unit filename="functions/CertTool_brute.cpp" />
 		<Unit filename="functions/CertTool_brute.h" />
 		<Unit filename="functions/CertTool_debugger.cpp" />

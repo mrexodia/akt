@@ -153,7 +153,7 @@ BOOL CALLBACK VF_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
         case IDC_CHK_LOG:
         {
             NoFocus();
-            log_version=IsDlgButtonChecked(hwndDlg, LOWORD(wParam));
+            log_version=!!IsDlgButtonChecked(hwndDlg, LOWORD(wParam));
         }
         return TRUE;
 

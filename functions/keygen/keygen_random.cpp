@@ -22,9 +22,9 @@ unsigned long GetRandomSeed(void)
     return 1000;
 #else
 #ifdef USECLOCKTICKS
-    return time(0)+clock();
+    return (unsigned long)time(0)+clock();
 #else
-    return time(0);
+    return (unsigned long)time(0);
 #endif
 #endif
 }

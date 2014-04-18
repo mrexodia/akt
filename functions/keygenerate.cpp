@@ -219,7 +219,7 @@ BOOL CALLBACK KG_DlgKeyGenerate(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM l
             for(int i=0; i<len; i++)
                 if(y[i]==',')
                     comma_count++;
-            bool baboon=IsDlgButtonChecked(hwndDlg, IDC_CHK_BABOON);
+            bool baboon=!!IsDlgButtonChecked(hwndDlg, IDC_CHK_BABOON);
             if(keygenerate_level==29 and comma_count!=2 and !baboon)
             {
                 AddLogMessage(GetDlgItem(hwndDlg, IDC_EDT_ADVLOG), "Invalid ECDSA Public format...\nUse: ", true);
@@ -258,10 +258,8 @@ BOOL CALLBACK KG_DlgKeyGenerate(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM l
                 SetDlgItemInt(hwndDlg, IDC_EDT_OTHER3, other3, 0);
                 SetDlgItemInt(hwndDlg, IDC_EDT_OTHER4, other4, 0);
             }
-            InitVariables(program_dir, 0, 0, 1, hwndDlg);
             SetDlgItemTextA(hwndDlg, IDC_EDT_SERIAL, CreateSignedKey(keygenerate_level, sy, keygenerate_sym_xorval, pvt, y, keystring, date, name, hw, other0, other1, other2, other3, other4, baboon, GetDlgItem(hwndDlg, IDC_EDT_ADVLOG)));
             SendMessageA(GetDlgItem(hwndDlg, IDC_EDT_ADVLOG), WM_VSCROLL, SB_BOTTOM, 0);
-            InitVariables(program_dir, 0, 0, 0, 0);
         }
         return TRUE;
 

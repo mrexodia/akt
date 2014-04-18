@@ -13,6 +13,20 @@
 
 // Global.Constant.Structure.Declaration:
 // Engine.External:
+#define UE_STRUCT_PE32STRUCT 1
+#define UE_STRUCT_PE64STRUCT 2
+#define UE_STRUCT_PESTRUCT 3
+#define UE_STRUCT_IMPORTENUMDATA 4
+#define UE_STRUCT_THREAD_ITEM_DATA 5
+#define UE_STRUCT_LIBRARY_ITEM_DATA 6
+#define UE_STRUCT_LIBRARY_ITEM_DATAW 7
+#define UE_STRUCT_PROCESS_ITEM_DATA 8
+#define UE_STRUCT_HANDLERARRAY 9
+#define UE_STRUCT_PLUGININFORMATION 10
+#define UE_STRUCT_HOOK_ENTRY 11
+#define UE_STRUCT_FILE_STATUS_INFO 12
+#define UE_STRUCT_FILE_FIX_INFO 13
+
 #define UE_ACCESS_READ 0
 #define UE_ACCESS_WRITE 1
 #define UE_ACCESS_ALL 2
@@ -23,6 +37,7 @@
 #define UE_PLUGIN_CALL_REASON_PREDEBUG 1
 #define UE_PLUGIN_CALL_REASON_EXCEPTION 2
 #define UE_PLUGIN_CALL_REASON_POSTDEBUG 3
+#define UE_PLUGIN_CALL_REASON_UNHANDLEDEXCEPTION 4
 
 #define TEE_HOOK_NRM_JUMP 1
 #define TEE_HOOK_NRM_CALL 3
@@ -87,12 +102,17 @@
 #define UE_SUBSYSTEM 20
 #define UE_CHARACTERISTICS 21
 #define UE_NUMBEROFRVAANDSIZES 22
-#define UE_SECTIONNAME 23
-#define UE_SECTIONVIRTUALOFFSET 24
-#define UE_SECTIONVIRTUALSIZE 25
-#define UE_SECTIONRAWOFFSET 26
-#define UE_SECTIONRAWSIZE 27
-#define UE_SECTIONFLAGS 28
+#define UE_BASEOFCODE 23
+#define UE_BASEOFDATA 24
+//leaving some enum space here for future additions
+#define UE_SECTIONNAME 40
+#define UE_SECTIONVIRTUALOFFSET 41
+#define UE_SECTIONVIRTUALSIZE 42
+#define UE_SECTIONRAWOFFSET 43
+#define UE_SECTIONRAWSIZE 44
+#define UE_SECTIONFLAGS 45
+
+#define UE_VANOTFOUND = -2;
 
 #define UE_CH_BREAKPOINT 1
 #define UE_CH_SINGLESTEP 2
@@ -118,6 +138,7 @@
 #define UE_CH_ALLEVENTS 22
 #define UE_CH_SYSTEMBREAKPOINT 23
 #define UE_CH_UNHANDLEDEXCEPTION 24
+#define UE_CH_RIPEVENT 25
 
 #define UE_OPTION_HANDLER_RETURN_HANDLECOUNT 1
 #define UE_OPTION_HANDLER_RETURN_ACCESS 2
@@ -183,21 +204,6 @@
 #define UE_PARAMETER_STRING 8
 #define UE_PARAMETER_UNICODE 9
 
-#define UE_CMP_NOCONDITION 0
-#define UE_CMP_EQUAL 1
-#define UE_CMP_NOTEQUAL 2
-#define UE_CMP_GREATER 3
-#define UE_CMP_GREATEROREQUAL 4
-#define UE_CMP_LOWER 5
-#define UE_CMP_LOWEROREQUAL 6
-#define UE_CMP_REG_EQUAL 7
-#define UE_CMP_REG_NOTEQUAL 8
-#define UE_CMP_REG_GREATER 9
-#define UE_CMP_REG_GREATEROREQUAL 10
-#define UE_CMP_REG_LOWER 11
-#define UE_CMP_REG_LOWEROREQUAL 12
-#define UE_CMP_ALWAYSFALSE 13
-
 #define UE_EAX 1
 #define UE_EBX 2
 #define UE_ECX 3
@@ -251,6 +257,8 @@ typedef struct
     DWORD PE32Offset;
     DWORD ImageBase;
     DWORD OriginalEntryPoint;
+    DWORD BaseOfCode;
+    DWORD BaseOfData;
     DWORD NtSizeOfImage;
     DWORD NtSizeOfHeaders;
     WORD SizeOfOptionalHeaders;
@@ -279,6 +287,8 @@ typedef struct
     DWORD PE64Offset;
     DWORD64 ImageBase;
     DWORD OriginalEntryPoint;
+    DWORD BaseOfCode;
+    DWORD BaseOfData;
     DWORD NtSizeOfImage;
     DWORD NtSizeOfHeaders;
     WORD SizeOfOptionalHeaders;
@@ -325,6 +335,13 @@ typedef struct
     DWORD dwThreadId;
     void* ThreadStartAddress;
     void* ThreadLocalBase;
+    void* TebAddress;
+    ULONG WaitTime;
+    LONG Priority;
+    LONG BasePriority;
+    ULONG ContextSwitches;
+    ULONG ThreadState;
+    ULONG WaitReason;
 } THREAD_ITEM_DATA, *PTHREAD_ITEM_DATA;
 
 typedef struct
@@ -420,8 +437,8 @@ typedef struct HOOK_ENTRY
 #define UE_FIELD_BROKEN_NON_CRITICAL 2
 #define UE_FIELD_BROKEN_FIXABLE_FOR_STATIC_USE 3
 #define UE_FIELD_BROKEN_BUT_CAN_BE_EMULATED 4
-#define UE_FILED_FIXABLE_NON_CRITICAL 5
-#define UE_FILED_FIXABLE_CRITICAL 6
+#define UE_FIELD_FIXABLE_NON_CRITICAL 5
+#define UE_FIELD_FIXABLE_CRITICAL 6
 #define UE_FIELD_NOT_PRESET 7
 #define UE_FIELD_NOT_PRESET_WARNING 8
 
@@ -555,9 +572,9 @@ __declspec(dllexport) bool TITCALL DeleteLastSection(char* szFileName);
 __declspec(dllexport) bool TITCALL DeleteLastSectionW(wchar_t* szFileName);
 __declspec(dllexport) bool TITCALL DeleteLastSectionEx(char* szFileName, DWORD NumberOfSections);
 __declspec(dllexport) bool TITCALL DeleteLastSectionExW(wchar_t* szFileName, DWORD NumberOfSections);
-__declspec(dllexport) long long TITCALL GetPE32DataFromMappedFile(ULONG_PTR FileMapVA, DWORD WhichSection, DWORD WhichData);
-__declspec(dllexport) long long TITCALL GetPE32Data(char* szFileName, DWORD WhichSection, DWORD WhichData);
-__declspec(dllexport) long long TITCALL GetPE32DataW(wchar_t* szFileName, DWORD WhichSection, DWORD WhichData);
+__declspec(dllexport) ULONG_PTR TITCALL GetPE32DataFromMappedFile(ULONG_PTR FileMapVA, DWORD WhichSection, DWORD WhichData);
+__declspec(dllexport) ULONG_PTR TITCALL GetPE32Data(char* szFileName, DWORD WhichSection, DWORD WhichData);
+__declspec(dllexport) ULONG_PTR TITCALL GetPE32DataW(wchar_t* szFileName, DWORD WhichSection, DWORD WhichData);
 __declspec(dllexport) bool TITCALL GetPE32DataFromMappedFileEx(ULONG_PTR FileMapVA, LPVOID DataStorage);
 __declspec(dllexport) bool TITCALL GetPE32DataEx(char* szFileName, LPVOID DataStorage);
 __declspec(dllexport) bool TITCALL GetPE32DataExW(wchar_t* szFileName, LPVOID DataStorage);
@@ -568,10 +585,12 @@ __declspec(dllexport) bool TITCALL SetPE32DataForMappedFileEx(ULONG_PTR FileMapV
 __declspec(dllexport) bool TITCALL SetPE32DataEx(char* szFileName, LPVOID DataStorage);
 __declspec(dllexport) bool TITCALL SetPE32DataExW(wchar_t* szFileName, LPVOID DataStorage);
 __declspec(dllexport) long TITCALL GetPE32SectionNumberFromVA(ULONG_PTR FileMapVA, ULONG_PTR AddressToConvert);
-__declspec(dllexport) long long TITCALL ConvertVAtoFileOffset(ULONG_PTR FileMapVA, ULONG_PTR AddressToConvert, bool ReturnType);
-__declspec(dllexport) long long TITCALL ConvertVAtoFileOffsetEx(ULONG_PTR FileMapVA, DWORD FileSize, ULONG_PTR ImageBase, ULONG_PTR AddressToConvert, bool AddressIsRVA, bool ReturnType);
-__declspec(dllexport) long long TITCALL ConvertFileOffsetToVA(ULONG_PTR FileMapVA, ULONG_PTR AddressToConvert, bool ReturnType);
-__declspec(dllexport) long long TITCALL ConvertFileOffsetToVAEx(ULONG_PTR FileMapVA, DWORD FileSize, ULONG_PTR ImageBase, ULONG_PTR AddressToConvert, bool ReturnType);
+__declspec(dllexport) ULONG_PTR TITCALL ConvertVAtoFileOffset(ULONG_PTR FileMapVA, ULONG_PTR AddressToConvert, bool ReturnType);
+__declspec(dllexport) ULONG_PTR TITCALL ConvertVAtoFileOffsetEx(ULONG_PTR FileMapVA, DWORD FileSize, ULONG_PTR ImageBase, ULONG_PTR AddressToConvert, bool AddressIsRVA, bool ReturnType);
+__declspec(dllexport) ULONG_PTR TITCALL ConvertFileOffsetToVA(ULONG_PTR FileMapVA, ULONG_PTR AddressToConvert, bool ReturnType);
+__declspec(dllexport) ULONG_PTR TITCALL ConvertFileOffsetToVAEx(ULONG_PTR FileMapVA, DWORD FileSize, ULONG_PTR ImageBase, ULONG_PTR AddressToConvert, bool ReturnType);
+__declspec(dllexport) bool TITCALL MemoryReadSafe(HANDLE hProcess, LPVOID lpBaseAddress, LPVOID lpBuffer, SIZE_T nSize, SIZE_T * lpNumberOfBytesRead);
+__declspec(dllexport) bool TITCALL MemoryWriteSafe(HANDLE hProcess, LPVOID lpBaseAddress, LPCVOID lpBuffer, SIZE_T nSize, SIZE_T * lpNumberOfBytesWritten);
 // TitanEngine.Realigner.functions:
 __declspec(dllexport) bool TITCALL FixHeaderCheckSum(char* szFileName);
 __declspec(dllexport) bool TITCALL FixHeaderCheckSumW(wchar_t* szFileName);
@@ -588,6 +607,9 @@ __declspec(dllexport) bool TITCALL IsFileDLL(char* szFileName, ULONG_PTR FileMap
 __declspec(dllexport) bool TITCALL IsFileDLLW(wchar_t* szFileName, ULONG_PTR FileMapVA);
 // TitanEngine.Hider.functions:
 __declspec(dllexport) void* TITCALL GetPEBLocation(HANDLE hProcess);
+__declspec(dllexport) void* TITCALL GetPEBLocation64(HANDLE hProcess);
+__declspec(dllexport) void* TITCALL GetTEBLocation(HANDLE hThread);
+__declspec(dllexport) void* TITCALL GetTEBLocation64(HANDLE hThread);
 __declspec(dllexport) bool TITCALL HideDebugger(HANDLE hProcess, DWORD PatchAPILevel);
 __declspec(dllexport) bool TITCALL UnHideDebugger(HANDLE hProcess, DWORD PatchAPILevel);
 // TitanEngine.Relocater.functions:
@@ -610,8 +632,8 @@ __declspec(dllexport) bool TITCALL RelocaterRelocateMemoryBlock(ULONG_PTR FileMa
 __declspec(dllexport) bool TITCALL RelocaterWipeRelocationTable(char* szFileName);
 __declspec(dllexport) bool TITCALL RelocaterWipeRelocationTableW(wchar_t* szFileName);
 // TitanEngine.Resourcer.functions:
-__declspec(dllexport) long long TITCALL ResourcerLoadFileForResourceUse(char* szFileName);
-__declspec(dllexport) long long TITCALL ResourcerLoadFileForResourceUseW(wchar_t* szFileName);
+__declspec(dllexport) ULONG_PTR TITCALL ResourcerLoadFileForResourceUse(char* szFileName);
+__declspec(dllexport) ULONG_PTR TITCALL ResourcerLoadFileForResourceUseW(wchar_t* szFileName);
 __declspec(dllexport) bool TITCALL ResourcerFreeLoadedFile(LPVOID LoadedFileBase);
 __declspec(dllexport) bool TITCALL ResourcerExtractResourceFromFileEx(ULONG_PTR FileMapVA, char* szResourceType, char* szResourceName, char* szExtractedFileName);
 __declspec(dllexport) bool TITCALL ResourcerExtractResourceFromFile(char* szFileName, char* szResourceType, char* szResourceName, char* szExtractedFileName);
@@ -633,17 +655,16 @@ __declspec(dllexport) bool TITCALL ThreaderPauseAllThreads(bool LeaveMainRunning
 __declspec(dllexport) bool TITCALL ThreaderResumeAllThreads(bool LeaveMainPaused);
 __declspec(dllexport) bool TITCALL ThreaderPauseProcess();
 __declspec(dllexport) bool TITCALL ThreaderResumeProcess();
-__declspec(dllexport) long long TITCALL ThreaderCreateRemoteThread(ULONG_PTR ThreadStartAddress, bool AutoCloseTheHandle, LPVOID ThreadPassParameter, LPDWORD ThreadId);
+__declspec(dllexport) ULONG_PTR TITCALL ThreaderCreateRemoteThread(ULONG_PTR ThreadStartAddress, bool AutoCloseTheHandle, LPVOID ThreadPassParameter, LPDWORD ThreadId);
 __declspec(dllexport) bool TITCALL ThreaderInjectAndExecuteCode(LPVOID InjectCode, DWORD StartDelta, DWORD InjectSize);
-__declspec(dllexport) long long TITCALL ThreaderCreateRemoteThreadEx(HANDLE hProcess, ULONG_PTR ThreadStartAddress, bool AutoCloseTheHandle, LPVOID ThreadPassParameter, LPDWORD ThreadId);
+__declspec(dllexport) ULONG_PTR TITCALL ThreaderCreateRemoteThreadEx(HANDLE hProcess, ULONG_PTR ThreadStartAddress, bool AutoCloseTheHandle, LPVOID ThreadPassParameter, LPDWORD ThreadId);
 __declspec(dllexport) bool TITCALL ThreaderInjectAndExecuteCodeEx(HANDLE hProcess, LPVOID InjectCode, DWORD StartDelta, DWORD InjectSize);
 __declspec(dllexport) void TITCALL ThreaderSetCallBackForNextExitThreadEvent(LPVOID exitThreadCallBack);
 __declspec(dllexport) bool TITCALL ThreaderIsThreadStillRunning(HANDLE hThread);
 __declspec(dllexport) bool TITCALL ThreaderIsThreadActive(HANDLE hThread);
 __declspec(dllexport) bool TITCALL ThreaderIsAnyThreadActive();
 __declspec(dllexport) bool TITCALL ThreaderExecuteOnlyInjectedThreads();
-__declspec(dllexport) long long TITCALL ThreaderGetOpenHandleForThread(DWORD ThreadId);
-__declspec(dllexport) void* TITCALL ThreaderGetThreadData();
+__declspec(dllexport) ULONG_PTR TITCALL ThreaderGetOpenHandleForThread(DWORD ThreadId);
 __declspec(dllexport) bool TITCALL ThreaderIsExceptionInMainThread();
 // TitanEngine.Debugger.functions:
 __declspec(dllexport) void* TITCALL StaticDisassembleEx(ULONG_PTR DisassmStart, LPVOID DisassmAddress);
@@ -665,18 +686,17 @@ __declspec(dllexport) bool TITCALL IsBPXEnabled(ULONG_PTR bpxAddress);
 __declspec(dllexport) bool TITCALL EnableBPX(ULONG_PTR bpxAddress);
 __declspec(dllexport) bool TITCALL DisableBPX(ULONG_PTR bpxAddress);
 __declspec(dllexport) bool TITCALL SetBPX(ULONG_PTR bpxAddress, DWORD bpxType, LPVOID bpxCallBack);
-__declspec(dllexport) bool TITCALL SetBPXEx(ULONG_PTR bpxAddress, DWORD bpxType, DWORD NumberOfExecution, DWORD CmpRegister, DWORD CmpCondition, ULONG_PTR CmpValue, LPVOID bpxCallBack, LPVOID bpxCompareCallBack, LPVOID bpxRemoveCallBack);
 __declspec(dllexport) bool TITCALL DeleteBPX(ULONG_PTR bpxAddress);
 __declspec(dllexport) bool TITCALL SafeDeleteBPX(ULONG_PTR bpxAddress);
-__declspec(dllexport) bool TITCALL SetAPIBreakPoint(char* szDLLName, char* szAPIName, DWORD bpxType, DWORD bpxPlace, LPVOID bpxCallBack);
-__declspec(dllexport) bool TITCALL DeleteAPIBreakPoint(char* szDLLName, char* szAPIName, DWORD bpxPlace);
-__declspec(dllexport) bool TITCALL SafeDeleteAPIBreakPoint(char* szDLLName, char* szAPIName, DWORD bpxPlace);
-__declspec(dllexport) bool TITCALL SetMemoryBPX(ULONG_PTR MemoryStart, DWORD SizeOfMemory, LPVOID bpxCallBack);
-__declspec(dllexport) bool TITCALL SetMemoryBPXEx(ULONG_PTR MemoryStart, DWORD SizeOfMemory, DWORD BreakPointType, bool RestoreOnHit, LPVOID bpxCallBack);
-__declspec(dllexport) bool TITCALL RemoveMemoryBPX(ULONG_PTR MemoryStart, DWORD SizeOfMemory);
+__declspec(dllexport) bool TITCALL SetAPIBreakPoint(const char* szDLLName, const char* szAPIName, DWORD bpxType, DWORD bpxPlace, LPVOID bpxCallBack);
+__declspec(dllexport) bool TITCALL DeleteAPIBreakPoint(const char* szDLLName, const char* szAPIName, DWORD bpxPlace);
+__declspec(dllexport) bool TITCALL SafeDeleteAPIBreakPoint(const char* szDLLName, const char* szAPIName, DWORD bpxPlace);
+__declspec(dllexport) bool TITCALL SetMemoryBPX(ULONG_PTR MemoryStart, SIZE_T SizeOfMemory, LPVOID bpxCallBack);
+__declspec(dllexport) bool TITCALL SetMemoryBPXEx(ULONG_PTR MemoryStart, SIZE_T SizeOfMemory, DWORD BreakPointType, bool RestoreOnHit, LPVOID bpxCallBack);
+__declspec(dllexport) bool TITCALL RemoveMemoryBPX(ULONG_PTR MemoryStart, SIZE_T SizeOfMemory);
 __declspec(dllexport) bool TITCALL GetContextFPUDataEx(HANDLE hActiveThread, void* FPUSaveArea);
-__declspec(dllexport) long long TITCALL GetContextDataEx(HANDLE hActiveThread, DWORD IndexOfRegister);
-__declspec(dllexport) long long TITCALL GetContextData(DWORD IndexOfRegister);
+__declspec(dllexport) ULONG_PTR TITCALL GetContextDataEx(HANDLE hActiveThread, DWORD IndexOfRegister);
+__declspec(dllexport) ULONG_PTR TITCALL GetContextData(DWORD IndexOfRegister);
 __declspec(dllexport) bool TITCALL SetContextFPUDataEx(HANDLE hActiveThread, void* FPUSaveArea);
 __declspec(dllexport) bool TITCALL SetContextDataEx(HANDLE hActiveThread, DWORD IndexOfRegister, ULONG_PTR NewRegisterValue);
 __declspec(dllexport) bool TITCALL SetContextData(DWORD IndexOfRegister, ULONG_PTR NewRegisterValue);
@@ -684,8 +704,8 @@ __declspec(dllexport) void TITCALL ClearExceptionNumber();
 __declspec(dllexport) long TITCALL CurrentExceptionNumber();
 __declspec(dllexport) bool TITCALL MatchPatternEx(HANDLE hProcess, void* MemoryToCheck, int SizeOfMemoryToCheck, void* PatternToMatch, int SizeOfPatternToMatch, PBYTE WildCard);
 __declspec(dllexport) bool TITCALL MatchPattern(void* MemoryToCheck, int SizeOfMemoryToCheck, void* PatternToMatch, int SizeOfPatternToMatch, PBYTE WildCard);
-__declspec(dllexport) long long TITCALL FindEx(HANDLE hProcess, LPVOID MemoryStart, DWORD MemorySize, LPVOID SearchPattern, DWORD PatternSize, LPBYTE WildCard);
-extern "C" __declspec(dllexport) long long TITCALL Find(LPVOID MemoryStart, DWORD MemorySize, LPVOID SearchPattern, DWORD PatternSize, LPBYTE WildCard);
+__declspec(dllexport) ULONG_PTR TITCALL FindEx(HANDLE hProcess, LPVOID MemoryStart, DWORD MemorySize, LPVOID SearchPattern, DWORD PatternSize, LPBYTE WildCard);
+extern "C" __declspec(dllexport) ULONG_PTR TITCALL Find(LPVOID MemoryStart, DWORD MemorySize, LPVOID SearchPattern, DWORD PatternSize, LPBYTE WildCard);
 __declspec(dllexport) bool TITCALL FillEx(HANDLE hProcess, LPVOID MemoryStart, DWORD MemorySize, PBYTE FillByte);
 __declspec(dllexport) bool TITCALL Fill(LPVOID MemoryStart, DWORD MemorySize, PBYTE FillByte);
 __declspec(dllexport) bool TITCALL PatchEx(HANDLE hProcess, LPVOID MemoryStart, DWORD MemorySize, LPVOID ReplacePattern, DWORD ReplaceSize, bool AppendNOP, bool PrependNOP);
@@ -695,18 +715,19 @@ __declspec(dllexport) bool TITCALL Replace(LPVOID MemoryStart, DWORD MemorySize,
 __declspec(dllexport) void* TITCALL GetDebugData();
 __declspec(dllexport) void* TITCALL GetTerminationData();
 __declspec(dllexport) long TITCALL GetExitCode();
-__declspec(dllexport) long long TITCALL GetDebuggedDLLBaseAddress();
-__declspec(dllexport) unsigned long long TITCALL GetDebuggedFileBaseAddress();
+__declspec(dllexport) ULONG_PTR TITCALL GetDebuggedDLLBaseAddress();
+__declspec(dllexport) ULONG_PTR TITCALL GetDebuggedFileBaseAddress();
 __declspec(dllexport) bool TITCALL GetRemoteString(HANDLE hProcess, LPVOID StringAddress, LPVOID StringStorage, int MaximumStringSize);
-__declspec(dllexport) long long TITCALL GetFunctionParameter(HANDLE hProcess, DWORD FunctionType, DWORD ParameterNumber, DWORD ParameterType);
-__declspec(dllexport) long long TITCALL GetJumpDestinationEx(HANDLE hProcess, ULONG_PTR InstructionAddress, bool JustJumps);
-__declspec(dllexport) long long TITCALL GetJumpDestination(HANDLE hProcess, ULONG_PTR InstructionAddress);
+__declspec(dllexport) ULONG_PTR TITCALL GetFunctionParameter(HANDLE hProcess, DWORD FunctionType, DWORD ParameterNumber, DWORD ParameterType);
+__declspec(dllexport) ULONG_PTR TITCALL GetJumpDestinationEx(HANDLE hProcess, ULONG_PTR InstructionAddress, bool JustJumps);
+__declspec(dllexport) ULONG_PTR TITCALL GetJumpDestination(HANDLE hProcess, ULONG_PTR InstructionAddress);
 __declspec(dllexport) bool TITCALL IsJumpGoingToExecuteEx(HANDLE hProcess, HANDLE hThread, ULONG_PTR InstructionAddress, ULONG_PTR RegFlags);
 __declspec(dllexport) bool TITCALL IsJumpGoingToExecute();
 __declspec(dllexport) void TITCALL SetCustomHandler(DWORD ExceptionId, LPVOID CallBack);
 __declspec(dllexport) void TITCALL ForceClose();
 __declspec(dllexport) void TITCALL StepInto(LPVOID traceCallBack);
 __declspec(dllexport) void TITCALL StepOver(LPVOID traceCallBack);
+__declspec(dllexport) void TITCALL StepOut(LPVOID StepOut, bool StepFinal);
 __declspec(dllexport) void TITCALL SingleStep(DWORD StepCount, LPVOID StepCallBack);
 __declspec(dllexport) bool TITCALL GetUnusedHardwareBreakPointRegister(LPDWORD RegisterIndex);
 __declspec(dllexport) bool TITCALL SetHardwareBreakPointEx(HANDLE hActiveThread, ULONG_PTR bpxAddress, DWORD IndexOfRegister, DWORD bpxType, DWORD bpxSize, LPVOID bpxCallBack, LPDWORD IndexOfSelectedRegister);
@@ -731,47 +752,42 @@ __declspec(dllexport) void TITCALL FindOEPInit();
 __declspec(dllexport) bool TITCALL FindOEPGenerically(char* szFileName, LPVOID TraceInitCallBack, LPVOID CallBack);
 __declspec(dllexport) bool TITCALL FindOEPGenericallyW(wchar_t* szFileName, LPVOID TraceInitCallBack, LPVOID CallBack);
 // TitanEngine.Importer.functions:
-__declspec(dllexport) void TITCALL ImporterCleanup();
-__declspec(dllexport) void TITCALL ImporterSetImageBase(ULONG_PTR ImageBase);
-__declspec(dllexport) void TITCALL ImporterSetUnknownDelta(ULONG_PTR DeltaAddress);
-__declspec(dllexport) long long TITCALL ImporterGetCurrentDelta();
-__declspec(dllexport) void TITCALL ImporterInit(DWORD MemorySize, ULONG_PTR ImageBase);
 __declspec(dllexport) void TITCALL ImporterAddNewDll(char* szDLLName, ULONG_PTR FirstThunk);
 __declspec(dllexport) void TITCALL ImporterAddNewAPI(char* szAPIName, ULONG_PTR ThunkValue);
 __declspec(dllexport) void TITCALL ImporterAddNewOrdinalAPI(ULONG_PTR OrdinalNumber, ULONG_PTR ThunkValue);
 __declspec(dllexport) long TITCALL ImporterGetAddedDllCount();
 __declspec(dllexport) long TITCALL ImporterGetAddedAPICount();
-__declspec(dllexport) void* TITCALL ImporterGetLastAddedDLLName();
-__declspec(dllexport) void TITCALL ImporterMoveIAT();
-__declspec(dllexport) bool TITCALL ImporterExportIAT(ULONG_PTR StorePlace, ULONG_PTR FileMapVA);
+__declspec(dllexport) bool TITCALL ImporterExportIAT(ULONG_PTR StorePlace, ULONG_PTR FileMapVA, HANDLE hFileMap);
 __declspec(dllexport) long TITCALL ImporterEstimatedSize();
-__declspec(dllexport) bool TITCALL ImporterExportIATEx(char* szExportFileName, char* szSectionName);
-__declspec(dllexport) bool TITCALL ImporterExportIATExW(wchar_t* szExportFileName, char* szSectionName);
-__declspec(dllexport) long long TITCALL ImporterFindAPIWriteLocation(char* szAPIName);
-__declspec(dllexport) long long TITCALL ImporterFindOrdinalAPIWriteLocation(ULONG_PTR OrdinalNumber);
-__declspec(dllexport) long long TITCALL ImporterFindAPIByWriteLocation(ULONG_PTR APIWriteLocation);
-__declspec(dllexport) long long TITCALL ImporterFindDLLByWriteLocation(ULONG_PTR APIWriteLocation);
+__declspec(dllexport) bool TITCALL ImporterExportIATEx(char* szDumpFileName, char* szExportFileName, char* szSectionName);
+__declspec(dllexport) bool TITCALL ImporterExportIATExW(wchar_t* szDumpFileName, wchar_t* szExportFileName, wchar_t* szSectionName = L".RL!TEv2");
+__declspec(dllexport) ULONG_PTR TITCALL ImporterFindAPIWriteLocation(char* szAPIName);
+__declspec(dllexport) ULONG_PTR TITCALL ImporterFindOrdinalAPIWriteLocation(ULONG_PTR OrdinalNumber);
+__declspec(dllexport) ULONG_PTR TITCALL ImporterFindAPIByWriteLocation(ULONG_PTR APIWriteLocation);
+__declspec(dllexport) ULONG_PTR TITCALL ImporterFindDLLByWriteLocation(ULONG_PTR APIWriteLocation);
 __declspec(dllexport) void* TITCALL ImporterGetDLLName(ULONG_PTR APIAddress);
+__declspec(dllexport) void* TITCALL ImporterGetDLLNameW(ULONG_PTR APIAddress);
 __declspec(dllexport) void* TITCALL ImporterGetAPIName(ULONG_PTR APIAddress);
-__declspec(dllexport) long long TITCALL ImporterGetAPIOrdinalNumber(ULONG_PTR APIAddress);
+__declspec(dllexport) ULONG_PTR TITCALL ImporterGetAPIOrdinalNumber(ULONG_PTR APIAddress);
 __declspec(dllexport) void* TITCALL ImporterGetAPINameEx(ULONG_PTR APIAddress, ULONG_PTR DLLBasesList);
-__declspec(dllexport) long long TITCALL ImporterGetRemoteAPIAddress(HANDLE hProcess, ULONG_PTR APIAddress);
-__declspec(dllexport) long long TITCALL ImporterGetRemoteAPIAddressEx(char* szDLLName, char* szAPIName);
-__declspec(dllexport) long long TITCALL ImporterGetLocalAPIAddress(HANDLE hProcess, ULONG_PTR APIAddress);
+__declspec(dllexport) ULONG_PTR TITCALL ImporterGetRemoteAPIAddress(HANDLE hProcess, ULONG_PTR APIAddress);
+__declspec(dllexport) ULONG_PTR TITCALL ImporterGetRemoteAPIAddressEx(char* szDLLName, char* szAPIName);
+__declspec(dllexport) ULONG_PTR TITCALL ImporterGetLocalAPIAddress(HANDLE hProcess, ULONG_PTR APIAddress);
 __declspec(dllexport) void* TITCALL ImporterGetDLLNameFromDebugee(HANDLE hProcess, ULONG_PTR APIAddress);
+__declspec(dllexport) void* TITCALL ImporterGetDLLNameFromDebugeeW(HANDLE hProcess, ULONG_PTR APIAddress);
 __declspec(dllexport) void* TITCALL ImporterGetAPINameFromDebugee(HANDLE hProcess, ULONG_PTR APIAddress);
-__declspec(dllexport) long long TITCALL ImporterGetAPIOrdinalNumberFromDebugee(HANDLE hProcess, ULONG_PTR APIAddress);
+__declspec(dllexport) ULONG_PTR TITCALL ImporterGetAPIOrdinalNumberFromDebugee(HANDLE hProcess, ULONG_PTR APIAddress);
 __declspec(dllexport) long TITCALL ImporterGetDLLIndexEx(ULONG_PTR APIAddress, ULONG_PTR DLLBasesList);
 __declspec(dllexport) long TITCALL ImporterGetDLLIndex(HANDLE hProcess, ULONG_PTR APIAddress, ULONG_PTR DLLBasesList);
-__declspec(dllexport) long long TITCALL ImporterGetRemoteDLLBase(HANDLE hProcess, HMODULE LocalModuleBase);
-__declspec(dllexport) long long TITCALL ImporterGetRemoteDLLBaseEx(HANDLE hProcess, char* szModuleName);
-__declspec(dllexport) bool TITCALL ImporterRelocateWriteLocation(ULONG_PTR AddValue);
+__declspec(dllexport) ULONG_PTR TITCALL ImporterGetRemoteDLLBase(HANDLE hProcess, HMODULE LocalModuleBase);
+__declspec(dllexport) ULONG_PTR TITCALL ImporterGetRemoteDLLBaseEx(HANDLE hProcess, char* szModuleName);
+__declspec(dllexport) void* TITCALL ImporterGetRemoteDLLBaseExW(HANDLE hProcess, wchar_t* szModuleName);
 __declspec(dllexport) bool TITCALL ImporterIsForwardedAPI(HANDLE hProcess, ULONG_PTR APIAddress);
 __declspec(dllexport) void* TITCALL ImporterGetForwardedAPIName(HANDLE hProcess, ULONG_PTR APIAddress);
 __declspec(dllexport) void* TITCALL ImporterGetForwardedDLLName(HANDLE hProcess, ULONG_PTR APIAddress);
 __declspec(dllexport) long TITCALL ImporterGetForwardedDLLIndex(HANDLE hProcess, ULONG_PTR APIAddress, ULONG_PTR DLLBasesList);
-__declspec(dllexport) long long TITCALL ImporterGetForwardedAPIOrdinalNumber(HANDLE hProcess, ULONG_PTR APIAddress);
-__declspec(dllexport) long long TITCALL ImporterGetNearestAPIAddress(HANDLE hProcess, ULONG_PTR APIAddress);
+__declspec(dllexport) ULONG_PTR TITCALL ImporterGetForwardedAPIOrdinalNumber(HANDLE hProcess, ULONG_PTR APIAddress);
+__declspec(dllexport) ULONG_PTR TITCALL ImporterGetNearestAPIAddress(HANDLE hProcess, ULONG_PTR APIAddress);
 __declspec(dllexport) void* TITCALL ImporterGetNearestAPIName(HANDLE hProcess, ULONG_PTR APIAddress);
 __declspec(dllexport) bool TITCALL ImporterCopyOriginalIAT(char* szOriginalFile, char* szDumpFile);
 __declspec(dllexport) bool TITCALL ImporterCopyOriginalIATW(wchar_t* szOriginalFile, wchar_t* szDumpFile);
@@ -779,14 +795,15 @@ __declspec(dllexport) bool TITCALL ImporterLoadImportTable(char* szFileName);
 __declspec(dllexport) bool TITCALL ImporterLoadImportTableW(wchar_t* szFileName);
 __declspec(dllexport) bool TITCALL ImporterMoveOriginalIAT(char* szOriginalFile, char* szDumpFile, char* szSectionName);
 __declspec(dllexport) bool TITCALL ImporterMoveOriginalIATW(wchar_t* szOriginalFile, wchar_t* szDumpFile, char* szSectionName);
-__declspec(dllexport) void TITCALL ImporterAutoSearchIAT(HANDLE hProcess, char* szFileName, ULONG_PTR ImageBase, ULONG_PTR SearchStart, DWORD SearchSize, LPVOID pIATStart, LPVOID pIATSize);
-__declspec(dllexport) void TITCALL ImporterAutoSearchIATW(HANDLE hProcess, wchar_t* szFileName, ULONG_PTR ImageBase, ULONG_PTR SearchStart, DWORD SearchSize, LPVOID pIATStart, LPVOID pIATSize);
-__declspec(dllexport) void TITCALL ImporterAutoSearchIATEx(HANDLE hProcess, ULONG_PTR ImageBase, ULONG_PTR SearchStart, DWORD SearchSize, LPVOID pIATStart, LPVOID pIATSize);
+__declspec(dllexport) void TITCALL ImporterAutoSearchIAT(DWORD ProcessId, char* szFileName, ULONG_PTR SearchStart, LPVOID pIATStart, LPVOID pIATSize);
+__declspec(dllexport) void TITCALL ImporterAutoSearchIATW(DWORD ProcessIds, wchar_t* szFileName, ULONG_PTR SearchStart, LPVOID pIATStart, LPVOID pIATSize);
+__declspec(dllexport) void TITCALL ImporterAutoSearchIATEx(DWORD ProcessId, ULONG_PTR ImageBase, ULONG_PTR SearchStart, LPVOID pIATStart, LPVOID pIATSize);
 __declspec(dllexport) void TITCALL ImporterEnumAddedData(LPVOID EnumCallBack);
-__declspec(dllexport) long TITCALL ImporterAutoFixIATEx(HANDLE hProcess, char* szDumpedFile, char* szSectionName, bool DumpRunningProcess, bool RealignFile, ULONG_PTR EntryPointAddress, ULONG_PTR ImageBase, ULONG_PTR SearchStart, DWORD SearchSize, DWORD SearchStep, bool TryAutoFix, bool FixEliminations, LPVOID UnknownPointerFixCallback);
-__declspec(dllexport) long TITCALL ImporterAutoFixIATExW(HANDLE hProcess, wchar_t* szDumpedFile, char* szSectionName, bool DumpRunningProcess, bool RealignFile, ULONG_PTR EntryPointAddress, ULONG_PTR ImageBase, ULONG_PTR SearchStart, DWORD SearchSize, DWORD SearchStep, bool TryAutoFix, bool FixEliminations, LPVOID UnknownPointerFixCallback);
-__declspec(dllexport) long TITCALL ImporterAutoFixIAT(HANDLE hProcess, char* szDumpedFile, ULONG_PTR ImageBase, ULONG_PTR SearchStart, DWORD SearchSize, DWORD SearchStep);
-__declspec(dllexport) long TITCALL ImporterAutoFixIATW(HANDLE hProcess, wchar_t* szDumpedFile, ULONG_PTR ImageBase, ULONG_PTR SearchStart, DWORD SearchSize, DWORD SearchStep);
+__declspec(dllexport) long TITCALL ImporterAutoFixIATEx(DWORD ProcessId, char* szDumpedFile, char* szSectionName, bool DumpRunningProcess, bool RealignFile, ULONG_PTR EntryPointAddress, ULONG_PTR ImageBase, ULONG_PTR SearchStart, bool TryAutoFix, bool FixEliminations, LPVOID UnknownPointerFixCallback);
+__declspec(dllexport) long TITCALL ImporterAutoFixIATExW(DWORD ProcessId, wchar_t* szDumpedFile, wchar_t* szSectionName, bool DumpRunningProcess, bool RealignFile, ULONG_PTR EntryPointAddress, ULONG_PTR ImageBase, ULONG_PTR SearchStart,  bool TryAutoFix, bool FixEliminations, LPVOID UnknownPointerFixCallback);
+__declspec(dllexport) long TITCALL ImporterAutoFixIAT(DWORD ProcessId, char* szDumpedFile, ULONG_PTR SearchStart);
+__declspec(dllexport) long TITCALL ImporterAutoFixIATW(DWORD ProcessId, wchar_t* szDumpedFile, ULONG_PTR SearchStart);
+__declspec(dllexport) bool TITCALL ImporterDeleteAPI(DWORD_PTR apiAddr);
 // Global.Engine.Hook.functions:
 __declspec(dllexport) bool TITCALL HooksSafeTransitionEx(LPVOID HookAddressArray, int NumberOfHooks, bool TransitionStart);
 __declspec(dllexport) bool TITCALL HooksSafeTransition(LPVOID HookAddress, bool TransitionStart);
@@ -810,11 +827,11 @@ __declspec(dllexport) void TITCALL HooksScanEntireProcessMemory(LPVOID CallBack)
 __declspec(dllexport) void TITCALL HooksScanEntireProcessMemoryEx();
 // TitanEngine.Tracer.functions:
 __declspec(dllexport) void TITCALL TracerInit();
-__declspec(dllexport) long long TITCALL TracerLevel1(HANDLE hProcess, ULONG_PTR AddressToTrace);
-__declspec(dllexport) long long TITCALL HashTracerLevel1(HANDLE hProcess, ULONG_PTR AddressToTrace, DWORD InputNumberOfInstructions);
+__declspec(dllexport) ULONG_PTR TITCALL TracerLevel1(HANDLE hProcess, ULONG_PTR AddressToTrace);
+__declspec(dllexport) ULONG_PTR TITCALL HashTracerLevel1(HANDLE hProcess, ULONG_PTR AddressToTrace, DWORD InputNumberOfInstructions);
 __declspec(dllexport) long TITCALL TracerDetectRedirection(HANDLE hProcess, ULONG_PTR AddressToTrace);
-__declspec(dllexport) long long TITCALL TracerFixKnownRedirection(HANDLE hProcess, ULONG_PTR AddressToTrace, DWORD RedirectionId);
-__declspec(dllexport) long long TITCALL TracerFixRedirectionViaModule(HMODULE hModuleHandle, HANDLE hProcess, ULONG_PTR AddressToTrace, DWORD IdParameter);
+__declspec(dllexport) ULONG_PTR TITCALL TracerFixKnownRedirection(HANDLE hProcess, ULONG_PTR AddressToTrace, DWORD RedirectionId);
+__declspec(dllexport) ULONG_PTR TITCALL TracerFixRedirectionViaModule(HMODULE hModuleHandle, HANDLE hProcess, ULONG_PTR AddressToTrace, DWORD IdParameter);
 __declspec(dllexport) long TITCALL TracerFixRedirectionViaImpRecPlugin(HANDLE hProcess, char* szPluginName, ULONG_PTR AddressToTrace);
 // TitanEngine.Exporter.functions:
 __declspec(dllexport) void TITCALL ExporterCleanup();
@@ -867,7 +884,7 @@ __declspec(dllexport) bool TITCALL HandlerIsHandleOpen(DWORD ProcessId, HANDLE h
 __declspec(dllexport) void* TITCALL HandlerGetHandleName(HANDLE hProcess, DWORD ProcessId, HANDLE hHandle, bool TranslateName);
 __declspec(dllexport) void* TITCALL HandlerGetHandleNameW(HANDLE hProcess, DWORD ProcessId, HANDLE hHandle, bool TranslateName);
 __declspec(dllexport) long TITCALL HandlerEnumerateOpenHandles(DWORD ProcessId, LPVOID HandleBuffer, DWORD MaxHandleCount);
-__declspec(dllexport) long long TITCALL HandlerGetHandleDetails(HANDLE hProcess, DWORD ProcessId, HANDLE hHandle, DWORD InformationReturn);
+__declspec(dllexport) ULONG_PTR TITCALL HandlerGetHandleDetails(HANDLE hProcess, DWORD ProcessId, HANDLE hHandle, DWORD InformationReturn);
 __declspec(dllexport) bool TITCALL HandlerCloseRemoteHandle(HANDLE hProcess, HANDLE hHandle);
 __declspec(dllexport) long TITCALL HandlerEnumerateLockHandles(char* szFileOrFolderName, bool NameIsFolder, bool NameIsTranslated, LPVOID HandleDataBuffer, DWORD MaxHandleCount);
 __declspec(dllexport) long TITCALL HandlerEnumerateLockHandlesW(wchar_t* szFileOrFolderName, bool NameIsFolder, bool NameIsTranslated, LPVOID HandleDataBuffer, DWORD MaxHandleCount);
@@ -877,8 +894,8 @@ __declspec(dllexport) bool TITCALL HandlerIsFileLocked(char* szFileOrFolderName,
 __declspec(dllexport) bool TITCALL HandlerIsFileLockedW(wchar_t* szFileOrFolderName, bool NameIsFolder, bool NameIsTranslated);
 // TitanEngine.Handler[Mutex].functions:
 __declspec(dllexport) long TITCALL HandlerEnumerateOpenMutexes(HANDLE hProcess, DWORD ProcessId, LPVOID HandleBuffer, DWORD MaxHandleCount);
-__declspec(dllexport) long long TITCALL HandlerGetOpenMutexHandle(HANDLE hProcess, DWORD ProcessId, char* szMutexString);
-__declspec(dllexport) long long TITCALL HandlerGetOpenMutexHandleW(HANDLE hProcess, DWORD ProcessId, wchar_t* szMutexString);
+__declspec(dllexport) ULONG_PTR TITCALL HandlerGetOpenMutexHandle(HANDLE hProcess, DWORD ProcessId, char* szMutexString);
+__declspec(dllexport) ULONG_PTR TITCALL HandlerGetOpenMutexHandleW(HANDLE hProcess, DWORD ProcessId, wchar_t* szMutexString);
 __declspec(dllexport) long TITCALL HandlerGetProcessIdWhichCreatedMutex(char* szMutexString);
 __declspec(dllexport) long TITCALL HandlerGetProcessIdWhichCreatedMutexW(wchar_t* szMutexString);
 // TitanEngine.Injector.functions:
@@ -924,6 +941,7 @@ __declspec(dllexport) bool TITCALL EngineFakeMissingDependencies(HANDLE hProcess
 __declspec(dllexport) bool TITCALL EngineDeleteCreatedDependencies();
 __declspec(dllexport) bool TITCALL EngineCreateUnpackerWindow(char* WindowUnpackerTitle, char* WindowUnpackerLongTitle, char* WindowUnpackerName, char* WindowUnpackerAuthor, void* StartUnpackingCallBack);
 __declspec(dllexport) void TITCALL EngineAddUnpackerWindowLogMessage(char* szLogMessage);
+__declspec(dllexport) bool TITCALL EngineCheckStructAlignment(DWORD StructureType, ULONG_PTR StructureSize);
 // Global.Engine.Extension.Functions:
 __declspec(dllexport) bool TITCALL ExtensionManagerIsPluginLoaded(char* szPluginName);
 __declspec(dllexport) bool TITCALL ExtensionManagerIsPluginEnabled(char* szPluginName);

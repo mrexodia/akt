@@ -272,7 +272,7 @@ BOOL CALLBACK CT_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
         case IDC_CHK_BRUTESHUTDOWN:
         {
             NoFocus();
-            CT_brute_shutdown=IsDlgButtonChecked(hwndDlg, IDC_CHK_BRUTESHUTDOWN);
+            CT_brute_shutdown=!!IsDlgButtonChecked(hwndDlg, IDC_CHK_BRUTESHUTDOWN);
         }
         return TRUE;
 
@@ -281,7 +281,7 @@ BOOL CALLBACK CT_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             if(CT_isparsing)
                 return TRUE;
             NoFocus();
-            CT_brute_symverify=IsDlgButtonChecked(hwndDlg, IDC_CHK_BRUTESYMVERIFY);
+            CT_brute_symverify=!!IsDlgButtonChecked(hwndDlg, IDC_CHK_BRUTESYMVERIFY);
         }
         return TRUE;
 
@@ -290,7 +290,7 @@ BOOL CALLBACK CT_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             if(CT_isparsing)
                 return TRUE;
             NoFocus();
-            CT_brute=IsDlgButtonChecked(hwndDlg, IDC_CHK_BRUTE);
+            CT_brute=!!IsDlgButtonChecked(hwndDlg, IDC_CHK_BRUTE);
             if(CT_brute_initialized)
             {
                 EnableWindow(GetDlgItem(hwndDlg, IDC_CHK_BRUTESHUTDOWN), CT_brute);
@@ -306,7 +306,7 @@ BOOL CALLBACK CT_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             if(CT_isparsing)
                 return TRUE;
             NoFocus();
-            CT_brute_nosym=IsDlgButtonChecked(hwndDlg, IDC_CHK_BRUTENOSYMMETRIC);
+            CT_brute_nosym=!!IsDlgButtonChecked(hwndDlg, IDC_CHK_BRUTENOSYMMETRIC);
             CheckDlgButton(hwndDlg, IDC_CHK_BRUTESYMVERIFY, 0);
             CheckDlgButton(hwndDlg, IDC_CHK_BRUTESHUTDOWN, 0);
             if(CT_brute_initialized)
@@ -326,7 +326,7 @@ BOOL CALLBACK CT_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             if(CT_isparsing)
                 return TRUE;
             NoFocus();
-            CT_logtofile=IsDlgButtonChecked(hwndDlg, IDC_CHK_LOGFILE);
+            CT_logtofile=!!IsDlgButtonChecked(hwndDlg, IDC_CHK_LOGFILE);
         }
         return TRUE;
         }

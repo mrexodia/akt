@@ -12,11 +12,17 @@
 #include <vector>
 #include <windows.h>
 #include <commctrl.h>
+#include <stdint.h>
 
 #include "..\resource.h"
 #include "..\TitanEngine\TitanEngine.h"
 #include "..\BeaEngine/BeaEngine.h"
-#include "..\exception/akt_exception.h"
+
+#ifndef __GNUC__
+#define and &&
+#define or ||
+#endif //__GNUC__
+
 
 #include "keygen\keygen_main.h"
 

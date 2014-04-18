@@ -53,7 +53,7 @@ unsigned char* MSC_GetCryptBytes(unsigned int seed, unsigned int size)
     unsigned char* arry=(unsigned char*)malloc2(size+4);
     memset(arry, 0, size+4);
     for(unsigned int x=0; x<size+4; x++)
-        arry[x]=MSC_NextRandomRange(256);
+        arry[x]=(unsigned char)(MSC_NextRandomRange(256)&0xFF);
     return arry+4;
 }
 

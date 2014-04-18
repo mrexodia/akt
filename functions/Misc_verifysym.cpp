@@ -393,7 +393,7 @@ DWORD WINAPI MSC_VR_BruteThread(LPVOID arg)
     while(i!=len)
     {
         strncpy(single_key, MSC_VR_keys_format+i, 8);
-        strupr(single_key);
+        _strupr(single_key);
         sscanf(single_key, "%X", &MSC_VR_key_array[j]);
         j++;
         i+=8;

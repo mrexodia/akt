@@ -112,7 +112,7 @@ void cbBruteProgess(double checked, double all, time_t* start)
     double elaps=(double)(time(0)-*start);
     double estim=((100.0-pdone)/(pdone/elaps));
     double speed=checked/elaps;
-    int pdone_int=pdone;
+    int pdone_int=(int)pdone;
     SendDlgItemMessageA(CT_shared, IDC_PROGRESS_BRUTE, PBM_SETPOS, pdone_int, 0); //Set progress bar
 
     //Set log information

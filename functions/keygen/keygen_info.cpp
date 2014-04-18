@@ -53,7 +53,7 @@ char RetrieveKeyInfo(int level_input, const char* name_, unsigned long hardwareI
     int x, v3=0, shortv3=0;
     int level=level_input;
 
-    if(hwndDlg and control_id)
+    if(hwndDlg && control_id)
         log=GetDlgItem(hwndDlg, control_id);
 
     if(level>=14)
@@ -81,12 +81,12 @@ char RetrieveKeyInfo(int level_input, const char* name_, unsigned long hardwareI
 
     bool key_appears_nameless=false;
     const char* nameless_check=origkey;
-    while(*nameless_check=='0' or *nameless_check=='-')
+    while(*nameless_check=='0' || *nameless_check=='-')
         nameless_check++;
-    if(*nameless_check=='2' and shortv3)
+    if(*nameless_check=='2' && shortv3)
         key_appears_nameless=true;
 
-    if(!name[0] or key_appears_nameless) //nameless key?
+    if(!name[0] || key_appears_nameless) //nameless key?
     {
         if(!shortv3)
         {
@@ -94,7 +94,7 @@ char RetrieveKeyInfo(int level_input, const char* name_, unsigned long hardwareI
             return 0;
         }
         //remove prepended zero bytes
-        while(*origkey=='0' or *origkey=='-')
+        while(*origkey=='0' || *origkey=='-')
             origkey++;
         //check for the nameless identifier
         if(*origkey!='2')
@@ -302,7 +302,7 @@ char RetrieveKeyInfo(int level_input, const char* name_, unsigned long hardwareI
         {
             const char* c=origkey;
             unsigned char value;
-            while(c and c[0])
+            while(c && c[0])
             {
                 c=GetTwoHexDigits(c, &value);
                 if(c)
@@ -318,7 +318,7 @@ char RetrieveKeyInfo(int level_input, const char* name_, unsigned long hardwareI
         /* Strip off signature here. For ShortV3 Level 10 keys, the signature
         will be the last 28 bytes, always. For earlier keys, it will be the
         last 6+(level*2) bytes. */
-        if(level==10 and shortv3==1)
+        if(level==10 && shortv3==1)
         {
             siglength=28;
         }
@@ -367,7 +367,7 @@ char RetrieveKeyInfo(int level_input, const char* name_, unsigned long hardwareI
         int y;
         for(x=0,y=0; x<keylength; x++)
         {
-            unsigned char ran=NextRandomRange(256);
+            unsigned char ran=(unsigned char)(NextRandomRange(256)&0xFF);
             keybytes[x]^=ran;
             y+=sprintf(log_msg+y, "%.2X", ran);
         }

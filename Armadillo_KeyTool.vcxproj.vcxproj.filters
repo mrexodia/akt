@@ -1,0 +1,338 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{645e9d04-f209-449d-bbb9-2cfbeb886b76}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{37992c01-df56-47f8-ade2-ff5b5b79f6dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{af903081-5e33-4307-9e5c-dafcf1b772b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\functions">
+      <UniqueIdentifier>{54eef3d6-7c29-427f-a1ba-20ca78173f92}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\functions\keygen">
+      <UniqueIdentifier>{ff5582b4-bd82-4f6e-9e54-dc8524888eef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\functions">
+      <UniqueIdentifier>{b4289efe-1df4-4766-b436-dc3b7bd037ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\functions\keygen">
+      <UniqueIdentifier>{72e49436-605e-43cf-9d70-b20837efffd6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\BeaEngine">
+      <UniqueIdentifier>{8c00d7de-f1ac-4405-ba59-616e84e5961c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\TitanEngine">
+      <UniqueIdentifier>{a751620e-426d-481d-9c37-cf1225b3ddce}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tabs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="functions\_global.cpp">
+      <Filter>Source Files\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="functions\about.cpp">
+      <Filter>Source Files\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="functions\analysis.cpp">
+      <Filter>Source Files\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="functions\CertTool_brute.cpp">
+      <Filter>Source Files\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="functions\CertTool_debugger.cpp">
+      <Filter>Source Files\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="functions\CertTool_decrypt.cpp">
+      <Filter>Source Files\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="functions\CertTool_dialog.cpp">
+      <Filter>Source Files\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="functions\CertTool_global.cpp">
+      <Filter>Source Files\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="functions\CertTool_parser.cpp">
+      <Filter>Source Files\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="functions\encdec.cpp">
+      <Filter>Source Files\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="functions\EVLog_debugger.cpp">
+      <Filter>Source Files\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="functions\EVLog_global.cpp">
+      <Filter>Source Files\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="functions\EVLog_maindlg.cpp">
+      <Filter>Source Files\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="functions\help_dialog.cpp">
+      <Filter>Source Files\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="functions\InlineHelper_codegen.cpp">
+      <Filter>Source Files\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="functions\InlineHelper_debugger.cpp">
+      <Filter>Source Files\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="functions\InlineHelper_decrypt.cpp">
+      <Filter>Source Files\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="functions\InlineHelper_dialog.cpp">
+      <Filter>Source Files\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="functions\InlineHelper_global.cpp">
+      <Filter>Source Files\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="functions\InlineHelper_plugins.cpp">
+      <Filter>Source Files\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="functions\keygenerate.cpp">
+      <Filter>Source Files\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="functions\LicenceRemoval_debugger.cpp">
+      <Filter>Source Files\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="functions\Misc_checksum.cpp">
+      <Filter>Source Files\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="functions\Misc_currentsym.cpp">
+      <Filter>Source Files\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="functions\Misc_dialog.cpp">
+      <Filter>Source Files\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="functions\Misc_global.cpp">
+      <Filter>Source Files\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="functions\Misc_projectid.cpp">
+      <Filter>Source Files\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="functions\Misc_sectiondeleter.cpp">
+      <Filter>Source Files\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="functions\Misc_verifysym.cpp">
+      <Filter>Source Files\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="functions\VersionFind_decode.cpp">
+      <Filter>Source Files\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="functions\VersionFind_dialog.cpp">
+      <Filter>Source Files\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="functions\VersionFind_extraoptions.cpp">
+      <Filter>Source Files\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="functions\VersionFind_global.cpp">
+      <Filter>Source Files\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="functions\VersionFind_rawoptions.cpp">
+      <Filter>Source Files\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="functions\VersionFind_version.cpp">
+      <Filter>Source Files\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="functions\keygen\keygen_bigint.cpp">
+      <Filter>Source Files\functions\keygen</Filter>
+    </ClCompile>
+    <ClCompile Include="functions\keygen\keygen_blowfish.cpp">
+      <Filter>Source Files\functions\keygen</Filter>
+    </ClCompile>
+    <ClCompile Include="functions\keygen\keygen_crc32.cpp">
+      <Filter>Source Files\functions\keygen</Filter>
+    </ClCompile>
+    <ClCompile Include="functions\keygen\keygen_ecc.cpp">
+      <Filter>Source Files\functions\keygen</Filter>
+    </ClCompile>
+    <ClCompile Include="functions\keygen\keygen_info.cpp">
+      <Filter>Source Files\functions\keygen</Filter>
+    </ClCompile>
+    <ClCompile Include="functions\keygen\keygen_main.cpp">
+      <Filter>Source Files\functions\keygen</Filter>
+    </ClCompile>
+    <ClCompile Include="functions\keygen\keygen_md5.cpp">
+      <Filter>Source Files\functions\keygen</Filter>
+    </ClCompile>
+    <ClCompile Include="functions\keygen\keygen_misc.cpp">
+      <Filter>Source Files\functions\keygen</Filter>
+    </ClCompile>
+    <ClCompile Include="functions\keygen\keygen_random.cpp">
+      <Filter>Source Files\functions\keygen</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="main.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tabs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="template.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="functions\_global.h">
+      <Filter>Header Files\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="functions\about.h">
+      <Filter>Header Files\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="functions\analysis.h">
+      <Filter>Header Files\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="functions\CertTool_brute.h">
+      <Filter>Header Files\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="functions\CertTool_debugger.h">
+      <Filter>Header Files\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="functions\CertTool_decrypt.h">
+      <Filter>Header Files\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="functions\CertTool_dialog.h">
+      <Filter>Header Files\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="functions\CertTool_global.h">
+      <Filter>Header Files\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="functions\CertTool_parser.h">
+      <Filter>Header Files\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="functions\encdec.h">
+      <Filter>Header Files\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="functions\EVLog_debugger.h">
+      <Filter>Header Files\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="functions\EVLog_global.h">
+      <Filter>Header Files\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="functions\EVLog_maindlg.h">
+      <Filter>Header Files\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="functions\help_dialog.h">
+      <Filter>Header Files\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="functions\InlineHelper_codegen.h">
+      <Filter>Header Files\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="functions\InlineHelper_debugger.h">
+      <Filter>Header Files\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="functions\InlineHelper_decrypt.h">
+      <Filter>Header Files\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="functions\InlineHelper_dialog.h">
+      <Filter>Header Files\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="functions\InlineHelper_global.h">
+      <Filter>Header Files\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="functions\InlineHelper_plugins.h">
+      <Filter>Header Files\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="functions\keygenerate.h">
+      <Filter>Header Files\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="functions\LicenceRemoval_debugger.h">
+      <Filter>Header Files\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="functions\Misc_checksum.h">
+      <Filter>Header Files\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="functions\Misc_currentsym.h">
+      <Filter>Header Files\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="functions\Misc_dialog.h">
+      <Filter>Header Files\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="functions\Misc_global.h">
+      <Filter>Header Files\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="functions\Misc_projectid.h">
+      <Filter>Header Files\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="functions\Misc_sectiondeleter.h">
+      <Filter>Header Files\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="functions\Misc_verifysym.h">
+      <Filter>Header Files\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="functions\VersionFind_decode.h">
+      <Filter>Header Files\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="functions\VersionFind_dialog.h">
+      <Filter>Header Files\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="functions\VersionFind_extraoptions.h">
+      <Filter>Header Files\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="functions\VersionFind_global.h">
+      <Filter>Header Files\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="functions\VersionFind_rawoptions.h">
+      <Filter>Header Files\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="functions\VersionFind_version.h">
+      <Filter>Header Files\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="functions\keygen\keygen_bigint.h">
+      <Filter>Header Files\functions\keygen</Filter>
+    </ClInclude>
+    <ClInclude Include="functions\keygen\keygen_blowfish.h">
+      <Filter>Header Files\functions\keygen</Filter>
+    </ClInclude>
+    <ClInclude Include="functions\keygen\keygen_crc32.h">
+      <Filter>Header Files\functions\keygen</Filter>
+    </ClInclude>
+    <ClInclude Include="functions\keygen\keygen_ecc.h">
+      <Filter>Header Files\functions\keygen</Filter>
+    </ClInclude>
+    <ClInclude Include="functions\keygen\keygen_info.h">
+      <Filter>Header Files\functions\keygen</Filter>
+    </ClInclude>
+    <ClInclude Include="functions\keygen\keygen_main.h">
+      <Filter>Header Files\functions\keygen</Filter>
+    </ClInclude>
+    <ClInclude Include="functions\keygen\keygen_md5.h">
+      <Filter>Header Files\functions\keygen</Filter>
+    </ClInclude>
+    <ClInclude Include="functions\keygen\keygen_misc.h">
+      <Filter>Header Files\functions\keygen</Filter>
+    </ClInclude>
+    <ClInclude Include="functions\keygen\keygen_random.h">
+      <Filter>Header Files\functions\keygen</Filter>
+    </ClInclude>
+    <ClInclude Include="BeaEngine\basic_types.h">
+      <Filter>Header Files\BeaEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="BeaEngine\BeaEngine.h">
+      <Filter>Header Files\BeaEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="BeaEngine\export.h">
+      <Filter>Header Files\BeaEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="BeaEngine\macros.h">
+      <Filter>Header Files\BeaEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="TitanEngine\TitanEngine.h">
+      <Filter>Header Files\TitanEngine</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="resource.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
