@@ -26,33 +26,22 @@ static int g_OutputDebugStringAMinorCount=0; 		// Counter for correct hits on Ou
  *********************************************************************/
 BYTE IH_FindCrcStart(BYTE* data) //Find the start of the CRC array
 {
-    for(unsigned int i=0; i<1024; i++)
+    for(unsigned int i=0,xorCount=0; i<1024; i+=StaticLengthDisassemble(&data[i]))
     {
-        if(data[i]==0x33) ///Pattern : 33 ?? ?? 33 ?? ?? 33 ?? ?? (with some extras)
-        {
-            if(data[i+3]==0x33)
-            {
-                if(data[i+5]==0x33)
-                    return data[i+7];
-                else if(data[i+6]==0x33)
-                    return data[i+8];
-                else if(data[i+9]==0x33)
-                    return data[i+11];
-                else
-                    return data[i+5];
-            }
-        }
-    }
-    for(unsigned int i=0; i<1024; i++)
-    {
-        if(data[i]==0x33) ///Pattern : 33 ?? ?? ?? ?? ?? 33 ?? ?? ?? ?? ?? 33 ?? ??
-        {
-            if(data[i+6]==0x33)
-            {
-                if(data[i+12]==0x33)
-                    return data[i+14];
-            }
-        }
+        /*
+        039BAD0A     8B52 38                        MOV EDX,DWORD PTR DS:[EDX+0x38]
+        039BAD0D     3351 24                        XOR EDX,DWORD PTR DS:[ECX+0x24]
+        039BAD10     3350 7C                        XOR EDX,DWORD PTR DS:[EAX+0x7C]                                                                                  ; ntdll_1a.77AB96BA
+        039BAD13     3355 EC                        XOR EDX,DWORD PTR SS:[EBP-0x14] <- we are looking for this
+        039BAD16     3355 E4                        XOR EDX,DWORD PTR SS:[EBP-0x1C]
+        039BAD19     8995 04F8FFFF                  MOV DWORD PTR SS:[EBP-0x7FC],EDX
+        */
+        if(!_strnicmp((const char*)StaticDisassemble(&data[i]), "XOR", 3)) //we found a xor
+            xorCount++;
+        else
+            xorCount=0;
+        if(xorCount==3)
+            return data[i+2]; //return 0x1C
     }
     return 0;
 }
@@ -322,6 +311,8 @@ void IH_cbVirtualProtect() // Callback for VirtualProtect
         g_ErrorMessageCallback((char*)"There was an error recovering the correct register.\n\nThe program will quit now!", (char*)"Error!");
         ExitProcess(1);
     }
+
+    g_PtrTargetData->CodeSize=code_size;
 
     strcpy(g_PtrTargetData->SecurityAddrRegister, szSecurityAddrRegister);
 }

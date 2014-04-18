@@ -29,3 +29,4 @@ bin/brute_sym_prvt.dll
 ipch/
 Win32/
 *.pdb
+*.mem

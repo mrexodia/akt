@@ -40,6 +40,9 @@ typedef struct _IH_InlineHelperData_t
     // Output Debug Counter
     int OutputDebugCount; 				// Total count of hits on OutputDebugStringA
 
+    // VirtualProtect info
+    unsigned int CodeSize;
+
     // Arma 960 support
     bool Arma960;
     unsigned int Arma960_add;
