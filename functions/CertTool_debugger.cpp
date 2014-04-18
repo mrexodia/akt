@@ -332,7 +332,7 @@ void CT_cbCertificateFunction()
         cert_func_count++;
     else if(cert_func_count==1)
     {
-        DeleteHardwareBreakPoint(UE_DR0);
+        DeleteBPX(GetContextData(UE_EIP));
         long retn_eax=GetContextData(UE_EAX);
         MEMORY_BASIC_INFORMATION mbi= {0};
         unsigned int mem_size=0x10000;
@@ -412,7 +412,7 @@ void CT_cbCertificateFunction()
         }
     }
     else
-        DeleteHardwareBreakPoint(UE_DR0);
+        DeleteBPX(GetContextData(UE_EIP));
 }
 
 void CT_cbVirtualProtect()
@@ -456,7 +456,7 @@ void CT_cbVirtualProtect()
         CT_FatalError("Could not find NextDword...");
         return;
     }
-    SetHardwareBreakPoint((security_code_base+breakpoint_addr), UE_DR0, UE_HARDWARE_EXECUTE, UE_HARDWARE_SIZE_1, (void*)CT_cbCertificateFunction);
+    SetBPX((security_code_base+breakpoint_addr), UE_BREAKPOINT, (void*)CT_cbCertificateFunction);
 
     //Magic
     magic_value_addr=CT_FindMagicPattern(security_code, security_code_size, &magic_ebp_sub);
