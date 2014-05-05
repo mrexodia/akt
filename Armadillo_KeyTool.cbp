@@ -13,7 +13,6 @@
 				<Option compiler="gcc" />
 				<Linker>
 					<Add option="-s" />
-					<Add library=".\exception\libexception.a" />
 					<Add library=".\TitanEngine\TitanEngine_x86.a" />
 					<Add library=".\BeaEngine\libBeaEngine.a" />
 					<Add library="libimagehlp.a" />
