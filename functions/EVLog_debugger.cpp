@@ -244,7 +244,8 @@ void EV_cbVirtualProtect()
                 EV_FatalError("Could not locate the SetEnvW function, please contact Mr. eXoDia...");
         }
     }
-    SetHardwareBreakPoint(SetEnvW, UE_DR1, UE_HARDWARE_EXECUTE, UE_HARDWARE_SIZE_1, (void*)EV_cbSetEnvW);
+    //SetHardwareBreakPoint(SetEnvW, UE_DR1, UE_HARDWARE_EXECUTE, UE_HARDWARE_SIZE_1, (void*)EV_cbSetEnvW);
+    SetBPX(SetEnvW, UE_BREAKPOINT, (void*)EV_cbSetEnvW);
     SetEnvA=EV_FindSetEnvPattern(sec_data, sec_size, true)+sec_addr;
     if(!(SetEnvA-sec_addr))
     {
@@ -256,7 +257,8 @@ void EV_cbVirtualProtect()
                 EV_FatalError("Could not locate the SetEnvA function, please contact Mr. eXoDia...");
         }
     }
-    SetHardwareBreakPoint(SetEnvA, UE_DR0, UE_HARDWARE_EXECUTE, UE_HARDWARE_SIZE_1, (void*)EV_cbSetEnvA);
+    //SetHardwareBreakPoint(SetEnvA, UE_DR0, UE_HARDWARE_EXECUTE, UE_HARDWARE_SIZE_1, (void*)EV_cbSetEnvA);
+    SetBPX(SetEnvW, UE_BREAKPOINT, (void*)EV_cbSetEnvA);
 }
 
 void EV_cbOpenMutexA()
