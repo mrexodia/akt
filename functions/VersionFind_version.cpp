@@ -70,7 +70,6 @@ static void cbDecryptCall()
 
 static void cbVirtualProtect()
 {
-    DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_APISTART);
     MEMORY_BASIC_INFORMATION mbi= {0};
     unsigned int sec_addr=0;
     unsigned int sec_size=0;
@@ -88,16 +87,32 @@ static void cbVirtualProtect()
     sec_data=(BYTE*)malloc2(sec_size);
     if(!ReadProcessMemory(g_fdProcessInfo->hProcess, (const void*)sec_addr, sec_data, sec_size, 0))
     {
+        free2(sec_data);
         VF_FatalError(rpmerror(), g_ErrorMessageCallback);
         return;
     }
+    if(*(unsigned short*)sec_data != 0x5A4D) //not a PE file
+    {
+        free2(sec_data);
+        return;
+    }
+    DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_APISTART);
+
     unsigned int armversion_addr=VF_FindarmVersion(sec_data, sec_size);
     if(!armversion_addr)
+    {
+        free2(sec_data);
         VF_FatalError("Could not find '<armVersion'", g_ErrorMessageCallback);
+        return;
+    }
     armversion_addr+=sec_addr;
     unsigned int push_addr=VF_FindPushAddr(sec_data, sec_size, armversion_addr);
     if(!push_addr)
+    {
+        free2(sec_data);
         VF_FatalError("Could not find reference to '<armVersion'", g_ErrorMessageCallback);
+        return;
+    }
     int call_decrypt=push_addr;
     while(sec_data[call_decrypt]!=0xE8) //TODO: fix this!!
         call_decrypt--;
@@ -114,7 +129,10 @@ static void cbVirtualProtect()
         }
     }
     if(!push100)
+    {
         VF_FatalError("Could not find 'push 100'", g_ErrorMessageCallback);
+        return;
+    }
     //push_addr+=sec_addr; //TODO: remove this
     call_decrypt+=sec_addr;
     push100+=sec_addr;

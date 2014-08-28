@@ -417,7 +417,6 @@ void CT_cbCertificateFunction()
 
 void CT_cbVirtualProtect()
 {
-    DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_APISTART);
     long esp_addr=GetContextData(UE_ESP);
     unsigned int security_code_base=0,security_code_size=0;
     if(!ReadProcessMemory(fdProcessInfo->hProcess, (void*)(esp_addr+4), &security_code_base, 4, 0))
@@ -442,6 +441,12 @@ void CT_cbVirtualProtect()
         CT_FatalError(rpmerror());
         return;
     }
+    if(*(unsigned short*)header_code != 0x5A4D) //not a PE file
+    {
+        free2(header_code);
+        return;
+    }
+    DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_APISTART);
     IMAGE_DOS_HEADER *pdh=(IMAGE_DOS_HEADER*)((DWORD)header_code);
     IMAGE_NT_HEADERS *pnth=(IMAGE_NT_HEADERS*)((DWORD)header_code+pdh->e_lfanew);
     CT_cert_data->timestamp=pnth->FileHeader.TimeDateStamp;

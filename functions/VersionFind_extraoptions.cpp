@@ -84,9 +84,7 @@ static void cbDw()
 
 static void cbVirtualProtect()
 {
-    DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_APISTART);
     MEMORY_BASIC_INFORMATION mbi= {0};
-
     unsigned int sec_addr=0;
     unsigned int sec_size=0;
     unsigned int esp_addr=0;
@@ -103,7 +101,13 @@ static void cbVirtualProtect()
     sec_data=(BYTE*)malloc2(sec_size);
     if(!ReadProcessMemory(g_fdProcessInfo->hProcess, (const void*)sec_addr, sec_data, sec_size, 0))
     {
+        free2(sec_data);
         VF_FatalError(rpmerror(), g_ErrorMessageCallback);
+        return;
+    }
+    if(*(unsigned short*)sec_data != 0x5A4D) //not a PE file
+    {
+        free2(sec_data);
         return;
     }
 
