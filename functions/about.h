@@ -3,8 +3,8 @@
 
 #include "_global.h"
 
-#define caption "Armadillo Key Tool v0.2"
-#define date_compile "Jun 2013"
+#define caption "Armadillo Key Tool v0.3"
+#define date_compile "Dec 2014"
 
 BOOL CALLBACK DlgAbout(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
