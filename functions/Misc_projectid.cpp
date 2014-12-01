@@ -276,12 +276,19 @@ void MSC_cbCertificateFunction()
 
 void MSC_PRJ_cbVirtualProtect()
 {
-    DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_APISTART);
-
     long esp_addr=GetContextData(UE_ESP);
     unsigned int security_code_base=0,security_code_size=0;
     ReadProcessMemory(MSC_fdProcessInfo->hProcess, (void*)(esp_addr+4), &security_code_base, 4, 0);
     ReadProcessMemory(MSC_fdProcessInfo->hProcess, (void*)(esp_addr+8), &security_code_size, 4, 0);
+    BYTE* header_code=(BYTE*)malloc2(0x1000);
+    ReadProcessMemory(MSC_fdProcessInfo->hProcess, (void*)(security_code_base-0x1000), header_code, 0x1000, 0);
+    if(*(unsigned short*)header_code != 0x5A4D) //not a PE file
+    {
+        free2(header_code);
+        return;
+    }
+    free2(header_code);
+    DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_APISTART);
     BYTE* security_code=(BYTE*)malloc2(security_code_size);
     ReadProcessMemory(MSC_fdProcessInfo->hProcess, (void*)security_code_base, security_code, security_code_size, 0);
 

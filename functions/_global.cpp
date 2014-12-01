@@ -302,7 +302,6 @@ int DecodeShortV3(const char* serial, bool level10, unsigned char* dest, int des
     char* keybytes=keybytes_;
     char* k1;
     char* k2;
-    bool keystring=false;
     int keylength;
     const char* udigits="0123456789ABCDEFGHJKMNPQRTUVWXYZ";
     const char* ldigits="0123456789abcdefghjkmnpqrtuvwxyz";
@@ -367,7 +366,6 @@ int DecodeShortV3(const char* serial, bool level10, unsigned char* dest, int des
                     if(value==3)
                     {
                         value=0;
-                        keystring=true; //TODO: remove?
                     }
                     if(value!=0)
                     {
@@ -381,7 +379,6 @@ int DecodeShortV3(const char* serial, bool level10, unsigned char* dest, int des
                     if(value==3)
                     {
                         value=0;
-                        keystring=true; //TODO: remove?
                     }
                     if(value!=0 && value>=16)
                     {

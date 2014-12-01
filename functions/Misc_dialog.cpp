@@ -326,8 +326,9 @@ BOOL CALLBACK MSC_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
         case IDC_BTN_GETSALT: //GenerateChecksum
         {
             SetFocus(GetDlgItem(hwndDlg, IDC_EDT_SALT));
-            if(!MSC_isdebugging and MSC_szFileName[0])
-                CreateThread(0, 0, MSC_GetSalt, 0, 0, 0);
+            MessageBoxA(hwndDlg, "This functionality has been disabled, use the 'Certs' tab to get the salt...", "Error", MB_ICONERROR);
+            /*if(!MSC_isdebugging and MSC_szFileName[0])
+                CreateThread(0, 0, MSC_GetSalt, 0, 0, 0);*/
         }
         return TRUE;
 

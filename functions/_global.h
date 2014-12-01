@@ -111,7 +111,7 @@ typedef struct _NTPEB
     ULONG HeapDeCommitFreeBlockThreshold;
     ULONG NumberOfHeaps;
     ULONG MaximumNumberOfHeaps;
-    PVOID* *ProcessHeaps;
+    PVOID**ProcessHeaps;
     PVOID diSharedHandleTable;
     PVOID ProcessStarterHelper;
     PVOID GdiDCAttributeList;

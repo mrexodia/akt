@@ -83,18 +83,19 @@ void IH_GetImportTableAddresses() //Retrieve basic import data
     DumpProcess(IH_fdProcessInfo->hProcess, (void*)g_fdImageBase, (char*)"loaded_binary.mem", g_fdEntryPoint);
     kernel32=GetModuleHandleA("kernel32");
 
-    VirtualProtect_Addr=(unsigned int)GetProcAddress(kernel32, "VirtualProtect");
-    OutputDebugStringA_Addr=(unsigned int)GetProcAddress(kernel32, "OutputDebugStringA");
-    GetEnvironmentVariableA_Addr=(unsigned int)GetProcAddress(kernel32, "GetEnvironmentVariableA");
-    SetEnvironmentVariableA_Addr=(unsigned int)GetProcAddress(kernel32, "SetEnvironmentVariableA");
-    LoadLibraryA_Addr=(unsigned int)GetProcAddress(kernel32, "LoadLibraryA");
-    GetProcAddress_Addr=(unsigned int)GetProcAddress(kernel32, "GetProcAddress");
-    WriteProcessMemory_Addr=(unsigned int)GetProcAddress(kernel32, "WriteProcessMemory");
+    VirtualProtect_Addr=ImporterGetRemoteAPIAddress(IH_fdProcessInfo->hProcess, (unsigned int)GetProcAddress(kernel32, "VirtualProtect"));
+    OutputDebugStringA_Addr=ImporterGetRemoteAPIAddress(IH_fdProcessInfo->hProcess, (unsigned int)GetProcAddress(kernel32, "OutputDebugStringA"));
+    GetEnvironmentVariableA_Addr=ImporterGetRemoteAPIAddress(IH_fdProcessInfo->hProcess, (unsigned int)GetProcAddress(kernel32, "GetEnvironmentVariableA"));
+    SetEnvironmentVariableA_Addr=ImporterGetRemoteAPIAddress(IH_fdProcessInfo->hProcess, (unsigned int)GetProcAddress(kernel32, "SetEnvironmentVariableA"));
+    LoadLibraryA_Addr=ImporterGetRemoteAPIAddress(IH_fdProcessInfo->hProcess, (unsigned int)GetProcAddress(kernel32, "LoadLibraryA"));
+    GetProcAddress_Addr=ImporterGetRemoteAPIAddress(IH_fdProcessInfo->hProcess, (unsigned int)GetProcAddress(kernel32, "GetProcAddress"));
+    WriteProcessMemory_Addr=ImporterGetRemoteAPIAddress(IH_fdProcessInfo->hProcess, (unsigned int)GetProcAddress(kernel32, "WriteProcessMemory"));
 
     HANDLE hFile=CreateFileA("loaded_binary.mem", GENERIC_ALL, 0, 0, OPEN_EXISTING, 0, 0);
     DWORD high=0,filesize=GetFileSize(hFile, &high);
     BYTE* dump_addr=(BYTE*)VirtualAlloc(VirtualAlloc(0, filesize+0x1000, MEM_RESERVE, PAGE_EXECUTE_READWRITE), filesize+0x1000, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
     ReadFile(hFile, dump_addr, filesize, &high, 0);
+    CloseHandle(hFile);
     unsigned int result_addr=0;
 
     // Find VirtualProtect address
@@ -166,10 +167,8 @@ void IH_GetImportTableAddresses() //Retrieve basic import data
 
     g_PtrTargetData->WriteProcessMemory_Addr=WriteProcessMemory_Addr;
 
-
     // Free the memory and close the handle
     VirtualFree(dump_addr, filesize+0x1000, MEM_DECOMMIT);
-    CloseHandle(hFile);
 }
 
 

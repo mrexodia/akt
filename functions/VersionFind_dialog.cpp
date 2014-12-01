@@ -170,7 +170,7 @@ BOOL CALLBACK VF_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             }
             else
                 FillArmaOptionsStruct(g_raw_options, g_version, &op, 0, g_minimal);
-            PrintArmaOptionsStruct(&op, false, g_raw_options, g_extra_options);
+            PrintArmaOptionsStruct(&op, 0, g_raw_options, g_extra_options);
         }
         return TRUE;
 
@@ -285,7 +285,6 @@ void ResetContent(bool clear_all)
 
 void PrintArmaOptionsStructGui(ARMA_OPTIONS* op)
 {
-    bool set_other_options_log=false;
     if(op->raw_options)
     {
         EnableWin(IDC_RADIO_DEBUGBLOCKER, 1);
@@ -391,7 +390,6 @@ void PrintArmaOptionsStructGui(ARMA_OPTIONS* op)
         }
         if(op->has_other_options)
         {
-            set_other_options_log=true;
             if(op->external_envvars)
             {
                 CheckButton(IDC_CHK_OTHEREXTERNALENV);
@@ -550,6 +548,7 @@ void PrintArmaOptionsStructGui(ARMA_OPTIONS* op)
 
 void PrintArmaOptionsStruct(ARMA_OPTIONS* op, char* log, unsigned int raw_options, unsigned int extra_options)
 {
-    VF_PrintArmaOptionsStructLog(op, log, raw_options, extra_options);
+    if(log)
+        VF_PrintArmaOptionsStructLog(op, log, raw_options, extra_options);
     PrintArmaOptionsStructGui(op);
 }

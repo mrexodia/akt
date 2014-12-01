@@ -149,8 +149,8 @@ void EV_log_var_valW(const wchar_t* varname, const wchar_t* varvalue)
     //swprintf(final_string, L"SetEnvW: %s=%s", varname, varvalue);
     else if(varvalue[0]==0 and varname[0] and varname[1])
     {
-        //swprintf(final_string, L"SetEnvW: %s=(0)", varname);
-        swprintf(final_string, L"%s=(0)", varname);
+        //swprintf(final_string, L"SetEnvW: %s=(null)", varname);
+        swprintf(final_string, L"%s=(null)", varname);
     }
     else
         return;
@@ -167,8 +167,8 @@ void EV_log_var_valA(const char* varname, const char* varvalue)
         sprintf(final_string, "%s=%s", varname, varvalue);
     else if(varvalue[0]==0 and varname[0] and varname[1])
     {
-        //sprintf(final_string, "SetEnvA: %s=(0)", varname);
-        sprintf(final_string, "%s=(0)", varname);
+        //sprintf(final_string, "SetEnvA: %s=(null)", varname);
+        sprintf(final_string, "%s=(null)", varname);
     }
     else
         return;
@@ -221,7 +221,6 @@ void EV_cbSetEnvA()
 
 void EV_cbVirtualProtect()
 {
-    DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_APISTART);
     unsigned int sec_addr=0;
     unsigned int sec_size=0;
     unsigned int esp_addr=0;
@@ -230,6 +229,15 @@ void EV_cbVirtualProtect()
 
     ReadProcessMemory(EV_fdProcessInfo->hProcess, (const void*)((esp_addr)+4), &sec_addr, 4, 0);
     ReadProcessMemory(EV_fdProcessInfo->hProcess, (const void*)((esp_addr)+8), &sec_size, 4, 0);
+    BYTE* header_code=(BYTE*)malloc2(0x1000);
+    ReadProcessMemory(EV_fdProcessInfo->hProcess, (void*)(sec_addr-0x1000), header_code, 0x1000, 0);
+    if(*(unsigned short*)header_code != 0x5A4D) //not a PE file
+    {
+        free2(header_code);
+        return;
+    }
+    free2(header_code);
+    DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_APISTART);
     sec_data=(BYTE*)malloc2(sec_size);
     ReadProcessMemory(EV_fdProcessInfo->hProcess, (const void*)sec_addr, sec_data, sec_size, 0);
     unsigned int SetEnvA=0,SetEnvW=0;
@@ -295,14 +303,13 @@ void EV_cbEntry()
 DWORD WINAPI EV_DebugThread(LPVOID lpStartAddress)
 {
     EV_fdFileIsDll=false;
-    unsigned int EV_fdEntryPoint=0;
     EV_fdProcessInfo=0;
     EV_bpvp_set=false;
     DWORD EV_bytes_read=0;
     FILE_STATUS_INFO inFileStatus= {0};
     IsPE32FileValidEx(EV_szFileName, UE_DEPTH_SURFACE, &inFileStatus);
     HANDLE hFile, fileMap;
-    EV_fdEntryPoint=(long)GetPE32Data(EV_szFileName, 0, UE_OEP);
+    //EV_fdEntryPoint=(long)GetPE32Data(EV_szFileName, 0, UE_OEP);
     StaticFileLoad(EV_szFileName, UE_ACCESS_READ, false, &hFile, &EV_bytes_read, &fileMap, &EV_va);
     StaticFileClose(hFile);
     EV_fdFileIsDll=inFileStatus.FileIsDLL;

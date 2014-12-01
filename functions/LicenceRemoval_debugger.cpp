@@ -162,6 +162,12 @@ void LR_VirtualProtectCallback()
     ReadProcessMemory(mHandle, (void*)(wSecurityDLLCodeBaseAddr - 0x1000), wHeaderCode, 0x1000, 0);
 
     wDosHeaderPtr=(IMAGE_DOS_HEADER*)((DWORD)wHeaderCode);
+    if(*(unsigned short*)wHeaderCode != 0x5A4D) //not a PE file
+    {
+        free2(wHeaderCode);
+        return;
+    }
+
     wNTHeaderPtr=(IMAGE_NT_HEADERS*)((DWORD)wHeaderCode + wDosHeaderPtr->e_lfanew);
 
     wTimeStamp=wNTHeaderPtr->FileHeader.TimeDateStamp;

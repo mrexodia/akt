@@ -50,7 +50,7 @@ char RetrieveKeyInfo(int level_input, const char* name_, unsigned long hardwareI
 
     struct CipherKeyStruct *cipherkey;
     char cooked[512]="";
-    int x, v3=0, shortv3=0;
+    int x, shortv3=0;
     int level=level_input;
 
     if(hwndDlg && control_id)
@@ -66,7 +66,6 @@ char RetrieveKeyInfo(int level_input, const char* name_, unsigned long hardwareI
     }
     else if(level>=5)
     {
-        v3=1; //TODO: remove?
         level=level-4;
         //V3 keys can now have signature levels 1 through 9
         if(level<1 || level>9)

@@ -171,7 +171,6 @@ void IHD_cbEntry()
 
 DWORD WINAPI IHD_DebugThread(LPVOID lpStartAddress) //TODO: never used
 {
-    long fdSizeOfImage=0;
     FILE_STATUS_INFO inFileStatus= {0};
 
     g_fdFileIsDll=false;
@@ -188,7 +187,7 @@ DWORD WINAPI IHD_DebugThread(LPVOID lpStartAddress) //TODO: never used
     }
     HANDLE hFile, fileMap;
     g_fdEntryPoint=(long)GetPE32Data(g_szFileName, 0, UE_OEP);
-    fdSizeOfImage=(long)GetPE32Data(g_szFileName, 0, UE_SIZEOFIMAGE);
+    //fdSizeOfImage=(long)GetPE32Data(g_szFileName, 0, UE_SIZEOFIMAGE);
     StaticFileLoad(g_szFileName, UE_ACCESS_READ, false, &hFile, &bytes_read, &fileMap, &IHD_va);
     g_fdEntrySectionNumber=GetPE32SectionNumberFromVA(IHD_va, g_fdEntryPoint+GetPE32Data(g_szFileName, 0, UE_IMAGEBASE));
     CloseHandle(hFile);
