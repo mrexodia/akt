@@ -13,6 +13,25 @@ ret\r\n\
 pop eax\r\n\
 mov dword ptr ds:[eax+1],ebp\r\n\
 ;imagebase stuff\r\n\
+;imagesize stuff\r\n\
+call @f\r\n\
+@gettopaddress:\r\n\
+mov ebp,0FFFFFFFF\r\n\
+ret\r\n\
+@@:\r\n\
+call @getimagebase\r\n\
+mov eax,ebp\r\n\
+add ebp,03C\r\n\
+add eax,[ebp]\r\n\
+add eax,50\r\n\
+mov eax,[eax]\r\n\
+call @getimagebase\r\n\
+add eax,ebp\r\n\
+xchg eax,ebp\r\n\
+pop eax\r\n\
+mov [eax+1],ebp\r\n\
+;imagesize stuff\r\n\
+call @getimagebase\r\n\
 mov ebx, dword ptr ds:[ebp+%X] ; OutputDebugStringA\r\n\
 mov esi, dword ptr ds:[ebp+%X] ; VirtualProtect\r\n\
 \r\n\
@@ -35,16 +54,31 @@ call esi ; VirtualProtect\r\n\
 ; Hook VirtualProtect\r\n\
 call @vp_skip\r\n\
 @vp_original_bytes:\r\n\
+call @getimagebase\r\n\
+cmp [esp+10],ebp\r\n\
+jb @vp_dontrestoreyet\r\n\
+call @gettopaddress\r\n\
+cmp [esp+10],ebp\r\n\
+ja @vp_dontrestoreyet\r\n\
 call @f\r\n\
+@vp_dontrestoreyet:\r\n\
+pop ebp\r\n\
+pop ecx\r\n\
+pop esi\r\n\
+pop edi\r\n\
 \"\\x90\\x90\\x90\\x90\\x90\"\r\n\
+jmp 12345678\r\n\
 @@:\r\n\
 jmp short @vp_hook_back\r\n\
 @vp_skip:\r\n\
 pop edi\r\n\
-add edi,5\r\n\
+add edi,27\r\n\
 mov ecx,5\r\n\
 rep movs byte ptr es:[edi],byte ptr ds:[esi]\r\n\
 sub esi,5\r\n\
+sub esi,edi\r\n\
+mov [edi+1],esi\r\n\
+add esi,edi\r\n\
 mov byte ptr ds:[esi],0E9\r\n\
 call @vp_hook_end\r\n\
 \r\n\
@@ -56,6 +90,7 @@ push ebp\r\n\
 jmp short @vp_original_bytes\r\n\
 @vp_hook_back:\r\n\
 pop esi\r\n\
+add esi,4\r\n\
 call @getimagebase\r\n\
 mov edi,dword ptr ds:[ebp+%X] ; VirtualProtect\r\n\
 mov ecx,5\r\n\
