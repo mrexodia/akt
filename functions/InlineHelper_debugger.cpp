@@ -275,15 +275,24 @@ void IH_cbOutputDebugStringA() //Callback for OutputDebugStringA
 
 void IH_cbVirtualProtect() // Callback for VirtualProtect
 {
-    char szSecurityAddrRegister[4]=""; //Register that contains a pointer to security.dll
-
-    DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_APISTART);
-    SetAPIBreakPoint((char*)"kernel32.dll", (char*)"OutputDebugStringA", UE_BREAKPOINT, UE_APISTART, (void*)IH_cbOutputDebugStringA);
-
     unsigned int security_addr=0,esp_addr=0,code_size=0;
     esp_addr=(unsigned int)GetContextData(UE_ESP);
     ReadProcessMemory(IH_fdProcessInfo->hProcess, (const void*)(esp_addr+4), &security_addr, 4, 0);
     ReadProcessMemory(IH_fdProcessInfo->hProcess, (const void*)(esp_addr+8), &code_size, 4, 0);
+
+    BYTE* header_code=(BYTE*)malloc2(0x1000);
+    ReadProcessMemory(IH_fdProcessInfo->hProcess, (void*)(security_addr-0x1000), header_code, 0x1000, 0);
+    if(*(unsigned short*)header_code != 0x5A4D) //not a PE file
+    {
+        free2(header_code);
+        return;
+    }
+    free2(header_code);
+
+    char szSecurityAddrRegister[4]=""; //Register that contains a pointer to security.dll
+
+    DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_APISTART);
+    SetAPIBreakPoint((char*)"kernel32.dll", (char*)"OutputDebugStringA", UE_BREAKPOINT, UE_APISTART, (void*)IH_cbOutputDebugStringA);
 
     DumpMemory(IH_fdProcessInfo->hProcess, (void*)security_addr, code_size, (char*)"security_code.mem");
 
