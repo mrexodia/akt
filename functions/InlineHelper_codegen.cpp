@@ -8,7 +8,7 @@ void IH_GenerateAsmCode(char* codeText, IH_InlineHelperData_t targetData)
     char crc_replace_code[2048]="";
     if(targetData.Arma960)
     {
-        sprintf(crc_replace_code, "mov dword ptr ds:[ebp-0%X],0%X\r\nmov eax,dword ptr ds:[esp+4]\r\nmov eax,dword ptr ds:[eax+0%X]\r\nmov dword ptr ds:[eax],0%X\r\nmov dword ptr ds:[eax+4],0%X\r\nmov dword ptr ds:[eax+8],0%X\r\nmov dword ptr ds:[eax+0C],0%X",
+        sprintf(crc_replace_code, "push eax\r\nmov dword ptr ds:[ebp-%X],%X\r\nmov eax,dword ptr ds:[esp+4]\r\nmov eax,dword ptr ds:[eax+%X]\r\nmov dword ptr ds:[eax],%X\r\nmov dword ptr ds:[eax+4],%X\r\nmov dword ptr ds:[eax+8],%X\r\nmov dword ptr ds:[eax+0C],%X\r\npop eax",
                 targetData.CRCBase,
                 targetData.CrcOriginalVals[0],
                 targetData.Arma960_add,
@@ -19,7 +19,7 @@ void IH_GenerateAsmCode(char* codeText, IH_InlineHelperData_t targetData)
     }
     else
     {
-        sprintf(crc_replace_code, "mov dword ptr ds:[ebp-0%X],0%X\r\nmov dword ptr ds:[ebp-%X],0%X\r\nmov dword ptr ds:[ebp-%X],0%X\r\nmov dword ptr ds:[ebp-%X],0%X\r\nmov dword ptr ds:[ebp-%X],0%X",
+        sprintf(crc_replace_code, "mov dword ptr ds:[ebp-%X],%X\r\nmov dword ptr ds:[ebp-%X],%X\r\nmov dword ptr ds:[ebp-%X],%X\r\nmov dword ptr ds:[ebp-%X],%X\r\nmov dword ptr ds:[ebp-%X],%X",
                 targetData.CRCBase,
                 targetData.CrcOriginalVals[0],
                 targetData.CRCBase+8,
@@ -38,9 +38,9 @@ void IH_GenerateAsmCode(char* codeText, IH_InlineHelperData_t targetData)
             targetData.OutputDebugStringA_Addr-imgbase,
             targetData.VirtualProtect_Addr-imgbase,
             targetData.VirtualProtect_Addr-imgbase,
+            targetData.OutputDebugCount,
             targetData.OutputDebugStringA_Addr-imgbase,
             crc_replace_code,
             targetData.OEP-imgbase,
-            targetData.SecurityAddrRegister,
-            targetData.VirtualProtect_Addr-imgbase);
+            targetData.SecurityAddrRegister);
 }
