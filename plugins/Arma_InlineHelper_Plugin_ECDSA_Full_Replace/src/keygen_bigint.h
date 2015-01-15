@@ -3,23 +3,23 @@
 #define BITS_PER_DIGIT 8
 
 /*
-	In the typedefs below, DIGIT must be at least eight bits long (I don't know
-	of any computer where this wouldn't be true), and WORKING_DIGIT must be at
-	least twice the size of DIGIT. Modify them as needed.
+    In the typedefs below, DIGIT must be at least eight bits long (I don't know
+    of any computer where this wouldn't be true), and WORKING_DIGIT must be at
+    least twice the size of DIGIT. Modify them as needed.
 */
 
 #if BITS_PER_DIGIT==8
 typedef unsigned char DIGIT; /* This must be a minimum of 8 bits long! */
 typedef unsigned short WORKING_DIGIT; /* This must be at least twice the size of DIGIT! */
 #define DIGIT_HIBIT 0x80
-#define	WORKING_DIGIT_HIBIT 0x8000
+#define WORKING_DIGIT_HIBIT 0x8000
 #define DIGIT_MASK 0xFF
 #define OVERFLOW_DIGIT 0x100
 #elif BITS_PER_DIGIT==16
 typedef unsigned short DIGIT;
 typedef unsigned long WORKING_DIGIT;
 #define DIGIT_HIBIT 0x8000
-#define	WORKING_DIGIT_HIBIT 0x80000000
+#define WORKING_DIGIT_HIBIT 0x80000000
 #define DIGIT_MASK 0xFFFF
 #define OVERFLOW_DIGIT 0x10000L
 #else
@@ -29,7 +29,7 @@ typedef unsigned long WORKING_DIGIT;
 struct BigIntBase
 {
     int length, alloc, negative;
-    DIGIT *digits;
+    DIGIT* digits;
 };
 
 typedef struct BigIntBase* BigInt;
@@ -71,86 +71,86 @@ int BigInt_IsZero(BigInt n);
 int BigInt_IsOne(BigInt n);
 
 /*
-	--------------------
-	The BigInt functions
-	--------------------
+    --------------------
+    The BigInt functions
+    --------------------
 */
 
 /* private */
 void BigInt_Realloc(BigInt n, int newcount, int copydata)
 {
-    if(newcount<0) newcount=0;
+    if(newcount < 0) newcount = 0;
     if(newcount < n->alloc)
     {
         if(copydata)
         {
-            if(newcount > n->length) memset(n->digits+n->length, 0, (newcount-n->length)*sizeof(DIGIT));
-            n->length=newcount;
+            if(newcount > n->length) memset(n->digits + n->length, 0, (newcount - n->length)*sizeof(DIGIT));
+            n->length = newcount;
         }
         else
         {
-            n->length=newcount;
-            memset(n->digits, 0, n->length*sizeof(DIGIT));
+            n->length = newcount;
+            memset(n->digits, 0, n->length * sizeof(DIGIT));
         }
     }
     else if(copydata)
     {
-        DIGIT *olddigits=n->digits;
-        n->digits=(DIGIT*)malloc(newcount*sizeof(DIGIT));
-        memcpy(n->digits, olddigits, n->length*sizeof(DIGIT));
-        memset(n->digits+n->length, 0, (newcount-n->length)*sizeof(DIGIT));
-        n->length=n->alloc=newcount;
+        DIGIT* olddigits = n->digits;
+        n->digits = (DIGIT*)malloc(newcount * sizeof(DIGIT));
+        memcpy(n->digits, olddigits, n->length * sizeof(DIGIT));
+        memset(n->digits + n->length, 0, (newcount - n->length)*sizeof(DIGIT));
+        n->length = n->alloc = newcount;
         free(olddigits);
     }
     else
     {
         free(n->digits);
-        n->length=n->alloc=newcount;
-        n->digits=(DIGIT*)malloc(newcount*sizeof(DIGIT));
-        memset(n->digits, 0, n->length*sizeof(DIGIT));
+        n->length = n->alloc = newcount;
+        n->digits = (DIGIT*)malloc(newcount * sizeof(DIGIT));
+        memset(n->digits, 0, n->length * sizeof(DIGIT));
     }
 }
 
 /* private */
 void BigInt_FindMSD(BigInt n)
 {
-    DIGIT *d=n->digits+n->length-1;
-    while(d>n->digits && *d==0) --d;
-    n->length=(d-n->digits)+1;
+    DIGIT* d = n->digits + n->length - 1;
+    while(d > n->digits && *d == 0) --d;
+    n->length = (d - n->digits) + 1;
     /*
     if (n->length==0) {
-    	if (n->alloc<1) BigInt_Realloc(n, 1, 0);
-    	n->length=1;
+        if (n->alloc<1) BigInt_Realloc(n, 1, 0);
+        n->length=1;
     }
     */
-    if(n->length==0 || (n->length==1 && n->digits[0]==0)) n->negative=0;
+    if(n->length == 0 || (n->length == 1 && n->digits[0] == 0)) n->negative = 0;
 }
 
 /* private */
 int BigInt_Compare_SignOptional(BigInt b1, BigInt b2, int ignoresign)
 {
-    int z1=0, z2=0, answer=0, x;
+    int z1 = 0, z2 = 0, answer = 0, x;
 
     if(!ignoresign)
     {
         /* Are b1 and/or b2 zero? */
-        if(b1->length==0 || (b1->length==1 && b1->digits[0]==0)) z1=1;
-        if(b2->length==0 || (b2->length==1 && b2->digits[0]==0)) z2=1;
+        if(b1->length == 0 || (b1->length == 1 && b1->digits[0] == 0)) z1 = 1;
+        if(b2->length == 0 || (b2->length == 1 && b2->digits[0] == 0)) z2 = 1;
 
         if(z1 && z2) return 0;
         if(z1) return b2->negative ? 1 : -1;
         if(z2) return b1->negative ? -1 : 1;
 
-        if(b1->negative!=b2->negative) return (b1->negative ? -1 : 1);
+        if(b1->negative != b2->negative) return (b1->negative ? -1 : 1);
     }
 
-    if(b1->length!=b2->length)
+    if(b1->length != b2->length)
     {
-        answer=((b1->length < b2->length) ? -1 : 1);
+        answer = ((b1->length < b2->length) ? -1 : 1);
     }
     else
     {
-        for(x=b1->length-1; !answer && x>=0; --x) answer=b1->digits[x]-b2->digits[x];
+        for(x = b1->length - 1; !answer && x >= 0; --x) answer = b1->digits[x] - b2->digits[x];
     }
 
     if(!ignoresign && b1->negative) return -answer;
@@ -158,17 +158,17 @@ int BigInt_Compare_SignOptional(BigInt b1, BigInt b2, int ignoresign)
 }
 
 #ifdef DEBUG
-void BigInt_Dump(BigInt n, const char *title)
+void BigInt_Dump(BigInt n, const char* title)
 {
     int x;
     if(title && *title) printf("%s\n", title);
     printf("Dump: length=%d, negative=%s\n", n->length, n->negative ? "true" : "false");
     printf("%02X%02X")
 #if BITS_PER_DIGIT==8
-    for(x=0; x<n->length; x+=2)
-        printf("    Digit %02d: %02X%02X\n", x, x+1<n->length ? n->digits[x+1] : 0, n->digits[x]);
+    for(x = 0; x < n->length; x += 2)
+        printf("    Digit %02d: %02X%02X\n", x, x + 1 < n->length ? n->digits[x + 1] : 0, n->digits[x]);
 #else
-    for(x=0; x<n->length; ++x)
+    for(x = 0; x < n->length; ++x)
         printf("    Digit %d: %04X\n", x, n->digits[x]);
 #endif
 }
@@ -176,32 +176,32 @@ void BigInt_Dump(BigInt n, const char *title)
 
 int BigInt_IsEven(BigInt n)
 {
-    if(n->length<1) return 1;
+    if(n->length < 1) return 1;
     return !(n->digits[0] & 0x01);
 }
 
 int BigInt_IsOdd(BigInt n)
 {
-    if(n->length<1) return 0;
+    if(n->length < 1) return 0;
     return (n->digits[0] & 0x01);
 }
 
 int BigInt_IsZero(BigInt n)
 {
-    return (n->length==0 || (n->length==1 && n->digits[0]==0));
+    return (n->length == 0 || (n->length == 1 && n->digits[0] == 0));
 }
 
 int BigInt_IsOne(BigInt n)
 {
-    return (n->length==1 && n->digits[0]==1);
+    return (n->length == 1 && n->digits[0] == 1);
 }
 
 BigInt BigInt_Create(void)
 {
-    struct BigIntBase *b=(struct BigIntBase *)malloc(sizeof(struct BigIntBase));
-    b->length=b->alloc=0;
-    b->negative=0;
-    b->digits=0;
+    struct BigIntBase* b = (struct BigIntBase*)malloc(sizeof(struct BigIntBase));
+    b->length = b->alloc = 0;
+    b->negative = 0;
+    b->digits = 0;
     return b;
 }
 
@@ -214,69 +214,69 @@ void BigInt_Destroy(BigInt n)
 void BigInt_Copy(BigInt target, BigInt source)
 {
     BigInt_Realloc(target, source->length, 0);
-    target->negative=source->negative;
-    memcpy(target->digits, source->digits, source->length*sizeof(DIGIT));
+    target->negative = source->negative;
+    memcpy(target->digits, source->digits, source->length * sizeof(DIGIT));
 }
 
 void BigInt_Set(BigInt n, signed long init)
 {
-    int neg=0;
-    if(init<0)
+    int neg = 0;
+    if(init < 0)
     {
-        neg=1;
-        init=-init;
+        neg = 1;
+        init = -init;
     }
     BigInt_SetU(n, init);
-    n->negative=neg;
+    n->negative = neg;
 }
 
 void BigInt_SetU(BigInt n, unsigned long init)
 {
     int index;
 
-    BigInt_Realloc(n, sizeof(unsigned long)/sizeof(DIGIT), 0);
-    for(index=0; init; ++index)
+    BigInt_Realloc(n, sizeof(unsigned long) / sizeof(DIGIT), 0);
+    for(index = 0; init; ++index)
     {
-        n->digits[index]=(DIGIT)(init&DIGIT_MASK);
-        init=init>>BITS_PER_DIGIT;
+        n->digits[index] = (DIGIT)(init & DIGIT_MASK);
+        init = init >> BITS_PER_DIGIT;
     }
     BigInt_FindMSD(n);
 }
 
 signed long BigInt_Get(BigInt n)
 {
-    signed long value=BigInt_GetU(n);
-    if(value<0) value=-value;
-    if(n->negative) value=-value;
+    signed long value = BigInt_GetU(n);
+    if(value < 0) value = -value;
+    if(n->negative) value = -value;
     return value;
 }
 
 unsigned long BigInt_GetU(BigInt n)
 {
-    unsigned long value=0;
+    unsigned long value = 0;
     int x;
 
-    for(x=(sizeof(unsigned long)/sizeof(DIGIT))-1; x>=0; --x)
+    for(x = (sizeof(unsigned long) / sizeof(DIGIT)) - 1; x >= 0; --x)
     {
-        value<<=BITS_PER_DIGIT;
-        if(x<n->length) value|=n->digits[x];
+        value <<= BITS_PER_DIGIT;
+        if(x < n->length) value |= n->digits[x];
     }
     return value;
 }
 
 BigInt BigInt_Zero(void)
 {
-    static BigInt zero=0;
-    if(!zero) zero=BigInt_Create();
+    static BigInt zero = 0;
+    if(!zero) zero = BigInt_Create();
     return zero;
 }
 
 BigInt BigInt_One(void)
 {
-    static BigInt one=0;
+    static BigInt one = 0;
     if(!one)
     {
-        one=BigInt_Create();
+        one = BigInt_Create();
         BigInt_Set(one, 1);
     }
     return one;
@@ -289,78 +289,78 @@ int BigInt_Compare(BigInt a, BigInt b)
 
 void BigInt_Add(BigInt a, BigInt b, BigInt answer)
 {
-    DIGIT *ad, *bd, *ansd;
-    int level=0, x, carry;
+    DIGIT* ad, *bd, *ansd;
+    int level = 0, x, carry;
     WORKING_DIGIT n;
     BigInt savedb;
-    savedb=BigInt_Zero();
+    savedb = BigInt_Zero();
 
     /* Check for zeros */
-    if(a->length==0 || (a->length==1 && a->digits[0]==0))
+    if(a->length == 0 || (a->length == 1 && a->digits[0] == 0))
     {
         BigInt_Copy(answer, b);
         return;
     }
-    else if(b->length==0 || (b->length==1 && b->digits[0]==0))
+    else if(b->length == 0 || (b->length == 1 && b->digits[0] == 0))
     {
         BigInt_Copy(answer, a);
         return;
     }
 
     /* Handle mismatched signs, step 1 */
-    if(a->negative!=b->negative)
+    if(a->negative != b->negative)
     {
-        savedb=BigInt_Create();
+        savedb = BigInt_Create();
         BigInt_Copy(savedb, b);
 
         /* Bug fix. If 'a' and 'b' aren't the same length, we need to expand
         the shorter one to the same size as the longer one before we invert it.
         This was the original source of the invert problem. */
-        if(b->length<a->length) BigInt_Realloc(b, a->length, 1);
-        else if(a->length<b->length) BigInt_Realloc(a, b->length, 1);
+        if(b->length < a->length) BigInt_Realloc(b, a->length, 1);
+        else if(a->length < b->length) BigInt_Realloc(a, b->length, 1);
 
-        level=b->length;
+        level = b->length;
         BigInt_Invert(b);
     }
 
     /* Make the numbers both the same size */
-    if(a->length!=b->length)
+    if(a->length != b->length)
     {
         if(a->length > b->length) BigInt_Realloc(b, a->length, 1);
         else BigInt_Realloc(a, b->length, 1);
     }
 
     /* Allocate one more digit for the answer */
-    BigInt_Realloc(answer, a->length+1, 0);
-    answer->negative=a->negative;
+    BigInt_Realloc(answer, a->length + 1, 0);
+    answer->negative = a->negative;
 
-    carry=0;
-    ad=a->digits;
-    bd=b->digits;
-    ansd=answer->digits;
-    for(x=0; x<a->length; ++x)
+    carry = 0;
+    ad = a->digits;
+    bd = b->digits;
+    ansd = answer->digits;
+    for(x = 0; x < a->length; ++x)
     {
-        n=(WORKING_DIGIT)(*ad++)+(WORKING_DIGIT)(*bd++)+carry;
+        n = (WORKING_DIGIT)(*ad++) + (WORKING_DIGIT)(*bd++) + carry;
 
-        if(n>=OVERFLOW_DIGIT)
+        if(n >= OVERFLOW_DIGIT)
         {
-            carry=1;
-            *ansd++=(DIGIT)(n-OVERFLOW_DIGIT);
+            carry = 1;
+            *ansd++ = (DIGIT)(n - OVERFLOW_DIGIT);
         }
         else
         {
-            carry=0;
-            *ansd++=(DIGIT)(n);
+            carry = 0;
+            *ansd++ = (DIGIT)(n);
         }
     }
-    *ansd=carry;
+    *ansd = carry;
 
     /* Find the most significant digits, for efficiency */
     BigInt_FindMSD(answer);
     BigInt_FindMSD(b);
     BigInt_FindMSD(a);
 
-    if(level!=0)
+    if(level != 0)
     {
         /* Handle mismatched signs, step 2 */
         BigInt_Copy(b, savedb);
@@ -385,53 +385,53 @@ void BigInt_Add(BigInt a, BigInt b, BigInt answer)
 
 void BigInt_Subtract(BigInt a, BigInt b, BigInt answer)
 {
-    b->negative=!b->negative;
+    b->negative = !b->negative;
     BigInt_Add(a, b, answer);
-    b->negative=!b->negative;
+    b->negative = !b->negative;
 }
 
 void BigInt_Multiply(BigInt a, BigInt b, BigInt answer)
 {
     int carry, digit1, digit2, digita;
-    DIGIT *ad, *ae, *bd, *be, *ansd;
+    DIGIT* ad, *ae, *bd, *be, *ansd;
     WORKING_DIGIT t, addt;
 
     /* If the numbers are the same, use square instead -- more efficient */
     /*x*/
 
     /* Allocate the appropriate number of digits */
-    BigInt_Realloc(answer, a->length+b->length+1, 0);
+    BigInt_Realloc(answer, a->length + b->length + 1, 0);
 
     /* Multiply the digits, starting at the least-significant one */
-    for(ad=a->digits, ae=ad+a->length, digit1=0; ad<ae; ++ad, ++digit1)
+    for(ad = a->digits, ae = ad + a->length, digit1 = 0; ad < ae; ++ad, ++digit1)
     {
-        for(bd=b->digits, be=bd+b->length, digit2=0; bd<be; ++bd, ++digit2)
+        for(bd = b->digits, be = bd + b->length, digit2 = 0; bd < be; ++bd, ++digit2)
         {
             /* Multiply the digits and add the result to the answer */
-            carry=0;
-            digita=digit1+digit2;
-            ansd=answer->digits+digita;
+            carry = 0;
+            digita = digit1 + digit2;
+            ansd = answer->digits + digita;
 
-            t=(*ad)*(*bd);
-            addt=(*ansd)+(t & DIGIT_MASK);
-            if(addt >= OVERFLOW_DIGIT) carry=1;
-            (*ansd++)=(DIGIT)(addt);
+            t = (*ad) * (*bd);
+            addt = (*ansd) + (t & DIGIT_MASK);
+            if(addt >= OVERFLOW_DIGIT) carry = 1;
+            (*ansd++) = (DIGIT)(addt);
 
-            addt=(*ansd)+((t>>BITS_PER_DIGIT)&DIGIT_MASK)+carry;
-            if(addt >= OVERFLOW_DIGIT) carry=1;
-            else carry=0;
-            (*ansd++)=(DIGIT)(addt);
+            addt = (*ansd) + ((t >> BITS_PER_DIGIT)&DIGIT_MASK) + carry;
+            if(addt >= OVERFLOW_DIGIT) carry = 1;
+            else carry = 0;
+            (*ansd++) = (DIGIT)(addt);
 
             while(carry)
             {
-                addt=(*ansd)+1;
-                (*ansd++)=(DIGIT)addt;
+                addt = (*ansd) + 1;
+                (*ansd++) = (DIGIT)addt;
                 if(addt < OVERFLOW_DIGIT) break;
             }
         }
     }
 
-    answer->negative=(a->negative ^ b->negative);
+    answer->negative = (a->negative ^ b->negative);
     BigInt_FindMSD(answer);
 }
 
@@ -441,26 +441,26 @@ int BigInt_Divide(BigInt a, BigInt b, BigInt answer, BigInt remainder)
     WORKING_DIGIT high, low, t;
     BigInt temp1, temp2;
 
-    temp1=BigInt_Create();
-    temp2=BigInt_Create();
+    temp1 = BigInt_Create();
+    temp2 = BigInt_Create();
 
-    signa=a->negative;
-    a->negative=0;
-    signb=b->negative;
-    b->negative=0;
+    signa = a->negative;
+    a->negative = 0;
+    signb = b->negative;
+    b->negative = 0;
 
     /* Check for divide-by-zero, it's not allowed */
-    if(b->length==1 && b->digits[0]==0) return 0;
+    if(b->length == 1 && b->digits[0] == 0) return 0;
 
     /* Compare a and b, to see if we can take a shortcut */
-    compare=BigInt_Compare_SignOptional(a, b, 1);
-    if(compare<0)
+    compare = BigInt_Compare_SignOptional(a, b, 1);
+    if(compare < 0)
     {
         BigInt_Set(answer, 0);
         BigInt_Copy(remainder, a);
         return 1;
     }
-    else if(compare==0)
+    else if(compare == 0)
     {
         BigInt_Set(answer, 1);
         BigInt_Set(remainder, 0);
@@ -469,29 +469,29 @@ int BigInt_Divide(BigInt a, BigInt b, BigInt answer, BigInt remainder)
 
     BigInt_Realloc(answer, a->length, 0);
     BigInt_Set(remainder, 0);
-    for(i=1; i<=a->length; ++i)
+    for(i = 1; i <= a->length; ++i)
     {
         /* remainder=(remainder<<BITS_PER_DIGIT)+a->digits[a->length-i]; */
         BigInt_Copy(temp1, remainder);
         BigInt_Shift(temp1, BITS_PER_DIGIT, remainder);
-        remainder->digits[0]=a->digits[a->length-i];
+        remainder->digits[0] = a->digits[a->length - i];
 
-        if(BigInt_Compare_SignOptional(remainder, b, 1)>=0)
+        if(BigInt_Compare_SignOptional(remainder, b, 1) >= 0)
         {
-            high=OVERFLOW_DIGIT;
-            low=0;
-            while(low<high)
+            high = OVERFLOW_DIGIT;
+            low = 0;
+            while(low < high)
             {
-                t=((high-low)/2)+low;
+                t = ((high - low) / 2) + low;
 
                 /* if ((b*t)>remainder) high=t; else low=t+1; */
                 BigInt_Set(temp2, t);
                 BigInt_Multiply(b, temp2, temp1);
-                if(BigInt_Compare(temp1, remainder)>0) high=t;
-                else low=t+1;
+                if(BigInt_Compare(temp1, remainder) > 0) high = t;
+                else low = t + 1;
             }
-            t=low-1;
-            answer->digits[a->length-i]=(DIGIT)(t);
+            t = low - 1;
+            answer->digits[a->length - i] = (DIGIT)(t);
 
             /* remainder=remainder-(b*t) */
             BigInt_Set(temp2, t);
@@ -499,12 +499,12 @@ int BigInt_Divide(BigInt a, BigInt b, BigInt answer, BigInt remainder)
             BigInt_Subtract(remainder, temp1, temp2);
             BigInt_Copy(remainder, temp2);
         }
-        else answer->digits[a->length-i]=0;
+        else answer->digits[a->length - i] = 0;
     }
 
-    a->negative=signa;
-    b->negative=signb;
-    answer->negative=(a->negative ^ b->negative);
+    a->negative = signa;
+    b->negative = signb;
+    answer->negative = (a->negative ^ b->negative);
     BigInt_FindMSD(answer);
     BigInt_Destroy(temp2);
     BigInt_Destroy(temp1);
@@ -513,27 +513,27 @@ int BigInt_Divide(BigInt a, BigInt b, BigInt answer, BigInt remainder)
 
 void BigInt_PowerModulus(BigInt n, BigInt exp, BigInt modulus, BigInt answer)
 {
-    DIGIT *eptr, *eend, emask;
+    DIGIT* eptr, *eend, emask;
     BigInt p, temp, r;
-    r=BigInt_Zero();
+    r = BigInt_Zero();
 
     /* If n is negative and the exponent is odd, the answer will be negative. */
-    int neg=(n->negative && (exp->digits[0]&0x01));
+    int neg = (n->negative && (exp->digits[0] & 0x01));
 
-    p=BigInt_Create();
-    temp=BigInt_Create();
-    if(modulus) r=BigInt_Create();
+    p = BigInt_Create();
+    temp = BigInt_Create();
+    if(modulus) r = BigInt_Create();
 
     BigInt_Copy(p, n);
-    p->negative=0;
+    p->negative = 0;
 
     BigInt_Set(answer, 1);
 
     /* Continue this loop while the exponent is not zero */
-    eptr=exp->digits;
-    eend=eptr+exp->length;
-    emask=0x01;
-    while(eptr<eend)
+    eptr = exp->digits;
+    eend = eptr + exp->length;
+    emask = 0x01;
+    while(eptr < eend)
     {
         /* If e is odd, multiply the answer by p */
         if((*eptr) & emask)
@@ -554,14 +554,14 @@ void BigInt_PowerModulus(BigInt n, BigInt exp, BigInt modulus, BigInt answer)
         else BigInt_Copy(p, temp);
 
         /* Shift e right by one bit */
-        emask<<=1;
-        if(emask==0)
+        emask <<= 1;
+        if(emask == 0)
         {
             ++eptr;
-            emask=0x01;
+            emask = 0x01;
         }
     }
-    answer->negative=neg;
+    answer->negative = neg;
 
     if(modulus) BigInt_Destroy(r);
     BigInt_Destroy(temp);
@@ -575,7 +575,7 @@ void BigInt_Power(BigInt n, BigInt exp, BigInt answer)
 
 void BigInt_And(BigInt a, BigInt b, BigInt answer)
 {
-    DIGIT *ansd, *anse, *z;
+    DIGIT* ansd, *anse, *z;
 
     if(BigInt_IsZero(a) || BigInt_IsZero(b))
     {
@@ -586,89 +586,89 @@ void BigInt_And(BigInt a, BigInt b, BigInt answer)
     else if(a->length >= b->length)
     {
         BigInt_Copy(answer, a);
-        z=b->digits;
+        z = b->digits;
     }
     else
     {
         BigInt_Copy(answer, b);
-        z=a->digits;
+        z = a->digits;
     }
 
-    ansd=answer->digits;
-    anse=ansd+answer->length;
-    while(ansd<anse)(*ansd++)&=(*z++);
+    ansd = answer->digits;
+    anse = ansd + answer->length;
+    while(ansd < anse)(*ansd++) &= (*z++);
     BigInt_FindMSD(answer);
 }
 
 void BigInt_Or(BigInt a, BigInt b, BigInt answer)
 {
-    DIGIT *ansd, *anse, *z;
+    DIGIT* ansd, *anse, *z;
 
     if(a->length >= b->length)
     {
         BigInt_Copy(answer, a);
-        z=b->digits;
+        z = b->digits;
     }
     else
     {
         BigInt_Copy(answer, b);
-        z=a->digits;
+        z = a->digits;
     }
 
-    ansd=answer->digits;
-    anse=ansd+answer->length;
-    while(ansd<anse)(*ansd++)|=(*z++);
+    ansd = answer->digits;
+    anse = ansd + answer->length;
+    while(ansd < anse)(*ansd++) |= (*z++);
     BigInt_FindMSD(answer);
 }
 
 void BigInt_Xor(BigInt a, BigInt b, BigInt answer)
 {
-    DIGIT *ansd, *anse, *z;
+    DIGIT* ansd, *anse, *z;
 
     if(a->length >= b->length)
     {
         BigInt_Copy(answer, a);
-        z=b->digits;
+        z = b->digits;
     }
     else
     {
         BigInt_Copy(answer, b);
-        z=a->digits;
+        z = a->digits;
     }
 
-    ansd=answer->digits;
-    anse=ansd+answer->length;
-    while(ansd<anse)(*ansd++)^=(*z++);
+    ansd = answer->digits;
+    anse = ansd + answer->length;
+    while(ansd < anse)(*ansd++) ^= (*z++);
     BigInt_FindMSD(answer);
 }
 
 void BigInt_Shift(BigInt n, int places, BigInt answer)
 {
     /* Negative 'places' shifts right */
-    int bytes, bits, neg=0, x;
+    int bytes, bits, neg = 0, x;
 
-    if(places<0)
+    if(places < 0)
     {
-        neg=1;
-        places=-places;
+        neg = 1;
+        places = -places;
     }
-    bytes=places/BITS_PER_DIGIT;
-    bits=places%BITS_PER_DIGIT;
-    answer->negative=n->negative;
+    bytes = places / BITS_PER_DIGIT;
+    bits = places % BITS_PER_DIGIT;
+    answer->negative = n->negative;
     if(bytes)
     {
         /* Bytes only */
         if(neg)
         {
             /* Right-shift */
-            BigInt_Realloc(answer, n->length-bytes, 0);
-            for(x=0; x<n->length-bytes; ++x) answer->digits[x]=n->digits[x+bytes];
+            BigInt_Realloc(answer, n->length - bytes, 0);
+            for(x = 0; x < n->length - bytes; ++x) answer->digits[x] = n->digits[x + bytes];
         }
         else
         {
             /* Left-shift */
-            BigInt_Realloc(answer, n->length+bytes+1, 0);
-            for(x=0; x<n->length; ++x) answer->digits[x+bytes]=n->digits[x];
+            BigInt_Realloc(answer, n->length + bytes + 1, 0);
+            for(x = 0; x < n->length; ++x) answer->digits[x + bytes] = n->digits[x];
         }
     }
     else BigInt_Copy(answer, n);
@@ -678,20 +678,20 @@ void BigInt_Shift(BigInt n, int places, BigInt answer)
         if(neg)
         {
             /* Right-shift */
-            for(x=0; x<answer->length; ++x)
+            for(x = 0; x < answer->length; ++x)
             {
-                answer->digits[x]>>=bits;
-                if(x+1<answer->length) answer->digits[x]|=answer->digits[x+1]<<(BITS_PER_DIGIT-bits);
+                answer->digits[x] >>= bits;
+                if(x + 1 < answer->length) answer->digits[x] |= answer->digits[x + 1] << (BITS_PER_DIGIT - bits);
             }
         }
         else
         {
             /* Left-shift */
-            BigInt_Realloc(answer, answer->length+1, 1);
-            for(x=answer->length-1; x>=0; --x)
+            BigInt_Realloc(answer, answer->length + 1, 1);
+            for(x = answer->length - 1; x >= 0; --x)
             {
-                answer->digits[x]<<=bits;
-                if(x-1>=0) answer->digits[x]|=answer->digits[x-1]>>(BITS_PER_DIGIT-bits);
+                answer->digits[x] <<= bits;
+                if(x - 1 >= 0) answer->digits[x] |= answer->digits[x - 1] >> (BITS_PER_DIGIT - bits);
             }
         }
     }
@@ -701,23 +701,23 @@ void BigInt_Shift(BigInt n, int places, BigInt answer)
 void BigInt_Invert(BigInt n)
 {
     WORKING_DIGIT w;
-    DIGIT *d, *e;
+    DIGIT* d, *e;
 
-    d=n->digits;
-    e=d+n->length;
-    n->negative=!n->negative;
-    while(d<e)
+    d = n->digits;
+    e = d + n->length;
+    n->negative = !n->negative;
+    while(d < e)
     {
-        *d=(DIGIT)(OVERFLOW_DIGIT-1-(*d));
+        *d = (DIGIT)(OVERFLOW_DIGIT - 1 - (*d));
         ++d;
     }
 
-    d=n->digits;
-    while(d<e)
+    d = n->digits;
+    while(d < e)
     {
-        w=(*d)+1;
-        (*d++)=(DIGIT)(w);
-        if(w<OVERFLOW_DIGIT) break;
+        w = (*d) + 1;
+        (*d++) = (DIGIT)(w);
+        if(w < OVERFLOW_DIGIT) break;
     }
 
     BigInt_FindMSD(n);
@@ -725,15 +725,15 @@ void BigInt_Invert(BigInt n)
 
 void BigInt_Modulus(BigInt n, BigInt mod, BigInt answer)
 {
-    BigInt q=BigInt_Create();
-    BigInt temp=BigInt_Create();
+    BigInt q = BigInt_Create();
+    BigInt temp = BigInt_Create();
 
     if(n->negative)
     {
         BigInt_Divide(n, mod, q, temp);
         BigInt_Subtract(mod, temp, answer);
     }
-    else if(BigInt_Compare(n, mod)>=0)
+    else if(BigInt_Compare(n, mod) >= 0)
     {
         BigInt_Divide(n, mod, q, answer);
     }
@@ -746,57 +746,57 @@ void BigInt_Modulus(BigInt n, BigInt mod, BigInt answer)
 void BigInt_GCD(BigInt _n, BigInt _m, BigInt answer)
 {
     BigInt n, m, u1, u2, u3, t1, t2, t3, temp, uninit;
-    DIGIT *p, *e, mask;
+    DIGIT* p, *e, mask;
     int k, t;
 
-    n=BigInt_Create();
-    m=BigInt_Create();
-    u1=BigInt_Create();
-    u2=BigInt_Create();
-    u3=BigInt_Create();
-    t1=BigInt_Create();
-    t2=BigInt_Create();
-    t3=BigInt_Create();
-    temp=BigInt_Create();
+    n = BigInt_Create();
+    m = BigInt_Create();
+    u1 = BigInt_Create();
+    u2 = BigInt_Create();
+    u3 = BigInt_Create();
+    t1 = BigInt_Create();
+    t2 = BigInt_Create();
+    t3 = BigInt_Create();
+    temp = BigInt_Create();
 
     BigInt_Copy(n, _n);
     BigInt_Copy(m, _m);
-    n->negative=m->negative=0;
+    n->negative = m->negative = 0;
 
     /* Factor out any common twos. */
-    p=n->digits;
-    e=p+n->length;
-    t=0;
-    while(p<e)
+    p = n->digits;
+    e = p + n->length;
+    t = 0;
+    while(p < e)
     {
-        mask=0x01;
+        mask = 0x01;
         while(mask)
         {
             if((*p) & mask) break;
-            mask<<=1;
+            mask <<= 1;
             ++t;
         }
         if(mask) break;
         ++p;
     }
-    k=t;
+    k = t;
 
-    p=m->digits;
-    e=p+m->length;
-    t=0;
-    while(p<e)
+    p = m->digits;
+    e = p + m->length;
+    t = 0;
+    while(p < e)
     {
-        mask=0x01;
+        mask = 0x01;
         while(mask)
         {
             if((*p) & mask) break;
-            mask<<=1;
+            mask <<= 1;
             ++t;
         }
         if(mask) break;
         ++p;
     }
-    if(t<k) k=t;
+    if(t < k) k = t;
 
     if(k)
     {
@@ -834,23 +834,23 @@ void BigInt_GCD(BigInt _n, BigInt _m, BigInt answer)
                 BigInt_Copy(u3, temp);
             }
 
-            if(!(t3->digits[0] & 0x01) || BigInt_Compare(u3, t3)<0)
+            if(!(t3->digits[0] & 0x01) || BigInt_Compare(u3, t3) < 0)
             {
                 /* Swap the u's with the t's */
-                uninit=u1;
-                u1=t1;
-                t1=uninit;
-                uninit=u2;
-                u2=t2;
-                t2=uninit;
-                uninit=u3;
-                u3=t3;
-                t3=uninit;
+                uninit = u1;
+                u1 = t1;
+                t1 = uninit;
+                uninit = u2;
+                u2 = t2;
+                t2 = uninit;
+                uninit = u3;
+                u3 = t3;
+                t3 = uninit;
             }
         }
         while(!(u3->digits[0] & 0x01));
 
-        while(BigInt_Compare(u1, t1)<0 || BigInt_Compare(u2, t2)<0)
+        while(BigInt_Compare(u1, t1) < 0 || BigInt_Compare(u2, t2) < 0)
         {
             BigInt_Add(u1, m, temp);
             BigInt_Copy(u1, temp);
@@ -865,9 +865,9 @@ void BigInt_GCD(BigInt _n, BigInt _m, BigInt answer)
         BigInt_Subtract(u3, t3, temp);
         BigInt_Copy(u3, temp);
     }
-    while(t3->length>1 || t3->digits[0]>0);
+    while(t3->length > 1 || t3->digits[0] > 0);
 
-    while(BigInt_Compare(u1, m)>=0 && BigInt_Compare(u2, n)>=0)
+    while(BigInt_Compare(u1, m) >= 0 && BigInt_Compare(u2, n) >= 0)
     {
         BigInt_Subtract(u1, m, temp);
         BigInt_Copy(u1, temp);
@@ -875,7 +875,7 @@ void BigInt_GCD(BigInt _n, BigInt _m, BigInt answer)
         BigInt_Copy(u2, temp);
     }
 
-    if(u3->length>1 || u3->digits[0]!=0)
+    if(u3->length > 1 || u3->digits[0] != 0)
     {
         BigInt_Shift(u3, k, answer);
     }
@@ -906,10 +906,10 @@ int BigInt_ModularInverse(BigInt n, BigInt m, BigInt answer)
     if(m->negative) return 0;
     if(n->negative)
     {
-        temp=BigInt_Create();
-        n->negative=0;
-        t=BigInt_ModularInverse(n, m, temp);
-        n->negative=1;
+        temp = BigInt_Create();
+        n->negative = 0;
+        t = BigInt_ModularInverse(n, m, temp);
+        n->negative = 1;
         BigInt_Add(temp, m, answer);
         BigInt_Destroy(temp);
         return t;
@@ -918,13 +918,13 @@ int BigInt_ModularInverse(BigInt n, BigInt m, BigInt answer)
     /* If they're both even, then GCD(n,m)!=1, and no inverse is possible. */
     if(BigInt_IsEven(n) && BigInt_IsEven(m)) return 0;
 
-    u1=BigInt_Create();
-    u2=BigInt_Create();
-    u3=BigInt_Create();
-    t1=BigInt_Create();
-    t2=BigInt_Create();
-    t3=BigInt_Create();
-    temp=BigInt_Create();
+    u1 = BigInt_Create();
+    u2 = BigInt_Create();
+    u3 = BigInt_Create();
+    t1 = BigInt_Create();
+    t2 = BigInt_Create();
+    t3 = BigInt_Create();
+    temp = BigInt_Create();
 
     BigInt_Set(u1, 1);
     BigInt_Set(u2, 0);
@@ -954,23 +954,23 @@ int BigInt_ModularInverse(BigInt n, BigInt m, BigInt answer)
                 BigInt_Copy(u3, temp);
             }
 
-            if(BigInt_IsEven(t3) || BigInt_Compare(u3, t3)<0)
+            if(BigInt_IsEven(t3) || BigInt_Compare(u3, t3) < 0)
             {
                 /* Swap the u's with the t's */
-                uninit=u1;
-                u1=t1;
-                t1=uninit;
-                uninit=u2;
-                u2=t2;
-                t2=uninit;
-                uninit=u3;
-                u3=t3;
-                t3=uninit;
+                uninit = u1;
+                u1 = t1;
+                t1 = uninit;
+                uninit = u2;
+                u2 = t2;
+                t2 = uninit;
+                uninit = u3;
+                u3 = t3;
+                t3 = uninit;
             }
         }
         while(BigInt_IsEven(u3));
 
-        while(BigInt_Compare(u1, t1)<0 || BigInt_Compare(u2, t2)<0)
+        while(BigInt_Compare(u1, t1) < 0 || BigInt_Compare(u2, t2) < 0)
         {
             BigInt_Add(u1, m, temp);
             BigInt_Copy(u1, temp);
@@ -985,9 +985,9 @@ int BigInt_ModularInverse(BigInt n, BigInt m, BigInt answer)
         BigInt_Copy(temp, u3);
         BigInt_Subtract(temp, t3, u3);
     }
-    while(BigInt_Compare(t3, BigInt_Zero())>0);
+    while(BigInt_Compare(t3, BigInt_Zero()) > 0);
 
-    while(BigInt_Compare(u1, m)>=0 && BigInt_Compare(u2, n)>=0)
+    while(BigInt_Compare(u1, m) >= 0 && BigInt_Compare(u2, n) >= 0)
     {
         BigInt_Subtract(u1, m, temp);
         BigInt_Copy(u1, temp);
@@ -995,8 +995,8 @@ int BigInt_ModularInverse(BigInt n, BigInt m, BigInt answer)
         BigInt_Copy(u2, temp);
     }
 
-    t=1;
-    if(!BigInt_IsOne(u3)) t=0;
+    t = 1;
+    if(!BigInt_IsOne(u3)) t = 0;
     if(t) BigInt_Copy(answer, u1);
 
     BigInt_Destroy(temp);
@@ -1012,18 +1012,18 @@ int BigInt_ModularInverse(BigInt n, BigInt m, BigInt answer)
 
 void BigInt_ToString(BigInt s, int base, char* d)
 {
-    char digits[]="0123456789ABCDEF";
-    d[0]=0;
+    char digits[] = "0123456789ABCDEF";
+    d[0] = 0;
     if(!BigInt_Compare(s, BigInt_Zero()))
     {
         strcpy(d, "0");
         return;
     }
     BigInt ten, answer, remainder, copy_s;
-    ten=BigInt_Create();
-    remainder=BigInt_Create();
-    answer=BigInt_Create();
-    copy_s=BigInt_Create();
+    ten = BigInt_Create();
+    remainder = BigInt_Create();
+    answer = BigInt_Create();
+    copy_s = BigInt_Create();
     BigInt_Copy(copy_s, s);
     BigInt_SetU(ten, base);
     while(BigInt_Compare(copy_s, BigInt_Zero()))
@@ -1049,12 +1049,12 @@ bool BigInt_ToHexString(BigInt n, char* d)
             return false;
         if(n->negative)
             strcpy(d, "-");
-        for(int i=0; i<n->length; i++)
+        for(int i = 0; i < n->length; i++)
         {
             if(!i)
-                sprintf(d, "%s%X", d, n->digits[n->length-1]);
+                sprintf(d, "%s%X", d, n->digits[n->length - 1]);
             else
-                sprintf(d, "%s%.2X", d, n->digits[n->length-i-1]);
+                sprintf(d, "%s%.2X", d, n->digits[n->length - i - 1]);
         }
     }
     else
@@ -1066,40 +1066,40 @@ bool BigInt_FromHexString(const char* source, BigInt dest)
 {
     int len;
     unsigned int c;
-    const char* s=source;
-    char s_copy[256]="";
-    char temp[256]="";
-    bool negative=false;
+    const char* s = source;
+    char s_copy[256] = "";
+    char temp[256] = "";
+    bool negative = false;
 
-    if(s[0]=='-') //Consider negative numbers
+    if(s[0] == '-') //Consider negative numbers
     {
-        negative=true;
+        negative = true;
         s++;
     }
-    len=strlen(s);
+    len = strlen(s);
     if(!len)
     {
         BigInt_Set(dest, 0);
         return false;
     }
 
-    for(int i=0; i<len; i++) //Format hex characters
+    for(int i = 0; i < len; i++) //Format hex characters
         if(isxdigit(s[i]))
             sprintf(temp, "%s%c", temp, s[i]);
 
     //We hate prepended zeroes
-    s=temp;
-    while(*s=='0')
+    s = temp;
+    while(*s == '0')
         s++;
 
-    len=strlen(s); //Recalculate length
+    len = strlen(s); //Recalculate length
     if(!len)
     {
         BigInt_Set(dest, 0);
         return false;
     }
 
-    if(len%2) //Prepend zero if needed
+    if(len % 2) //Prepend zero if needed
         sprintf(s_copy, "0%s", s);
     else
         strcpy(s_copy, s);
@@ -1109,20 +1109,20 @@ bool BigInt_FromHexString(const char* source, BigInt dest)
     BigInt_Set(dest, 0);
 
     if(negative)
-        dest->negative=1;
+        dest->negative = 1;
 
     //Update our bignum struct & alloc memory
-    dest->length=strlen(s_copy)/2;
-    dest->alloc=dest->length+1;
-    dest->digits=(DIGIT*)malloc(dest->alloc);
+    dest->length = strlen(s_copy) / 2;
+    dest->alloc = dest->length + 1;
+    dest->digits = (DIGIT*)malloc(dest->alloc);
     memset(dest->digits, 0, dest->alloc); //zero memory
 
     //Interpret hex chars
-    for(int i=0,j=0; i<dest->length; i++,j+=2)
+    for(int i = 0, j = 0; i < dest->length; i++, j += 2)
     {
-        memcpy(temp, s_copy+j, 2);
+        memcpy(temp, s_copy + j, 2);
         sscanf(temp, "%x", &c);
-        dest->digits[dest->length-i-1]=(DIGIT)c;
+        dest->digits[dest->length - i - 1] = (DIGIT)c;
     }
     return true;
 }
@@ -1131,13 +1131,13 @@ bool BigInt_FromDecString(const char* source, BigInt dest)
 {
     if(!source or !dest)
         return false;
-    const char *c=source;
+    const char* c = source;
     BigInt t, t2, base_;
-    int neg=0;
+    int neg = 0;
 
-    t=BigInt_Create();
-    t2=BigInt_Create();
-    base_=BigInt_Create();
+    t = BigInt_Create();
+    t2 = BigInt_Create();
+    base_ = BigInt_Create();
 
     BigInt_SetU(base_, 10);
     BigInt_Set(dest, 0);
@@ -1145,18 +1145,18 @@ bool BigInt_FromDecString(const char* source, BigInt dest)
     if(!strlen(c))
         return false;
 
-    if(*c=='-')
+    if(*c == '-')
     {
-        neg=1;
+        neg = 1;
         ++c;
     }
     if(!strlen(c))
         return false;
     while(*c)
     {
-        if(*c>='0' and *c<='9')
+        if(*c >= '0' and * c <= '9')
         {
-            BigInt_Set(t, *c-'0');
+            BigInt_Set(t, *c - '0');
             BigInt_Multiply(dest, base_, t2);
             BigInt_Add(t2, t, dest);
         }
@@ -1166,7 +1166,7 @@ bool BigInt_FromDecString(const char* source, BigInt dest)
     }
 
     if(neg and dest->length and dest->digits[0])
-        dest->negative=1;
+        dest->negative = 1;
 
     BigInt_Destroy(base_);
     BigInt_Destroy(t2);
@@ -1176,9 +1176,9 @@ bool BigInt_FromDecString(const char* source, BigInt dest)
 
 bool BigInt_FromString(const char* source, int base, BigInt dest)
 {
-    if(base==16)
+    if(base == 16)
         return BigInt_FromHexString(source, dest);
-    else if(base==10)
+    else if(base == 10)
         return BigInt_FromDecString(source, dest);
     return false;
 }

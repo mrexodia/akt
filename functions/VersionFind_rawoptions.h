@@ -5,7 +5,7 @@
 
 
 /**********************************************************************
- *						Prototypes
+ *                      Prototypes
  *********************************************************************/
 bool VF_RawOptions(char* szFileName, unsigned int* raw_options, bool* bIsMinimal, cbErrorMessage ErrorMessageCallback);
 

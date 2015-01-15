@@ -1,13 +1,13 @@
 #include "Misc_sectiondeleter.h"
 
-static unsigned int overlay_size=0;
-static unsigned char* overlay_dump=0;
+static unsigned int overlay_size = 0;
+static unsigned char* overlay_dump = 0;
 
 bool MSC_SD_IsArmadilloProtected(char* va)
 {
-    unsigned int* va1=(unsigned int*)(va+0x3c);
-    unsigned int pe_offset=*va1;
-    char* isarma=(char*)(va+pe_offset+0x1A);
+    unsigned int* va1 = (unsigned int*)(va + 0x3c);
+    unsigned int pe_offset = *va1;
+    char* isarma = (char*)(va + pe_offset + 0x1A);
     if(memcmp(isarma, "SR", 2))
         return false;
     return true;
@@ -15,12 +15,12 @@ bool MSC_SD_IsArmadilloProtected(char* va)
 
 bool MSC_SD_DumpOverlay(const char* filename)
 {
-    HANDLE hFile=CreateFileA(filename, GENERIC_WRITE, 0, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
-    if(hFile==INVALID_HANDLE_VALUE)
+    HANDLE hFile = CreateFileA(filename, GENERIC_WRITE, 0, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+    if(hFile == INVALID_HANDLE_VALUE)
         return false;
     SetFilePointer(hFile, 0, 0, FILE_BEGIN);
     SetEndOfFile(hFile);
-    DWORD written=0;
+    DWORD written = 0;
     if(!WriteFile(hFile, overlay_dump, overlay_size, &written, 0))
     {
         CloseHandle(hFile);
@@ -33,42 +33,42 @@ bool MSC_SD_DumpOverlay(const char* filename)
 unsigned int MSC_SD_HasOverlay(char* va, unsigned int filesize)
 {
     char a[256];
-    strcpy(a,"hasoverlay");
+    strcpy(a, "hasoverlay");
     if(overlay_dump)
         free2(overlay_dump);
-    IMAGE_DOS_HEADER *pdh;
-    IMAGE_NT_HEADERS *pnth;
-    IMAGE_SECTION_HEADER *psh;
-    pdh=(IMAGE_DOS_HEADER*)((DWORD)va);
-    if(pdh->e_magic!=IMAGE_DOS_SIGNATURE)
+    IMAGE_DOS_HEADER* pdh;
+    IMAGE_NT_HEADERS* pnth;
+    IMAGE_SECTION_HEADER* psh;
+    pdh = (IMAGE_DOS_HEADER*)((DWORD)va);
+    if(pdh->e_magic != IMAGE_DOS_SIGNATURE)
         return false;
-    pnth=(IMAGE_NT_HEADERS*)((DWORD)va+pdh->e_lfanew);
+    pnth = (IMAGE_NT_HEADERS*)((DWORD)va + pdh->e_lfanew);
     if(IsBadReadPtr(pnth, 4))
         return false;
-    if(pnth->Signature!=IMAGE_NT_SIGNATURE)
+    if(pnth->Signature != IMAGE_NT_SIGNATURE)
         return false;
-    if(pnth->FileHeader.Machine!=IMAGE_FILE_MACHINE_I386)
+    if(pnth->FileHeader.Machine != IMAGE_FILE_MACHINE_I386)
         return false;
-    psh=(IMAGE_SECTION_HEADER*)((DWORD)(pnth)+pnth->FileHeader.SizeOfOptionalHeader+sizeof(IMAGE_FILE_HEADER)+sizeof(DWORD));
-    int lastsection=pnth->FileHeader.NumberOfSections-1;
-    unsigned int sizeofimage=psh[lastsection].PointerToRawData+psh[lastsection].SizeOfRawData;
-    if(sizeofimage==filesize)
+    psh = (IMAGE_SECTION_HEADER*)((DWORD)(pnth) + pnth->FileHeader.SizeOfOptionalHeader + sizeof(IMAGE_FILE_HEADER) + sizeof(DWORD));
+    int lastsection = pnth->FileHeader.NumberOfSections - 1;
+    unsigned int sizeofimage = psh[lastsection].PointerToRawData + psh[lastsection].SizeOfRawData;
+    if(sizeofimage == filesize)
         return 0;
-    unsigned int overlaysize=filesize-sizeofimage;
-    overlay_dump=(unsigned char*)malloc2(overlaysize);
-    memcpy(overlay_dump, va+sizeofimage, overlaysize);
+    unsigned int overlaysize = filesize - sizeofimage;
+    overlay_dump = (unsigned char*)malloc2(overlaysize);
+    memcpy(overlay_dump, va + sizeofimage, overlaysize);
     return overlaysize;
 }
 
 bool MSC_SD_IsValidPe(char* va)
 {
-    IMAGE_DOS_HEADER *pdh=(IMAGE_DOS_HEADER*)((DWORD)va);
-    if(pdh->e_magic==IMAGE_DOS_SIGNATURE)
+    IMAGE_DOS_HEADER* pdh = (IMAGE_DOS_HEADER*)((DWORD)va);
+    if(pdh->e_magic == IMAGE_DOS_SIGNATURE)
     {
-        IMAGE_NT_HEADERS *pnth=(IMAGE_NT_HEADERS*)((DWORD)va+pdh->e_lfanew);
+        IMAGE_NT_HEADERS* pnth = (IMAGE_NT_HEADERS*)((DWORD)va + pdh->e_lfanew);
         if(!IsBadReadPtr(pnth, 4))
         {
-            if(pnth->Signature==IMAGE_NT_SIGNATURE and pnth->FileHeader.Machine==IMAGE_FILE_MACHINE_I386)
+            if(pnth->Signature == IMAGE_NT_SIGNATURE and pnth->FileHeader.Machine == IMAGE_FILE_MACHINE_I386)
                 return true;
         }
     }
@@ -77,15 +77,15 @@ bool MSC_SD_IsValidPe(char* va)
 
 bool MSC_SD_RemoveWatermark(HWND hwndDlg)
 {
-    DWORD read=0;
-    HANDLE hFile=CreateFileA(MSC_szFileName, GENERIC_READ|GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
-    if(hFile==INVALID_HANDLE_VALUE)
+    DWORD read = 0;
+    HANDLE hFile = CreateFileA(MSC_szFileName, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
+    if(hFile == INVALID_HANDLE_VALUE)
     {
         MessageBoxA(hwndDlg, "Could not open file...", "Error!", MB_ICONERROR);
         return false;
     }
-    unsigned int filesize=GetFileSize(hFile, 0);
-    char* data=(char*)malloc2(filesize);
+    unsigned int filesize = GetFileSize(hFile, 0);
+    char* data = (char*)malloc2(filesize);
     if(!data)
     {
         CloseHandle(hFile);
@@ -106,18 +106,18 @@ bool MSC_SD_RemoveWatermark(HWND hwndDlg)
         MessageBoxA(hwndDlg, "Could not delete file...", "Error!", MB_ICONERROR);
         return false;
     }
-    IMAGE_DOS_HEADER *pdh=(IMAGE_DOS_HEADER*)((DWORD)data);
-    IMAGE_NT_HEADERS *pnth=(IMAGE_NT_HEADERS*)((DWORD)data+pdh->e_lfanew);
-    pnth->OptionalHeader.MajorLinkerVersion=0;
-    pnth->OptionalHeader.MinorLinkerVersion=0;
-    hFile=CreateFileA(MSC_szFileName, GENERIC_READ|GENERIC_WRITE, 0, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
-    if(hFile==INVALID_HANDLE_VALUE)
+    IMAGE_DOS_HEADER* pdh = (IMAGE_DOS_HEADER*)((DWORD)data);
+    IMAGE_NT_HEADERS* pnth = (IMAGE_NT_HEADERS*)((DWORD)data + pdh->e_lfanew);
+    pnth->OptionalHeader.MajorLinkerVersion = 0;
+    pnth->OptionalHeader.MinorLinkerVersion = 0;
+    hFile = CreateFileA(MSC_szFileName, GENERIC_READ | GENERIC_WRITE, 0, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+    if(hFile == INVALID_HANDLE_VALUE)
     {
         free2(data);
         MessageBoxA(hwndDlg, "Could not create file...", "Error!", MB_ICONERROR);
         return false;
     }
-    read=0;
+    read = 0;
     if(!WriteFile(hFile, data, filesize, &read, 0))
     {
         free2(data);
@@ -132,21 +132,21 @@ bool MSC_SD_RemoveWatermark(HWND hwndDlg)
 
 void MSC_SD_LoadFile(HWND hwndDlg)
 {
-    HANDLE hFile=CreateFileA(MSC_szFileName, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0);
-    if(hFile==INVALID_HANDLE_VALUE)
+    HANDLE hFile = CreateFileA(MSC_szFileName, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0);
+    if(hFile == INVALID_HANDLE_VALUE)
     {
         MessageBoxA(hwndDlg, "Could not open file...", "Error!", MB_ICONERROR);
         return;
     }
-    unsigned int filesize=GetFileSize(hFile, 0);
-    char* data=(char*)malloc2(filesize);
+    unsigned int filesize = GetFileSize(hFile, 0);
+    char* data = (char*)malloc2(filesize);
     if(!data)
     {
         CloseHandle(hFile);
         MessageBoxA(hwndDlg, "Could not allocate memory...", "Error!", MB_ICONERROR);
         return;
     }
-    DWORD read=0;
+    DWORD read = 0;
     if(!ReadFile(hFile, data, filesize, &read, 0))
     {
         free2(data);
@@ -164,86 +164,86 @@ void MSC_SD_LoadFile(HWND hwndDlg)
     }
 
     SendMessageA(MSC_SD_list, LB_RESETCONTENT, 0, 0);
-    IMAGE_DOS_HEADER *pdh=(IMAGE_DOS_HEADER*)((DWORD)data);
-    IMAGE_NT_HEADERS *pnth=(IMAGE_NT_HEADERS*)((DWORD)data+pdh->e_lfanew);
-    IMAGE_SECTION_HEADER *psh=(IMAGE_SECTION_HEADER*)((DWORD)pnth+0xF8);
-    MSC_SD_section_info.resource_section=0;
-    char name[256]="";
-    for(int i=0; i<pnth->FileHeader.NumberOfSections; i++)
+    IMAGE_DOS_HEADER* pdh = (IMAGE_DOS_HEADER*)((DWORD)data);
+    IMAGE_NT_HEADERS* pnth = (IMAGE_NT_HEADERS*)((DWORD)data + pdh->e_lfanew);
+    IMAGE_SECTION_HEADER* psh = (IMAGE_SECTION_HEADER*)((DWORD)pnth + 0xF8);
+    MSC_SD_section_info.resource_section = 0;
+    char name[256] = "";
+    for(int i = 0; i < pnth->FileHeader.NumberOfSections; i++)
     {
         memset(name, ' ', 8);
-        name[8]=0;
+        name[8] = 0;
         memcpy(name, psh[i].Name, strlen((const char*)psh[i].Name));
-        unsigned int va=psh[i].VirtualAddress;
-        unsigned int va_next=0;
-        if(i==pnth->FileHeader.NumberOfSections-1)
-            va_next=0xFFFFFFFF;
+        unsigned int va = psh[i].VirtualAddress;
+        unsigned int va_next = 0;
+        if(i == pnth->FileHeader.NumberOfSections - 1)
+            va_next = 0xFFFFFFFF;
         else
-            va_next=psh[i+1].VirtualAddress;
-        MSC_SD_section_info.isDll=false;
-        if(pnth->FileHeader.Characteristics&IMAGE_FILE_DLL)
-            MSC_SD_section_info.isDll=true;
-        if(pnth->OptionalHeader.AddressOfEntryPoint>=va and pnth->OptionalHeader.AddressOfEntryPoint<va_next)
+            va_next = psh[i + 1].VirtualAddress;
+        MSC_SD_section_info.isDll = false;
+        if(pnth->FileHeader.Characteristics & IMAGE_FILE_DLL)
+            MSC_SD_section_info.isDll = true;
+        if(pnth->OptionalHeader.AddressOfEntryPoint >= va and pnth->OptionalHeader.AddressOfEntryPoint < va_next)
         {
-            MSC_SD_section_info.entry_section=i;
+            MSC_SD_section_info.entry_section = i;
             sprintf(name, "%s EP", name);
         }
-        if(va==pnth->OptionalHeader.BaseOfCode)
+        if(va == pnth->OptionalHeader.BaseOfCode)
         {
-            MSC_SD_section_info.code_section=i;
-            memcpy(&MSC_SD_section_info.code_section_bytes, data+psh[i].Misc.PhysicalAddress, 2);
+            MSC_SD_section_info.code_section = i;
+            memcpy(&MSC_SD_section_info.code_section_bytes, data + psh[i].Misc.PhysicalAddress, 2);
             sprintf(name, "%s Code", name);
         }
-        if(va==pnth->OptionalHeader.DataDirectory[0].VirtualAddress)
+        if(va == pnth->OptionalHeader.DataDirectory[0].VirtualAddress)
         {
-            MSC_SD_section_info.export_section=i;
+            MSC_SD_section_info.export_section = i;
             sprintf(name, "%s Exp", name);
         }
-        if(va==pnth->OptionalHeader.DataDirectory[1].VirtualAddress)
+        if(va == pnth->OptionalHeader.DataDirectory[1].VirtualAddress)
         {
-            MSC_SD_section_info.import_section=i;
+            MSC_SD_section_info.import_section = i;
             sprintf(name, "%s Imp", name);
         }
-        if(va==pnth->OptionalHeader.DataDirectory[2].VirtualAddress)
+        if(va == pnth->OptionalHeader.DataDirectory[2].VirtualAddress)
         {
-            MSC_SD_section_info.resource_section=i;
+            MSC_SD_section_info.resource_section = i;
             sprintf(name, "%s Res", name);
         }
-        if(va==pnth->OptionalHeader.DataDirectory[5].VirtualAddress)
+        if(va == pnth->OptionalHeader.DataDirectory[5].VirtualAddress)
         {
-            MSC_SD_section_info.relocation_section=i;
+            MSC_SD_section_info.relocation_section = i;
             sprintf(name, "%s Reloc", name);
         }
-        if(va==pnth->OptionalHeader.DataDirectory[9].VirtualAddress)
+        if(va == pnth->OptionalHeader.DataDirectory[9].VirtualAddress)
         {
-            MSC_SD_section_info.tls_section=i;
+            MSC_SD_section_info.tls_section = i;
             sprintf(name, "%s TLS", name);
         }
         SendMessageA(MSC_SD_list, LB_ADDSTRING, 0, (LPARAM)name);
     }
-    bool haswatermark=MSC_SD_IsArmadilloProtected(data);
-    overlay_size=MSC_SD_HasOverlay(data, filesize);
-    bool hasoverlay=false;
+    bool haswatermark = MSC_SD_IsArmadilloProtected(data);
+    overlay_size = MSC_SD_HasOverlay(data, filesize);
+    bool hasoverlay = false;
     if(overlay_size)
-        hasoverlay=true;
-    bool continue_analysis=true;
-    if(MSC_SD_section_info.resource_section and MSC_SD_section_info.code_section and(MSC_SD_section_info.resource_section>MSC_SD_section_info.code_section))
+        hasoverlay = true;
+    bool continue_analysis = true;
+    if(MSC_SD_section_info.resource_section and MSC_SD_section_info.code_section and (MSC_SD_section_info.resource_section > MSC_SD_section_info.code_section))
     {
         if(!haswatermark)
         {
-            continue_analysis=false;
-            if(MessageBoxA(hwndDlg, "This file has no SiliconRealms watermark, continue section analysis?", "No Watermark Found...", MB_ICONQUESTION|MB_YESNO)==IDYES)
-                continue_analysis=true;
+            continue_analysis = false;
+            if(MessageBoxA(hwndDlg, "This file has no SiliconRealms watermark, continue section analysis?", "No Watermark Found...", MB_ICONQUESTION | MB_YESNO) == IDYES)
+                continue_analysis = true;
         }
         if(continue_analysis)
         {
-            BYTE good_bytes[2]= {0x60, 0xE8};
-            MSC_SD_section_info.first_arma_section=MSC_SD_section_info.code_section;
+            BYTE good_bytes[2] = {0x60, 0xE8};
+            MSC_SD_section_info.first_arma_section = MSC_SD_section_info.code_section;
             if(!memcpy(good_bytes, &MSC_SD_section_info.code_section_bytes, 2))
                 MSC_SD_section_info.first_arma_section--;
             if(MSC_SD_section_info.tls_section and MSC_SD_section_info.isDll)
-                MSC_SD_section_info.first_arma_section=MSC_SD_section_info.tls_section+1;
-            for(int i=MSC_SD_section_info.first_arma_section; i<MSC_SD_section_info.resource_section; i++)
+                MSC_SD_section_info.first_arma_section = MSC_SD_section_info.tls_section + 1;
+            for(int i = MSC_SD_section_info.first_arma_section; i < MSC_SD_section_info.resource_section; i++)
                 SendMessageA(MSC_SD_list, LB_SETSEL, true, i);
         }
     }

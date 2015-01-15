@@ -17,8 +17,8 @@ struct CALLBACKS
 
 typedef struct _hash_list
 {
-	int count;
-	unsigned long hash[32];
+    int count;
+    unsigned long hash[32];
 } hash_list;
 
 #endif

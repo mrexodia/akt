@@ -1,33 +1,33 @@
 #include "VersionFind_dialog.h"
 
 /**********************************************************************
- *						Module Variables
+ *                      Module Variables
  *********************************************************************/
-static char g_szFileName[256]="";
+static char g_szFileName[256] = "";
 
 static char g_version[20];
 
-static unsigned int g_raw_options=0;
-static unsigned int g_extra_options=0;
+static unsigned int g_raw_options = 0;
+static unsigned int g_extra_options = 0;
 static bool g_minimal;
 
 static HWND g_shared_hwnd;
 
 
 /**********************************************************************
- *						Functions
+ *                      Functions
  *********************************************************************/
 DWORD WINAPI VF_DebugThread(void* lpVoid)
 {
     ResetContent(true);
-    g_raw_options=0;
-    g_extra_options=0;
-    g_version[0]=0;
-    HWND hwndDlg=g_shared_hwnd;
-    char temp[10]="";
-    char* log_text=(char*)malloc2(4096);
-    char log_location[256]="";
-    char filename_nopath[256]="";
+    g_raw_options = 0;
+    g_extra_options = 0;
+    g_version[0] = 0;
+    HWND hwndDlg = g_shared_hwnd;
+    char temp[10] = "";
+    char* log_text = (char*)malloc2(4096);
+    char log_location[256] = "";
+    char filename_nopath[256] = "";
     memset(log_text, 0, 4096);
 
     if(!VF_RawOptions(g_szFileName, &g_raw_options, &g_minimal, VF_ErrorMessageCallback))
@@ -46,8 +46,8 @@ DWORD WINAPI VF_DebugThread(void* lpVoid)
     sprintf(temp, "%.8X", g_extra_options);
     SetDlgItemTextA(hwndDlg, IDC_EDT_EXTRAOPTIONS, temp);
 
-    ARMA_OPTIONS op= {0};
-    EXTRA_OPTIONS eo= {0};
+    ARMA_OPTIONS op = {0};
+    EXTRA_OPTIONS eo = {0};
     if(g_extra_options)
     {
         FillArmaExtraOptionsStruct(g_extra_options, &eo);
@@ -60,36 +60,36 @@ DWORD WINAPI VF_DebugThread(void* lpVoid)
         if(log_version)
         {
             strcpy(log_location, g_szFileName);
-            int len=strlen(log_location);
-            while(len and log_location[len]!='.')
+            int len = strlen(log_location);
+            while(len and log_location[len] != '.')
                 len--;
             if(len)
             {
-                log_location[len]=0;
+                log_location[len] = 0;
                 sprintf(log_location, "%s_version.log", log_location);
             }
             else
                 sprintf(log_location, "%s_version.log", g_szFileName);
 
-            len=strlen(g_szFileName);
-            while(g_szFileName[len]!='\\')
+            len = strlen(g_szFileName);
+            while(g_szFileName[len] != '\\')
                 len--;
-            strcpy(filename_nopath, g_szFileName+len+1);
+            strcpy(filename_nopath, g_szFileName + len + 1);
             sprintf(log_text, "File:\r\n>%s\r\n", filename_nopath);
         }
         PrintArmaOptionsStruct(&op, log_text, g_raw_options, g_extra_options);
         if(log_version)
         {
             DeleteFileA(log_location);
-            HANDLE hFile=CreateFileA(log_location, GENERIC_ALL, 0, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
-            if(hFile==INVALID_HANDLE_VALUE)
+            HANDLE hFile = CreateFileA(log_location, GENERIC_ALL, 0, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+            if(hFile == INVALID_HANDLE_VALUE)
             {
-                if(MessageBoxA(g_shared_hwnd, "Could not write log file, wanna copy the log to clipboard?", "Error", MB_ICONERROR|MB_YESNO)==IDYES)
+                if(MessageBoxA(g_shared_hwnd, "Could not write log file, wanna copy the log to clipboard?", "Error", MB_ICONERROR | MB_YESNO) == IDYES)
                     CopyToClipboard(log_text);
             }
             else
             {
-                DWORD written=0;
+                DWORD written = 0;
                 WriteFile(hFile, log_text, strlen(log_text), &written, 0);
                 CloseHandle(hFile);
             }
@@ -110,7 +110,7 @@ BOOL CALLBACK VF_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
     case WM_INITDIALOG:
     {
-        g_shared_hwnd=hwndDlg;
+        g_shared_hwnd = hwndDlg;
         EnableWin(IDC_BTN_CALCFROMRAW, 0);
         CheckDlgButton(hwndDlg, IDC_CHK_LOG, log_version);
     }
@@ -124,7 +124,7 @@ BOOL CALLBACK VF_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
     case WM_HELP:
     {
-        char id[10]="";
+        char id[10] = "";
         sprintf(id, "%d", IDS_HELPVERSION);
         SetEnvironmentVariableA("HELPID", id);
         SetEnvironmentVariableA("HELPTITLE", "Version Help");
@@ -153,7 +153,7 @@ BOOL CALLBACK VF_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
         case IDC_CHK_LOG:
         {
             NoFocus();
-            log_version=!!IsDlgButtonChecked(hwndDlg, LOWORD(wParam));
+            log_version = !!IsDlgButtonChecked(hwndDlg, LOWORD(wParam));
         }
         return TRUE;
 
@@ -161,8 +161,8 @@ BOOL CALLBACK VF_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
         {
             NoFocus();
             ResetContent(false);
-            ARMA_OPTIONS op= {0};
-            EXTRA_OPTIONS eo= {0};
+            ARMA_OPTIONS op = {0};
+            EXTRA_OPTIONS eo = {0};
             if(g_extra_options)
             {
                 FillArmaExtraOptionsStruct(g_extra_options, &eo);
@@ -176,7 +176,7 @@ BOOL CALLBACK VF_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
         case IDC_EDT_RAWOPTIONS:
         {
-            char str[11]="";
+            char str[11] = "";
             if(GetDlgItemTextA(hwndDlg, IDC_EDT_RAWOPTIONS, str, 10))
             {
                 EnableWin(IDC_BTN_CALCFROMRAW, 1);
@@ -187,7 +187,7 @@ BOOL CALLBACK VF_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
         case IDC_EDT_EXTRAOPTIONS:
         {
-            char str[11]="";
+            char str[11] = "";
             if(GetDlgItemTextA(hwndDlg, IDC_EDT_EXTRAOPTIONS, str, 10))
             {
                 EnableWin(IDC_BTN_CALCFROMRAW, 1);
@@ -223,7 +223,7 @@ void EnableWin(int id, bool a)
 
 void ResetContent(bool clear_all)
 {
-    HWND hwndDlg=g_shared_hwnd;
+    HWND hwndDlg = g_shared_hwnd;
     if(clear_all)
     {
         SetDlgItemTextA(hwndDlg, IDC_EDT_VERSIONNUM, "");

@@ -10,9 +10,9 @@
 #include <stdio.h>
 
 /*
-	-----------------------------------------------
-	Key information functions, to take a key apart.
-	-----------------------------------------------
+    -----------------------------------------------
+    Key information functions, to take a key apart.
+    -----------------------------------------------
 */
 
 struct KeyInformation
@@ -26,7 +26,7 @@ struct KeyInformation
 };
 
 int hexdigit(char c);
-const char *GetTwoHexDigits(const char *c, unsigned char *value);
+const char* GetTwoHexDigits(const char* c, unsigned char* value);
 char RetrieveKeyInfo(int level_input, const char* name_, unsigned long hardwareID, const char* origkey_, struct KeyInformation* keyinfo, HWND hwndDlg, UINT control_id);
 
 #endif

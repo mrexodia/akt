@@ -5,7 +5,7 @@
 
 
 /**********************************************************************
- *						Prototypes
+ *                      Prototypes
  *********************************************************************/
 unsigned int VF_FindUsbPattern(BYTE* d, unsigned int size);
 unsigned int VF_FindAnd20Pattern(BYTE* d, unsigned int size);

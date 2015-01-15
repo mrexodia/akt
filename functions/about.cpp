@@ -7,7 +7,7 @@ BOOL CALLBACK DlgAbout(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_INITDIALOG:
     {
         MessageBeep(MB_ICONINFORMATION);
-        char stc_txt[50]="";
+        char stc_txt[50] = "";
         sprintf(stc_txt, "%s (%s)", caption, date_compile);
         SetDlgItemTextA(hwndDlg, IDC_STC_TITLE, stc_txt);
     }

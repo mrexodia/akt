@@ -1,17 +1,17 @@
 #include "InlineHelper_plugins.h"
 
 /**********************************************************************
- *						Functions
+ *                      Functions
  *********************************************************************/
 void IH_GetPluginList(void)
 {
     PLUGFUNC PluginFunction;
     PLUGINFO PluginInfo;
     HINSTANCE PLUGIN_INST;
-    char plugin_search[256]="";
-    char plugin_name[1024]="";
-    char plugin_counter_s[10]="";
-    int plugin_counter=0;
+    char plugin_search[256] = "";
+    char plugin_name[1024] = "";
+    char plugin_counter_s[10] = "";
+    int plugin_counter = 0;
 
     WIN32_FIND_DATA find_struct;
     HANDLE search_handle;
@@ -20,15 +20,15 @@ void IH_GetPluginList(void)
     strcat(plugin_search, "\\plugins");
     SetCurrentDirectoryA(plugin_search);
     strcat(plugin_search, "\\*.dll");
-    search_handle=FindFirstFileA(plugin_search, &find_struct);
+    search_handle = FindFirstFileA(plugin_search, &find_struct);
     if(search_handle)
     {
         ///do ini operations
-        PLUGIN_INST=LoadLibraryA(find_struct.cFileName);
+        PLUGIN_INST = LoadLibraryA(find_struct.cFileName);
         if(PLUGIN_INST)
         {
-            PluginInfo=(PLUGINFO)GetProcAddress(PLUGIN_INST, "PluginInfo");
-            PluginFunction=(PLUGFUNC)GetProcAddress(PLUGIN_INST, "PluginFunction");
+            PluginInfo = (PLUGINFO)GetProcAddress(PLUGIN_INST, "PluginInfo");
+            PluginFunction = (PLUGFUNC)GetProcAddress(PLUGIN_INST, "PluginFunction");
             if(!PluginInfo)
             {
                 MessageBoxA(0, "Invalid plugin:\n\nThe export 'PluginInfo' could not be found.", find_struct.cFileName, MB_ICONERROR);
@@ -51,11 +51,11 @@ void IH_GetPluginList(void)
         if(FindNextFileA(search_handle, &find_struct))
         {
             ///do ini operations
-            PLUGIN_INST=LoadLibraryA(find_struct.cFileName);
+            PLUGIN_INST = LoadLibraryA(find_struct.cFileName);
             if(PLUGIN_INST)
             {
-                PluginInfo=(PLUGINFO)GetProcAddress(PLUGIN_INST, "PluginInfo");
-                PluginFunction=(PLUGFUNC)GetProcAddress(PLUGIN_INST, "PluginFunction");
+                PluginInfo = (PLUGINFO)GetProcAddress(PLUGIN_INST, "PluginInfo");
+                PluginFunction = (PLUGFUNC)GetProcAddress(PLUGIN_INST, "PluginFunction");
                 if(!PluginInfo)
                 {
                     MessageBoxA(0, "Invalid plugin:\n\nThe export 'PluginInfo' could not be found.", find_struct.cFileName, MB_ICONERROR);
@@ -78,14 +78,14 @@ void IH_GetPluginList(void)
             for(;;)
             {
                 FindNextFileA(search_handle, &find_struct);
-                if(GetLastError()!=ERROR_NO_MORE_FILES)
+                if(GetLastError() != ERROR_NO_MORE_FILES)
                 {
                     ///do ini operations
-                    PLUGIN_INST=LoadLibraryA(find_struct.cFileName);
+                    PLUGIN_INST = LoadLibraryA(find_struct.cFileName);
                     if(PLUGIN_INST)
                     {
-                        PluginInfo=(PLUGINFO)GetProcAddress(PLUGIN_INST, "PluginInfo");
-                        PluginFunction=(PLUGFUNC)GetProcAddress(PLUGIN_INST, "PluginFunction");
+                        PluginInfo = (PLUGINFO)GetProcAddress(PLUGIN_INST, "PluginInfo");
+                        PluginFunction = (PLUGFUNC)GetProcAddress(PLUGIN_INST, "PluginFunction");
                         if(!PluginInfo)
                         {
                             MessageBoxA(0, "Invalid plugin:\n\nThe export 'PluginInfo' could not be found.", find_struct.cFileName, MB_ICONERROR);

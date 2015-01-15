@@ -14,7 +14,7 @@ DWORD WINAPI MSC_VR_GetMagic(void* lpvoid);
 unsigned int MSC_VR_GenerateNumber_core(int push_value, int* in_value);
 unsigned int MSC_VR_GenerateNumberDword(int* in_value);
 void MSC_VR_TEA_Decrypt(unsigned int* k, unsigned char* data, unsigned int length, int flag);
-void MSC_VR_TEA_Decrypt_Nrounds(unsigned int *k, unsigned int *data, unsigned int rounds);
+void MSC_VR_TEA_Decrypt_Nrounds(unsigned int* k, unsigned int* data, unsigned int rounds);
 int MSC_VR_brute(unsigned int _magic1, unsigned int _magic2, unsigned int _sym, unsigned int _md5_ecdsa, unsigned char* data, unsigned int data_size);
 void MSC_VR_StepProgressBar(int total_keys);
 DWORD WINAPI MSC_VR_BruteThread(LPVOID arg);

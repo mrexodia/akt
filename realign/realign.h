@@ -29,12 +29,12 @@
 // return type definition and success checking macro for "ReBasePEImage"
 typedef enum _ReBaseErr
 {
-	RB_OK = 0,
-	RB_INVALIDPE,
-	RB_NORELOCATIONINFO,
-	RB_INVALIDRVA,
-	RB_INVALIDNEWBASE,
-	RB_ACCESSVIOLATION
+    RB_OK = 0,
+    RB_INVALIDPE,
+    RB_NORELOCATIONINFO,
+    RB_INVALIDRVA,
+    RB_INVALIDNEWBASE,
+    RB_ACCESSVIOLATION
 } ReBaseErr;
 
 #define rbOK(ret)(ret == RB_OK)
@@ -48,8 +48,8 @@ extern "C"
 {
 #endif // __cplusplus
 
-BOOL      __stdcall TruncateFile(CHAR* szFilePath,DWORD dwNewFsize);
-DWORD     __stdcall RealignPE(LPVOID AddressOfMapFile,DWORD dwFsize,BYTE bRealignMode);
+BOOL      __stdcall TruncateFile(CHAR* szFilePath, DWORD dwNewFsize);
+DWORD     __stdcall RealignPE(LPVOID AddressOfMapFile, DWORD dwFsize, BYTE bRealignMode);
 DWORD     __stdcall WipeReloc(void* pMap, DWORD dwFsize);
 BOOL      __stdcall ValidatePE(void* pPEImage, DWORD dwFileSize);
 ReBaseErr __stdcall ReBasePEImage(void* pPE, DWORD dwNewBase);

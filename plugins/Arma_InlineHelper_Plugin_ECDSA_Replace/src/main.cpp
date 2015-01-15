@@ -2,72 +2,72 @@
 #include "ecc.h"
 
 ///Plugin details.
-char plugin_name[]="ECDSA Replace (v6.00+)";
+char plugin_name[] = "ECDSA Replace (v6.00+)";
 
 ///Global variables.
-char dll_dump[MAX_PATH]="";
-char register_used[10]="";
-char base_code[2048]="";
-char repl_code[4096]="";
-char ini_file[256]="";
-char cur_pub_text[256]="";
-char cur_dif_text[10]="";
-char cur_md5_text[10]="";
-char cur_seed1_text[10]="";
-char cur_seed2_text[10]="";
-char cur_projectid_diff_text[10]="";
-char first_dword_text[10]="";
+char dll_dump[MAX_PATH] = "";
+char register_used[10] = "";
+char base_code[2048] = "";
+char repl_code[4096] = "";
+char ini_file[256] = "";
+char cur_pub_text[256] = "";
+char cur_dif_text[10] = "";
+char cur_md5_text[10] = "";
+char cur_seed1_text[10] = "";
+char cur_seed2_text[10] = "";
+char cur_projectid_diff_text[10] = "";
+char first_dword_text[10] = "";
 
-bool ini_file_loaded=false;
-bool projectid=false;
+bool ini_file_loaded = false;
+bool projectid = false;
 
-unsigned int cert_function_addr=0;
-unsigned int md5_replace_addr=0;
-unsigned int replace_md5=0;
+unsigned int cert_function_addr = 0;
+unsigned int md5_replace_addr = 0;
+unsigned int replace_md5 = 0;
 
 HINSTANCE hInstance;
 
-int total_certs=0;
-char** cert_names=0;
+int total_certs = 0;
+char** cert_names = 0;
 
 BYTE* security_code_mem;
-unsigned int security_code_size=0;
+unsigned int security_code_size = 0;
 
 static unsigned long CT_a;
 
 static unsigned long CT_mult(long p, long q)
 {
-    unsigned long p1=p/10000L, p0=p%10000L, q1=q/10000L, q0=q%10000L;
-    return (((p0*q1+p1*q0) % 10000L) * 10000L+p0*q0) % 100000000L;
+    unsigned long p1 = p / 10000L, p0 = p % 10000L, q1 = q / 10000L, q0 = q % 10000L;
+    return (((p0 * q1 + p1 * q0) % 10000L) * 10000L + p0 * q0) % 100000000L;
 }
 
 static unsigned long CT_NextRandomRange(long range)
 {
-    CT_a=(CT_mult(CT_a, 31415821L)+1) % 100000000L;
-    return (((CT_a/10000L)*range)/10000L);
+    CT_a = (CT_mult(CT_a, 31415821L) + 1) % 100000000L;
+    return (((CT_a / 10000L) * range) / 10000L);
 }
 
 unsigned char* CT_GetCryptBytes(unsigned int seed, unsigned int size)
 {
-    CT_a=seed;
-    unsigned char* arry=(unsigned char*)malloc(size);
+    CT_a = seed;
+    unsigned char* arry = (unsigned char*)malloc(size);
     memset(arry, 0, size);
-    for(unsigned int x=0; x<size; x++)
-        arry[x]=CT_NextRandomRange(256);
+    for(unsigned int x = 0; x < size; x++)
+        arry[x] = CT_NextRandomRange(256);
     return arry;
 }
 
-void CookText(char *target, const char *source)
+void CookText(char* target, const char* source)
 {
-    const char *s=source;
-    char *t=target;
+    const char* s = source;
+    char* t = target;
     while(*s)
     {
-        if(*s==' ' || *s=='\t' || *s=='\r' || *s=='\n') ++s;
-        else if(*s>='a' && *s<='z') *t++=((*s++)-'a'+'A');
-        else *t++=*s++;
+        if(*s == ' ' || *s == '\t' || *s == '\r' || *s == '\n') ++s;
+        else if(*s >= 'a' && *s <= 'z') *t++ = ((*s++) - 'a' + 'A');
+        else *t++ = *s++;
     }
-    *t=0;
+    *t = 0;
 }
 
 void GenerateEcdsaParameters(const char* encryptiontemplate, char* private_text, char* basepoint_text, char* public_x_text, char* public_y_text)
@@ -79,19 +79,19 @@ void GenerateEcdsaParameters(const char* encryptiontemplate, char* private_text,
     char rndinitstring[1024];
     unsigned long i[4];
     unsigned int basepointinit;
-    BigInt test=BigInt_Create();
-    BigInt secretkeyhash=BigInt_Create();
-    BigInt prime_order=BigInt_Create();
+    BigInt test = BigInt_Create();
+    BigInt secretkeyhash = BigInt_Create();
+    BigInt prime_order = BigInt_Create();
     CookText(encryption_template, encryptiontemplate);
     md5(i, encryption_template, strlen(encryption_template));
-    basepointinit=i[0];
+    basepointinit = i[0];
     sprintf(basepoint_text, "%u", basepointinit);
     ECC_InitializeTable();
     BigInt_FromString(ECC_PRIMEORDER, 10, prime_order);
     BigIntToField(prime_order, &Base.pnt_order);
     Field_Clear(&Base.cofactor);
-    Base.cofactor.e[ECC_NUMWORD]=2;
-    Base.crv.form=1;
+    Base.cofactor.e[ECC_NUMWORD] = 2;
+    Base.crv.form = 1;
     Field_Set(&Base.crv.a2);
     Field_Set(&Base.crv.a6);
     InitRandomGenerator(basepointinit);
@@ -114,30 +114,30 @@ void GenerateEcdsaParameters(const char* encryptiontemplate, char* private_text,
 
 unsigned int FindCertificateFunction(BYTE* mem_addr, unsigned int size)
 {
-    for(unsigned int i=0; i<size; i++)
+    for(unsigned int i = 0; i < size; i++)
     {
-        if(mem_addr[i]==0x55)
-            if(mem_addr[i+1]==0x8B)
-                if(mem_addr[i+2]==0xEC)
-                    if(mem_addr[i+18]==0x04)
-                        if(mem_addr[i+19]==0x5D)
-                            if(mem_addr[i+20]==0xC3)
-                                return i+20;
+        if(mem_addr[i] == 0x55)
+            if(mem_addr[i + 1] == 0x8B)
+                if(mem_addr[i + 2] == 0xEC)
+                    if(mem_addr[i + 18] == 0x04)
+                        if(mem_addr[i + 19] == 0x5D)
+                            if(mem_addr[i + 20] == 0xC3)
+                                return i + 20;
     }
     return 0;
 }
 
 unsigned int FindMd5ReplaceAddr(BYTE* mem_addr, unsigned int size)
 {
-    for(unsigned int i=0; i<size; i++)
+    for(unsigned int i = 0; i < size; i++)
     {
-        if(mem_addr[i]==0x8B)
-            if(mem_addr[i+6]==0x33)
-                if(mem_addr[i+12]==0x33)
-                    if(mem_addr[i+18]==0x33)
-                        if(mem_addr[i+24]==0x8B)
-                            if(mem_addr[i+30]==0x89)
-                                return i+18;
+        if(mem_addr[i] == 0x8B)
+            if(mem_addr[i + 6] == 0x33)
+                if(mem_addr[i + 12] == 0x33)
+                    if(mem_addr[i + 18] == 0x33)
+                        if(mem_addr[i + 24] == 0x8B)
+                            if(mem_addr[i + 30] == 0x89)
+                                return i + 18;
     }
     return 0;
 }
@@ -145,9 +145,9 @@ unsigned int FindMd5ReplaceAddr(BYTE* mem_addr, unsigned int size)
 void CopyToClipboard(const char* text)
 {
     HGLOBAL hText;
-    char *pText;
+    char* pText;
 
-    hText = GlobalAlloc(GMEM_DDESHARE | GMEM_MOVEABLE, strlen(text)+1);
+    hText = GlobalAlloc(GMEM_DDESHARE | GMEM_MOVEABLE, strlen(text) + 1);
     pText = (char*)GlobalLock(hText);
     strcpy(pText, text);
 
@@ -162,40 +162,40 @@ void CopyToClipboard(const char* text)
 
 int AddListItem(HWND hwndDlg, const char* text)
 {
-    int list_id=SendDlgItemMessageA(hwndDlg, IDC_LIST_CERTS, CB_ADDSTRING, 0, (LPARAM)text);
+    int list_id = SendDlgItemMessageA(hwndDlg, IDC_LIST_CERTS, CB_ADDSTRING, 0, (LPARAM)text);
     return list_id;
 }
 
 void ReadIniFile(HWND hwndDlg, const char* ini_file_drop)
 {
-    ini_file_loaded=true;
-    char section_names[2048]="";
-    char temp_name[256]="";
-    char lvl_text[10]="";
-    char md5_text[10]="";
-    char init_value[100]="";
-    char chk_text[10]="", diff_text[10]="";
-    int total_count=0;
+    ini_file_loaded = true;
+    char section_names[2048] = "";
+    char temp_name[256] = "";
+    char lvl_text[10] = "";
+    char md5_text[10] = "";
+    char init_value[100] = "";
+    char chk_text[10] = "", diff_text[10] = "";
+    int total_count = 0;
     SendDlgItemMessageA(hwndDlg, IDC_LIST_CERTS, CB_RESETCONTENT, 0, 0);
     if(total_certs)
     {
-        for(int i=0; i<total_certs; i++)
+        for(int i = 0; i < total_certs; i++)
         {
             free(cert_names[i]);
         }
         free(cert_names);
-        total_certs=0;
-        cert_names=0;
+        total_certs = 0;
+        cert_names = 0;
     }
-    int len_sections=GetPrivateProfileSectionNamesA(section_names, 2048, ini_file_drop);
-    for(int i=0; i<len_sections; i++)
+    int len_sections = GetPrivateProfileSectionNamesA(section_names, 2048, ini_file_drop);
+    for(int i = 0; i < len_sections; i++)
     {
         if(!section_names[i])
             total_count++;
     }
-    total_certs=total_count;
-    cert_names=(char**)malloc(total_certs*4);
-    for(int i=0,j=0; i<len_sections; i++)
+    total_certs = total_count;
+    cert_names = (char**)malloc(total_certs * 4);
+    for(int i = 0, j = 0; i < len_sections; i++)
     {
         if(section_names[i])
         {
@@ -207,21 +207,21 @@ void ReadIniFile(HWND hwndDlg, const char* ini_file_drop)
             GetPrivateProfileStringA(temp_name, "level", "", lvl_text, 10, ini_file_drop);
             if(!strcmp(lvl_text, "29"))
             {
-                cert_names[j]=(char*)malloc(strlen(temp_name)+1);
+                cert_names[j] = (char*)malloc(strlen(temp_name) + 1);
                 strcpy(cert_names[j], temp_name);
                 j++;
-                total_certs=j;
+                total_certs = j;
             }
             memset(temp_name, 0, 256);
         }
     }
-    for(int i=0; i<total_certs; i++)
+    for(int i = 0; i < total_certs; i++)
     {
         GetPrivateProfileStringA(cert_names[i], "chk", "", chk_text, 10, ini_file_drop);
         GetPrivateProfileStringA(cert_names[i], "diff", "", diff_text, 10, ini_file_drop);
         GetPrivateProfileStringA(cert_names[i], "md5", "", md5_text, 10, ini_file_drop);
         GetPrivateProfileStringA(cert_names[i], "pub", "", init_value, 100, ini_file_drop);
-        char* test123=strtok(init_value, ",");;
+        char* test123 = strtok(init_value, ",");;
         wsprintf(temp_name, "Checksum : %s - MD5 : %s - Diff : %08s - BasePoint : %s", chk_text, md5_text, diff_text, test123);
         AddListItem(hwndDlg, temp_name);
         memset(temp_name, 0, 256);
@@ -244,13 +244,13 @@ void ReadIniFile(HWND hwndDlg, const char* ini_file_drop)
 
 bool Initialize(HWND hwndDlg)
 {
-    HANDLE hFile=CreateFileA(dll_dump, GENERIC_ALL, 0, 0, OPEN_EXISTING, 0, 0);
-    if(hFile==INVALID_HANDLE_VALUE)
+    HANDLE hFile = CreateFileA(dll_dump, GENERIC_ALL, 0, 0, OPEN_EXISTING, 0, 0);
+    if(hFile == INVALID_HANDLE_VALUE)
         return false;
 
-    DWORD high=0;
-    security_code_size=GetFileSize(hFile, &high);
-    security_code_mem=(BYTE*)malloc(security_code_size);
+    DWORD high = 0;
+    security_code_size = GetFileSize(hFile, &high);
+    security_code_mem = (BYTE*)malloc(security_code_size);
     if(!ReadFile(hFile, security_code_mem, security_code_size, &high, 0))
     {
         CloseHandle(hFile);
@@ -258,8 +258,8 @@ bool Initialize(HWND hwndDlg)
         return false;
     }
     CloseHandle(hFile);
-    md5_replace_addr=FindMd5ReplaceAddr(security_code_mem, security_code_size);
-    cert_function_addr=FindCertificateFunction(security_code_mem, security_code_size);
+    md5_replace_addr = FindMd5ReplaceAddr(security_code_mem, security_code_size);
+    cert_function_addr = FindCertificateFunction(security_code_mem, security_code_size);
     if(!cert_function_addr)
         return false;
     AddListItem(hwndDlg, "Drag&Drop a .akt file to get started...");
@@ -273,10 +273,10 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
     case WM_INITDIALOG:
     {
-        HWND p=GetParent(hwndDlg);
+        HWND p = GetParent(hwndDlg);
         if(p)
         {
-            HICON ico=(HICON)SendMessageA(p, WM_GETICON, ICON_SMALL, 0);
+            HICON ico = (HICON)SendMessageA(p, WM_GETICON, ICON_SMALL, 0);
             SendMessageA(hwndDlg, WM_SETICON, ICON_SMALL, (LPARAM)ico);
         }
         EnableWindow(GetDlgItem(hwndDlg, IDC_EDT_TEMPLATE), 0);
@@ -298,7 +298,7 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_DROPFILES:
     {
         DragQueryFileA((HDROP)wParam, NULL, ini_file, MAX_PATH);
-        if(!strcmp(ini_file+(strlen(ini_file)-3), "akt"))
+        if(!strcmp(ini_file + (strlen(ini_file) - 3), "akt"))
             ReadIniFile(hwndDlg, ini_file);
         else
             MessageBoxA(hwndDlg, "Please drop a valid file...", "Error!", MB_ICONERROR);
@@ -311,8 +311,8 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
         {
         case IDC_CHK_PROJECTID:
         {
-            projectid=IsDlgButtonChecked(hwndDlg, IDC_CHK_PROJECTID);
-            char new_pub_text[100]="";
+            projectid = IsDlgButtonChecked(hwndDlg, IDC_CHK_PROJECTID);
+            char new_pub_text[100] = "";
             if(GetDlgItemTextA(hwndDlg, IDC_EDT_PUBVALS_NEW, new_pub_text, 100))
                 SetDlgItemTextA(hwndDlg, IDC_EDT_PUBVALS_NEW, new_pub_text);
         }
@@ -320,20 +320,20 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
         case IDC_EDT_TEMPLATE:
         {
-            char templ[256]="";
-            char base[256]="";
-            char x[256]="";
-            char y[256]="";
-            char pvt[256]="";
-            int old_len=strlen(cur_pub_text);
+            char templ[256] = "";
+            char base[256] = "";
+            char x[256] = "";
+            char y[256] = "";
+            char pvt[256] = "";
+            int old_len = strlen(cur_pub_text);
             if(GetDlgItemTextA(hwndDlg, IDC_EDT_TEMPLATE, templ, 256))
             {
                 GenerateEcdsaParameters(templ, pvt, base, x, y);
                 sprintf(pvt, "%s,%s,%s", base, x, y);
                 sprintf(base, "%X", strlen(pvt));
             }
-            int len=strlen(pvt);
-            if(len==old_len)
+            int len = strlen(pvt);
+            if(len == old_len)
             {
                 SetDlgItemTextA(hwndDlg, IDC_EDT_PUBVALS_NEW, pvt);
                 SetDlgItemTextA(hwndDlg, IDC_EDT_PUBVALS_NEW_LEN, base);
@@ -352,10 +352,10 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             {
             case CBN_SELCHANGE:
             {
-                int current_selected=SendDlgItemMessageA(hwndDlg, IDC_LIST_CERTS, CB_GETCURSEL, 0, 0);
+                int current_selected = SendDlgItemMessageA(hwndDlg, IDC_LIST_CERTS, CB_GETCURSEL, 0, 0);
                 if(ini_file_loaded)
                 {
-                    char temp_name[10]="";
+                    char temp_name[10] = "";
                     GetPrivateProfileStringA(cert_names[current_selected], "pub", "", cur_pub_text, 256, ini_file);
                     GetPrivateProfileStringA(cert_names[current_selected], "diff", "", cur_dif_text, 10, ini_file);
                     GetPrivateProfileStringA(cert_names[current_selected], "md5", "", cur_md5_text, 10, ini_file);
@@ -381,54 +381,54 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
         case IDC_EDT_PUBVALS_NEW:
         {
-            char new_pub[256]="";
-            char new_byte[10]="";
-            unsigned int rand_init=~GetTickCount();
-            BYTE bytes_gtc[4]= {0};
-            bytes_gtc[0]=rand_init>>24;
-            bytes_gtc[1]=(rand_init<<8)>>24;
-            bytes_gtc[2]=(rand_init<<12)>>24;
-            bytes_gtc[3]=(rand_init<<16)>>24;
-            BYTE final_byte=bytes_gtc[0]^bytes_gtc[1]^bytes_gtc[2]^bytes_gtc[3];
-            if(final_byte<0x20)
-                final_byte+=0x20;
-            else if(final_byte>0x7E)
+            char new_pub[256] = "";
+            char new_byte[10] = "";
+            unsigned int rand_init = ~GetTickCount();
+            BYTE bytes_gtc[4] = {0};
+            bytes_gtc[0] = rand_init >> 24;
+            bytes_gtc[1] = (rand_init << 8) >> 24;
+            bytes_gtc[2] = (rand_init << 12) >> 24;
+            bytes_gtc[3] = (rand_init << 16) >> 24;
+            BYTE final_byte = bytes_gtc[0] ^ bytes_gtc[1] ^ bytes_gtc[2] ^ bytes_gtc[3];
+            if(final_byte < 0x20)
+                final_byte += 0x20;
+            else if(final_byte > 0x7E)
             {
-                final_byte-=0x81;
-                if(final_byte<0x20)
-                    final_byte+=0x21;
+                final_byte -= 0x81;
+                if(final_byte < 0x20)
+                    final_byte += 0x21;
             }
 
             //v9.60 support
-            unsigned char xor_byte=0;
+            unsigned char xor_byte = 0;
             if(cur_seed1_text[0] and cur_seed2_text[0])
             {
-                unsigned int seed1=0;
+                unsigned int seed1 = 0;
                 sscanf(cur_seed1_text, "%X", &seed1);
-                CT_a=seed1;
-                unsigned int result=CT_NextRandomRange(256);
+                CT_a = seed1;
+                unsigned int result = CT_NextRandomRange(256);
                 memcpy(&xor_byte, &result, 1);
             }
-            sprintf(new_byte, "%X", final_byte^xor_byte);
+            sprintf(new_byte, "%X", final_byte ^ xor_byte);
 
-            int new_pub_len=GetDlgItemTextA(hwndDlg, IDC_EDT_PUBVALS_NEW, new_pub, 256);
+            int new_pub_len = GetDlgItemTextA(hwndDlg, IDC_EDT_PUBVALS_NEW, new_pub, 256);
             if(new_pub_len)
             {
-                char replaced_pub_string[1024]="";
-                unsigned int proj_diff=2;
+                char replaced_pub_string[1024] = "";
+                unsigned int proj_diff = 2;
                 //v9.60 support
                 if(cur_seed1_text[0] and cur_seed2_text[0])
                 {
                     sscanf(cur_projectid_diff_text, "%X", &proj_diff);
-                    unsigned char cpy[256]="";
+                    unsigned char cpy[256] = "";
                     strcpy((char*)cpy, new_pub);
-                    unsigned int seed2=0;
+                    unsigned int seed2 = 0;
                     sscanf(cur_seed2_text, "%X", &seed2);
-                    unsigned char* rand=CT_GetCryptBytes(seed2, new_pub_len);
-                    for(int i=0,j=0; i<new_pub_len; i++)
+                    unsigned char* rand = CT_GetCryptBytes(seed2, new_pub_len);
+                    for(int i = 0, j = 0; i < new_pub_len; i++)
                     {
-                        cpy[i]^=rand[i];
-                        j+=sprintf(replaced_pub_string+j, "\\x%.2X", cpy[i]);
+                        cpy[i] ^= rand[i];
+                        j += sprintf(replaced_pub_string + j, "\\x%.2X", cpy[i]);
                     }
                 }
                 else
@@ -501,7 +501,7 @@ const char* DLL_EXPORT PluginInfo(void)
 
 void DLL_EXPORT PluginFunction(HINSTANCE hInst, HWND hwndDlg, const char* register_vp, const char* program_dir, unsigned int imagebase)
 {
-    hInstance=hInst;
+    hInstance = hInst;
     sprintf(dll_dump, "%s\\security_code.mem", program_dir);
     strcpy(register_used, register_vp);
     InitCommonControls();

@@ -18,8 +18,8 @@ extern "C"
 {
 #endif
 
-    const char* DLL_EXPORT PluginInfo(void);
-    void DLL_EXPORT PluginFunction(HINSTANCE hInst, HWND hwndDlg, const char* register_vp, const char* program_dir, unsigned int imagebase);
+const char* DLL_EXPORT PluginInfo(void);
+void DLL_EXPORT PluginFunction(HINSTANCE hInst, HWND hwndDlg, const char* register_vp, const char* program_dir, unsigned int imagebase);
 
 #ifdef __cplusplus
 }

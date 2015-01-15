@@ -12,7 +12,7 @@
 using namespace std;
 
 /**************************************************************************
- * 							Enumerations
+ *                          Enumerations
  **************************************************************************/
 /**
  * @brief  Type of API.
@@ -36,7 +36,7 @@ typedef enum
 
 
 /**************************************************************************
- * 							Structures
+ *                          Structures
  **************************************************************************/
 
 /**
@@ -112,11 +112,11 @@ struct LRPARSTRUCT
 };
 
 /**************************************************************************
- * 							Prototypes
+ *                          Prototypes
  **************************************************************************/
 // Public
 DWORD WINAPI LR_GetArmaLicenseDataThread(void* parstruct);
-void LR_GetArmaLicenseData(char parFileName[], vector<ArmaLicenseEntry_t> *parArmaLicenseEntryListPtr);
+void LR_GetArmaLicenseData(char parFileName[], vector<ArmaLicenseEntry_t>* parArmaLicenseEntryListPtr);
 void LR_RemoveArmaLicenseData(vector<ArmaLicenseEntry_t> parArmaLicenseEntry);
 void LR_RemoveSingleArmaLicenseData(ArmaLicenseEntry_t parArmaLicenseEntry);
 

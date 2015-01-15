@@ -15,7 +15,7 @@ typedef void (*PRINT_FOUND)(unsigned long hash, unsigned long key);
 typedef void (*PRINT_PROGRESS)(double checked, double all, time_t* start);
 typedef void (*PRINT_ERROR)(const char* error_msg);
 
-typedef void (*BRUTESTART)(int alg, hash_list *list, unsigned long from, unsigned long to, unsigned long* param);
+typedef void (*BRUTESTART)(int alg, hash_list* list, unsigned long from, unsigned long to, unsigned long* param);
 typedef void (*SETCALLBACKS)(PRINT_FOUND cb1, PRINT_PROGRESS cb2, PRINT_ERROR cb3);
 typedef void (*BRUTESTOP)();
 typedef void (*BRUTESETTINGS)(HWND parent);

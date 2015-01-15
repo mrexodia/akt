@@ -10,7 +10,7 @@
 #include "help_dialog.h"
 
 /**********************************************************************
- *						Prototypes
+ *                      Prototypes
  *********************************************************************/
 BOOL CALLBACK VF_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 DWORD WINAPI VF_DebugThread(void* lpVoid);

@@ -1,20 +1,20 @@
 #include "main.h"
 
 ///Plugin details.
-char plugin_name[]="Fingerprint Patcher (v8.0)";
+char plugin_name[] = "Fingerprint Patcher (v8.0)";
 
 ///Global variables.
-char dll_dump[MAX_PATH]="";
-char register_used[10]="";
-unsigned char dword_struct[8]= {0xB8, 0xFF, 0xFF, 0xFF, 0xFF, 0xC2, 0x08, 0x00};
-unsigned int fingerprint_function_addr=0;
+char dll_dump[MAX_PATH] = "";
+char register_used[10] = "";
+unsigned char dword_struct[8] = {0xB8, 0xFF, 0xFF, 0xFF, 0xFF, 0xC2, 0x08, 0x00};
+unsigned int fingerprint_function_addr = 0;
 
 void CopyToClipboard(const char* text) ///Copies a string to the clipboard.
 {
     HGLOBAL hText;
-    char *pText;
+    char* pText;
 
-    hText = GlobalAlloc(GMEM_DDESHARE | GMEM_MOVEABLE, strlen(text)+1);
+    hText = GlobalAlloc(GMEM_DDESHARE | GMEM_MOVEABLE, strlen(text) + 1);
     pText = (char*)GlobalLock(hText);
     strcpy(pText, text);
 
@@ -29,11 +29,11 @@ void CopyToClipboard(const char* text) ///Copies a string to the clipboard.
 
 void FormatTextHex(char* text) ///Formats the entered fingerprint.
 {
-    char FormatTextHex_format[2048]="";
-    int len=strlen(text);
-    for(int i=0; i<len; i++)
+    char FormatTextHex_format[2048] = "";
+    int len = strlen(text);
+    for(int i = 0; i < len; i++)
     {
-        if((text[i]>64 and text[i]<71) or (text[i]>47 and text[i]<58))
+        if((text[i] > 64 and text[i] < 71) or (text[i] > 47 and text[i] < 58))
             sprintf(FormatTextHex_format, "%s%c", FormatTextHex_format, text[i]);
     }
     strcpy(text, FormatTextHex_format);
@@ -41,35 +41,35 @@ void FormatTextHex(char* text) ///Formats the entered fingerprint.
 
 unsigned int FindFingerprintFunctionAddr() ///This function searches the dump of the security DLL code.
 {
-    HANDLE hFile=CreateFileA(dll_dump, GENERIC_ALL, 0, 0, OPEN_EXISTING, 0, 0);
-    if(hFile==INVALID_HANDLE_VALUE)
+    HANDLE hFile = CreateFileA(dll_dump, GENERIC_ALL, 0, 0, OPEN_EXISTING, 0, 0);
+    if(hFile == INVALID_HANDLE_VALUE)
         return 0;
 
-    DWORD high=0,filesize=GetFileSize(hFile, &high);
-    BYTE* security_code=(BYTE*)malloc(filesize);
+    DWORD high = 0, filesize = GetFileSize(hFile, &high);
+    BYTE* security_code = (BYTE*)malloc(filesize);
     if(!ReadFile(hFile, security_code, filesize, &high, 0))
     {
         CloseHandle(hFile);
         free(security_code);
         return 0;
     }
-    for(unsigned int i=0; i<filesize; i++) //Pattern : 55 8B EC ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? 01 00 00 00 ?? ?? 74
+    for(unsigned int i = 0; i < filesize; i++) //Pattern : 55 8B EC ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? 01 00 00 00 ?? ?? 74
     {
-        if(security_code[i]==0x55)
+        if(security_code[i] == 0x55)
         {
-            if(security_code[i+1]==0x8B)
+            if(security_code[i + 1] == 0x8B)
             {
-                if(security_code[i+2]==0xEC)
+                if(security_code[i + 2] == 0xEC)
                 {
-                    if(security_code[i+18]==1)
+                    if(security_code[i + 18] == 1)
                     {
-                        if(security_code[i+19]==0)
+                        if(security_code[i + 19] == 0)
                         {
-                            if(security_code[i+20]==0)
+                            if(security_code[i + 20] == 0)
                             {
-                                if(security_code[i+21]==0)
+                                if(security_code[i + 21] == 0)
                                 {
-                                    if(security_code[i+24]==0x74)
+                                    if(security_code[i + 24] == 0x74)
                                     {
                                         CloseHandle(hFile);
                                         free(security_code);
@@ -95,7 +95,7 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam) ///
     {
     case WM_INITDIALOG:
     {
-        fingerprint_function_addr=FindFingerprintFunctionAddr();
+        fingerprint_function_addr = FindFingerprintFunctionAddr();
         if(!fingerprint_function_addr)
         {
             MessageBoxA(hwndDlg, "Something went wrong, try loading a .exe file first...", "Error!", MB_ICONERROR);
@@ -118,14 +118,14 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam) ///
         {
         case IDC_EDT_HWID:
         {
-            char hwid_text[10]="";
-            char code_text[255]="";
+            char hwid_text[10] = "";
+            char code_text[255] = "";
             GetDlgItemTextA(hwndDlg, IDC_EDT_HWID, hwid_text, 10);
             FormatTextHex(hwid_text);
-            unsigned int* struct_addr=(unsigned int*)dword_struct;
+            unsigned int* struct_addr = (unsigned int*)dword_struct;
             if(hwid_text[0])
             {
-                sscanf(hwid_text, "%X", (unsigned int*)(dword_struct+1));
+                sscanf(hwid_text, "%X", (unsigned int*)(dword_struct + 1));
                 sprintf(code_text, "lea edi, dword ptr ds:[%s+0%X]\r\nmov dword ptr ds:[edi],0%.08X\r\nlea edi, dword ptr ds:[edi+4]\r\nmov dword ptr ds:[edi],0%.08X", register_used, fingerprint_function_addr, struct_addr[0], struct_addr[1]);
                 EnableWindow(GetDlgItem(hwndDlg, IDC_BTN_COPY), TRUE);
                 SetDlgItemTextA(hwndDlg, IDC_EDT_CODE, code_text);
@@ -140,7 +140,7 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam) ///
 
         case IDC_BTN_COPY:
         {
-            char code_text[255]="";
+            char code_text[255] = "";
             GetDlgItemTextA(hwndDlg, IDC_EDT_CODE, code_text, 255);
             CopyToClipboard(code_text);
         }

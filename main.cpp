@@ -1,9 +1,9 @@
 #include "main.h"
 
-char settings_ini[256]="";
-bool start_ontop=false;
-int bkColor=GetSysColor(15);
-HBRUSH hbr=CreateSolidBrush(bkColor);
+char settings_ini[256] = "";
+bool start_ontop = false;
+int bkColor = GetSysColor(15);
+HBRUSH hbr = CreateSolidBrush(bkColor);
 
 BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -11,9 +11,9 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
     case WM_INITDIALOG:
     {
-        char rnd_title[256]="";
-        WORD rnd_word[2]= {0};
-        rnd_word[0]=(GetTickCount()&0xFFFF);
+        char rnd_title[256] = "";
+        WORD rnd_word[2] = {0};
+        rnd_word[0] = (GetTickCount() & 0xFFFF);
         sprintf(rnd_title, "[%.04X] %s", rnd_word[0]^rnd_word[1], caption);
         SetWindowTextA(hwndDlg, rnd_title);
         SendMessageA(hwndDlg, WM_SETICON, ICON_BIG, (LPARAM)LoadIconA(hInst, MAKEINTRESOURCE(IDI_ICON1)));
@@ -32,7 +32,7 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
         //SelectTab(hwndDlg, 4);
         if(start_ontop)
         {
-            SetWindowPos(hwndDlg, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE|SWP_SHOWWINDOW);
+            SetWindowPos(hwndDlg, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
             CheckDlgButton(hwndDlg, IDC_CHK_ONTOP, 1);
         }
     }
@@ -51,11 +51,11 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
         case IDC_CHK_ONTOP:
         {
             NoFocus();
-            start_ontop=!!IsDlgButtonChecked(hwndDlg, LOWORD(wParam));
+            start_ontop = !!IsDlgButtonChecked(hwndDlg, LOWORD(wParam));
             if(start_ontop)
-                SetWindowPos(hwndDlg, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE|SWP_SHOWWINDOW);
+                SetWindowPos(hwndDlg, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
             else
-                SetWindowPos(hwndDlg, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE|SWP_SHOWWINDOW);
+                SetWindowPos(hwndDlg, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
         }
         return TRUE;
 
@@ -88,16 +88,16 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
-    hInst=hInstance;
+    hInst = hInstance;
     InitCommonControls();
     LoadLibrary("riched20.dll");
     DeleteFile("loaded_binary.mem");
     DeleteFile("security_code.mem");
     GetModuleFileNameA(hInst, sg_szAKTDirectory, 256);
-    int i=strlen(sg_szAKTDirectory);
-    while(sg_szAKTDirectory[i]!='\\')
+    int i = strlen(sg_szAKTDirectory);
+    while(sg_szAKTDirectory[i] != '\\')
         i--;
-    sg_szAKTDirectory[i]=0;
+    sg_szAKTDirectory[i] = 0;
     strcpy(program_dir, sg_szAKTDirectory);
     strcpy(sg_szPluginIniFilePath, sg_szAKTDirectory);
     strcat(sg_szPluginIniFilePath, "\\plugins\\plugins.ini");
@@ -105,39 +105,39 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
     IH_GetPluginList();
     SetCurrentDirectoryA(sg_szAKTDirectory);
 
-    char setting[10]="";
+    char setting[10] = "";
     sprintf(settings_ini, "%s\\Armadillo_KeyTool.ini", sg_szAKTDirectory);
     GetPrivateProfileStringA("Settings", "ontop", "", setting, 10, settings_ini);
-    if(setting[0]=='1')
-        start_ontop=true;
+    if(setting[0] == '1')
+        start_ontop = true;
 
     GetPrivateProfileStringA("Settings", "nologversion", "", setting, 10, settings_ini);
-    if(setting[0]=='1')
-        log_version=false;
+    if(setting[0] == '1')
+        log_version = false;
 
     GetPrivateProfileStringA("Settings", "nologcerttool", "", setting, 10, settings_ini);
-    if(setting[0]=='1')
-        CT_logtofile=false;
+    if(setting[0] == '1')
+        CT_logtofile = false;
 
-    int retn=DialogBox(hInst, MAKEINTRESOURCE(DLG_MAIN), 0, DlgMain);
+    int retn = DialogBox(hInst, MAKEINTRESOURCE(DLG_MAIN), 0, DlgMain);
 
     if(start_ontop)
-        setting[0]='1';
+        setting[0] = '1';
     else
-        setting[0]='0';
+        setting[0] = '0';
 
     WritePrivateProfileStringA("Settings", "ontop", setting, settings_ini);
 
     if(!CT_logtofile)
-        setting[0]='1';
+        setting[0] = '1';
     else
-        setting[0]='0';
+        setting[0] = '0';
     WritePrivateProfileStringA("Settings", "nologcerttool", setting, settings_ini);
 
     if(!log_version)
-        setting[0]='1';
+        setting[0] = '1';
     else
-        setting[0]='0';
+        setting[0] = '0';
     WritePrivateProfileStringA("Settings", "nologversion", setting, settings_ini);
     DeleteFile(sg_szPluginIniFilePath);
     DeleteFile("loaded_binary.mem");

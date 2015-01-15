@@ -5,7 +5,7 @@
 
 
 /**********************************************************************
- *						Prototypes
+ *                      Prototypes
  *********************************************************************/
 void VF_Version(char* szFileName, char* szVersion, cbErrorMessage ErrorMessageCallback);
 

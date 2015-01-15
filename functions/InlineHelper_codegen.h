@@ -5,7 +5,7 @@
 #include "..\template.h"
 
 /**********************************************************************
- *						Prototypes
+ *                      Prototypes
  *********************************************************************/
 void IH_GenerateAsmCode(char* codeText, IH_InlineHelperData_t targetData);
 

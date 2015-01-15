@@ -6,7 +6,7 @@
 
 
 /**********************************************************************
- *						Prototypes
+ *                      Prototypes
  *********************************************************************/
 BYTE IH_FindCrcStart(BYTE* data);
 unsigned int IH_FindFreeSpace(BYTE* d, unsigned int size);

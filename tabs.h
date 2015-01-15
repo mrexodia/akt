@@ -19,7 +19,7 @@ typedef struct tag_dlghdr
     int total_tabs;                //tab counter
     HWND hwndTab;                  //tab control
     HWND hwndDisplay;              //current child dialog box
-    DLGTEMPLATE *apRes[MAX_TABS];  //dialog template
+    DLGTEMPLATE* apRes[MAX_TABS];  //dialog template
     DLGPROC windowProc[MAX_TABS];  //window procedure
     WNDPROC tabWndProcOld;         //original wndproc from tab...
     HINSTANCE dlg_hinst[MAX_TABS]; //hinst for the dialog

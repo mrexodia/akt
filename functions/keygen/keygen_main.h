@@ -25,16 +25,16 @@
 extern const int primeoffsetcount, primeoffsets[];
 
 const char* CreateKey(unsigned int symmetric_key, unsigned int sym_xor, const char* regname, unsigned short otherinfo, unsigned long hardwareID, short today, HWND log);
-unsigned char *AddByte(unsigned char *c, unsigned char n);
-unsigned char *AddShort(unsigned char *c, unsigned short n);
-unsigned char *AddLong(unsigned char *c, unsigned long n);
-void mystrrev(char *str);
-CRC32 GetKeyCRC(char *keytext, int period);
-void GetKeyMD5(unsigned long *i, const char *keytext, int period);
-void GenerateKeyNumberFromString(char *string, BigInt p, BigInt *keynumber, int keysystem, int v3level);
-int MakeEccSignature(unsigned char *keybytes, int *keylength, char *name_to_make_key_for, int level, char* prvt_text, char* public_text, bool baboon, HWND log);
-int MakeSignature(unsigned char *keybytes, int *keylength, char *name_encryptkey, int level, char* pvt_kg_txt, char* y_kg_txt, bool baboon, HWND log);
-void EncryptSignedKey(unsigned char *keybytes, int keylength, char *encryptkey, HWND log);
+unsigned char* AddByte(unsigned char* c, unsigned char n);
+unsigned char* AddShort(unsigned char* c, unsigned short n);
+unsigned char* AddLong(unsigned char* c, unsigned long n);
+void mystrrev(char* str);
+CRC32 GetKeyCRC(char* keytext, int period);
+void GetKeyMD5(unsigned long* i, const char* keytext, int period);
+void GenerateKeyNumberFromString(char* string, BigInt p, BigInt* keynumber, int keysystem, int v3level);
+int MakeEccSignature(unsigned char* keybytes, int* keylength, char* name_to_make_key_for, int level, char* prvt_text, char* public_text, bool baboon, HWND log);
+int MakeSignature(unsigned char* keybytes, int* keylength, char* name_encryptkey, int level, char* pvt_kg_txt, char* y_kg_txt, bool baboon, HWND log);
+void EncryptSignedKey(unsigned char* keybytes, int keylength, char* encryptkey, HWND log);
 const char* CreateSignedKey(int level, unsigned int symmetric_key, unsigned int sym_xor, char* pvt_kg_txt, char* y_kg_txt, char* keystring, short today, char* _name_to_make_key_for, unsigned long hardwareID, unsigned short otherinfo1, unsigned short otherinfo2, unsigned short otherinfo3, unsigned short otherinfo4, unsigned short otherinfo5, bool baboon, HWND log);
 unsigned short MakeDate(unsigned int year, unsigned int month, unsigned int day);
 

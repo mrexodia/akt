@@ -9,23 +9,23 @@
 #define BITS_PER_DIGIT 8
 
 /*
-	In the typedefs below, DIGIT must be at least eight bits long (I don't know
-	of any computer where this wouldn't be true), and WORKING_DIGIT must be at
-	least twice the size of DIGIT. Modify them as needed.
+    In the typedefs below, DIGIT must be at least eight bits long (I don't know
+    of any computer where this wouldn't be true), and WORKING_DIGIT must be at
+    least twice the size of DIGIT. Modify them as needed.
 */
 
 #if BITS_PER_DIGIT==8
 typedef unsigned char DIGIT; /* This must be a minimum of 8 bits long! */
 typedef unsigned short WORKING_DIGIT; /* This must be at least twice the size of DIGIT! */
 #define DIGIT_HIBIT 0x80
-#define	WORKING_DIGIT_HIBIT 0x8000
+#define WORKING_DIGIT_HIBIT 0x8000
 #define DIGIT_MASK 0xFF
 #define OVERFLOW_DIGIT 0x100
 #elif BITS_PER_DIGIT==16
 typedef unsigned short DIGIT;
 typedef unsigned long WORKING_DIGIT;
 #define DIGIT_HIBIT 0x8000
-#define	WORKING_DIGIT_HIBIT 0x80000000
+#define WORKING_DIGIT_HIBIT 0x80000000
 #define DIGIT_MASK 0xFFFF
 #define OVERFLOW_DIGIT 0x10000L
 #else
@@ -35,7 +35,7 @@ typedef unsigned long WORKING_DIGIT;
 struct BigIntBase
 {
     int length, alloc, negative;
-    DIGIT *digits;
+    DIGIT* digits;
 };
 
 typedef struct BigIntBase* BigInt;

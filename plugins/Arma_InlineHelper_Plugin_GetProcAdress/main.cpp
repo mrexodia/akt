@@ -1,17 +1,17 @@
 #include "main.h"
 
 ///Plugin details.
-char plugin_name[]="GetProcAddress (5.00+)";
-unsigned int imgbase=0;
-unsigned int apis[2]= {0};
-char dump[256]="";
+char plugin_name[] = "GetProcAddress (5.00+)";
+unsigned int imgbase = 0;
+unsigned int apis[2] = {0};
+char dump[256] = "";
 
 void CopyToClipboard(const char* text) ///Copies a string to the clipboard.
 {
     HGLOBAL hText;
-    char *pText;
+    char* pText;
 
-    hText = GlobalAlloc(GMEM_DDESHARE | GMEM_MOVEABLE, strlen(text)+1);
+    hText = GlobalAlloc(GMEM_DDESHARE | GMEM_MOVEABLE, strlen(text) + 1);
     pText = (char*)GlobalLock(hText);
     strcpy(pText, text);
 
@@ -27,18 +27,18 @@ void CopyToClipboard(const char* text) ///Copies a string to the clipboard.
 
 unsigned int FindDwordInMemory(BYTE* dump_addr, unsigned dword_to_find, unsigned int filesize) //Find dword in memory
 {
-    unsigned int lala=dword_to_find;
-    BYTE dword[4]= {0};
+    unsigned int lala = dword_to_find;
+    BYTE dword[4] = {0};
     memcpy(dword, &lala, 4);
-    for(unsigned int i=0; i<filesize; i++)
+    for(unsigned int i = 0; i < filesize; i++)
     {
-        if(dump_addr[i]==dword[0])
+        if(dump_addr[i] == dword[0])
         {
-            if(dump_addr[i+1]==dword[1])
+            if(dump_addr[i + 1] == dword[1])
             {
-                if(dump_addr[i+2]==dword[2])
+                if(dump_addr[i + 2] == dword[2])
                 {
-                    if(dump_addr[i+3]==dword[3])
+                    if(dump_addr[i + 3] == dword[3])
                     {
                         return i;
                     }
@@ -51,13 +51,13 @@ unsigned int FindDwordInMemory(BYTE* dump_addr, unsigned dword_to_find, unsigned
 
 void FindPatchAddr()
 {
-    HANDLE hFile=CreateFileA(dump, GENERIC_ALL, 0, 0, OPEN_EXISTING, 0, 0);
-    if(hFile==INVALID_HANDLE_VALUE)
+    HANDLE hFile = CreateFileA(dump, GENERIC_ALL, 0, 0, OPEN_EXISTING, 0, 0);
+    if(hFile == INVALID_HANDLE_VALUE)
         return;
 
-    DWORD filesize=GetFileSize(hFile, 0);
-    BYTE* mem_addr=(BYTE*)malloc(filesize);
-    DWORD read=0;
+    DWORD filesize = GetFileSize(hFile, 0);
+    BYTE* mem_addr = (BYTE*)malloc(filesize);
+    DWORD read = 0;
     if(!ReadFile(hFile, mem_addr, filesize, &read, 0))
     {
         CloseHandle(hFile);
@@ -65,15 +65,15 @@ void FindPatchAddr()
         return;
     }
     CloseHandle(hFile);
-    HINSTANCE k32=GetModuleHandleA("kernel32.dll");
-    unsigned int addr=(unsigned int)GetProcAddress(k32, "LoadLibraryA");
-    unsigned int temp=FindDwordInMemory(mem_addr, addr, filesize);
+    HINSTANCE k32 = GetModuleHandleA("kernel32.dll");
+    unsigned int addr = (unsigned int)GetProcAddress(k32, "LoadLibraryA");
+    unsigned int temp = FindDwordInMemory(mem_addr, addr, filesize);
     if(temp)
-        apis[0]=temp+imgbase;
-    addr=(unsigned int)GetProcAddress(k32, "GetProcAddress");
-    temp=FindDwordInMemory(mem_addr, addr, filesize);
+        apis[0] = temp + imgbase;
+    addr = (unsigned int)GetProcAddress(k32, "GetProcAddress");
+    temp = FindDwordInMemory(mem_addr, addr, filesize);
     if(temp)
-        apis[1]=temp+imgbase;
+        apis[1] = temp + imgbase;
     free(mem_addr);
     return;
 }
@@ -108,17 +108,17 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
         case IDC_EDT_DLL:
         case IDC_EDT_API:
         {
-            char api[256]="";
-            char code[256]="";
-            char message[256]="";
-            char dll[256]="";
+            char api[256] = "";
+            char code[256] = "";
+            char message[256] = "";
+            char dll[256] = "";
             GetDlgItemTextA(hwndDlg, IDC_EDT_DLL, dll, 256);
             if(!dll[0])
                 return TRUE;
             GetDlgItemTextA(hwndDlg, IDC_EDT_API, api, 256);
             if(!api[0])
                 return TRUE;
-            HMODULE mod=LoadLibraryA(dll);
+            HMODULE mod = LoadLibraryA(dll);
             if(!mod)
             {
                 strcpy(message, " ; Could not load module");
@@ -132,9 +132,9 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             sprintf(code, "call @f%s\r\n\"%s\\0\"\r\n@@:\r\ncall dword ptr ds:[ebp+0%X] ; lla\r\ncall @f\r\n\"%s\\0\"\r\n@@:\r\npush eax\r\ncall dword ptr ds:[ebp+0%X] ; gpa",
                     message,
                     dll,
-                    apis[0]-imgbase,
+                    apis[0] - imgbase,
                     api,
-                    apis[1]-imgbase);
+                    apis[1] - imgbase);
             /*sprintf(code, "jmp @skip_text%s\r\n@dll:\r\n\"%s\\0\"\r\n@import:\r\n\"%s\\0\"\r\n@skip_text:\r\npush @dll\r\ncall dword ptr ds:[0%X] ; LoadLibraryA\r\npush @import\r\npush eax\r\ncall dword ptr ds:[0%X] ; GetProcAddress",
                     message, dll, api, apis[0], apis[1]);*/
             SetDlgItemTextA(hwndDlg, IDC_EDT_CODE, code);
@@ -143,7 +143,7 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
         case IDC_BTN_COPY:
         {
-            char code[256]="";
+            char code[256] = "";
             GetDlgItemTextA(hwndDlg, IDC_EDT_CODE, code, 256);
             CopyToClipboard(code);
             SetDlgItemTextA(hwndDlg, IDC_EDT_API, "");
@@ -164,7 +164,7 @@ const char* DLL_EXPORT PluginInfo(void)
 
 void DLL_EXPORT PluginFunction(HINSTANCE hInst, HWND hwndDlg, const char* register_vp, const char* program_dir, unsigned int imagebase)
 {
-    imgbase=imagebase;
+    imgbase = imagebase;
     sprintf(dump, "%s\\loaded_binary.mem", program_dir);
     InitCommonControls();
     DialogBox(hInst, MAKEINTRESOURCE(DLG_MAIN), hwndDlg, (DLGPROC)DlgMain);

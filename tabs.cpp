@@ -2,24 +2,24 @@
 #include "resource.h"
 #include "functions\_global.h"
 
-HBRUSH g_hbrBkgnd=CreateSolidBrush(0);
+HBRUSH g_hbrBkgnd = CreateSolidBrush(0);
 
 //Places the window in the tab rectangle, also resizes the window when specified
 void WINAPI OnChildDialogInit(HWND hwndDlg)
 {
-    HWND hwndParent=GetParent(hwndDlg);
-    DLGHDR* pHdr=(DLGHDR*)GetWindowLong(hwndParent, GWL_USERDATA);
-    UINT flags=SWP_SHOWWINDOW|SWP_NOZORDER;
+    HWND hwndParent = GetParent(hwndDlg);
+    DLGHDR* pHdr = (DLGHDR*)GetWindowLong(hwndParent, GWL_USERDATA);
+    UINT flags = SWP_SHOWWINDOW | SWP_NOZORDER;
     if(!pHdr->auto_resize_window)
-        flags|=SWP_NOSIZE;
+        flags |= SWP_NOSIZE;
 
     RECT TabRect;
     GetWindowRect(pHdr->hwndTab, &TabRect);
-    MapWindowPoints(HWND_DESKTOP, GetParent(pHdr->hwndTab), (POINT *)&TabRect, 2);
+    MapWindowPoints(HWND_DESKTOP, GetParent(pHdr->hwndTab), (POINT*)&TabRect, 2);
     SendMessage(pHdr->hwndTab, TCM_ADJUSTRECT, false, (LPARAM)&TabRect);
     TabRect.right  -= TabRect.left; // .right ==width
     TabRect.bottom -= TabRect.top;  // .bottom==heigth
-    SetWindowPos(hwndDlg, HWND_BOTTOM, TabRect.left-1, TabRect.top, TabRect.right, TabRect.bottom, flags);
+    SetWindowPos(hwndDlg, HWND_BOTTOM, TabRect.left - 1, TabRect.top, TabRect.right, TabRect.bottom, flags);
 
     //SetWindowPos(hwndDlg, 0, pHdr->tabRect.left-1, pHdr->tabRect.top-6, pHdr->tabRect.right, pHdr->tabRect.bottom, flags);
     //SetWindowPos(hwndDlg, 0, pHdr->tabRect.left, pHdr->tabRect.top, pHdr->tabRect.right, pHdr->tabRect.bottom, flags);
@@ -29,9 +29,9 @@ void WINAPI OnChildDialogInit(HWND hwndDlg)
 //Hook for the child dialog to process the dialog initialization (window position and size)
 BOOL CALLBACK tab_hook(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    HWND hwndParent=GetParent(hwndDlg);
-    DLGHDR* pHdr=(DLGHDR*)GetWindowLong(hwndParent, GWL_USERDATA);
-    int iSel=TabCtrl_GetCurSel(pHdr->hwndTab);
+    HWND hwndParent = GetParent(hwndDlg);
+    DLGHDR* pHdr = (DLGHDR*)GetWindowLong(hwndParent, GWL_USERDATA);
+    int iSel = TabCtrl_GetCurSel(pHdr->hwndTab);
     switch(uMsg)
     {
     case WM_INITDIALOG:
@@ -47,15 +47,15 @@ BOOL CALLBACK tab_hook(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 void OnSelChanged(HWND hwndDlg)
 {
     //Get the dialog header data.
-    DLGHDR* pHdr=(DLGHDR*)GetWindowLong(hwndDlg, GWL_USERDATA);
+    DLGHDR* pHdr = (DLGHDR*)GetWindowLong(hwndDlg, GWL_USERDATA);
     //Get the index of the selected tab.
-    int iSel=TabCtrl_GetCurSel(pHdr->hwndTab);
+    int iSel = TabCtrl_GetCurSel(pHdr->hwndTab);
     //Set some local variables for code size
-    HWND* dlg_hwnd=&pHdr->dlg_hwnd[iSel]; //Should save a little memory, we just set a local variable with a pointer
+    HWND* dlg_hwnd = &pHdr->dlg_hwnd[iSel]; //Should save a little memory, we just set a local variable with a pointer
     //DragAcceptFiles(pHdr->hwndTab, pHdr->accept_files[iSel]); //Accept files when specified to do so...
     EnableWindow(GetDlgItem(hwndDlg, IDC_BTN_BROWSE), pHdr->accept_files[iSel]); //enable browse button
     DragAcceptFiles(pHdr->hwndTab, 1); //Accept files when specified to do so...
-    HWND* hwnd_dis=&pHdr->hwndDisplay; //Same trick here
+    HWND* hwnd_dis = &pHdr->hwndDisplay; //Same trick here
     //Disable and hide the old window (so use input stays)
     if(*hwnd_dis)
     {
@@ -65,7 +65,7 @@ void OnSelChanged(HWND hwndDlg)
     //We want to process the WM_INITDIALOG message only once
     if(!*dlg_hwnd)
     {
-        *dlg_hwnd=CreateDialogIndirect(pHdr->dlg_hinst[iSel], (DLGTEMPLATE*)pHdr->apRes[iSel], hwndDlg, tab_hook);
+        *dlg_hwnd = CreateDialogIndirect(pHdr->dlg_hinst[iSel], (DLGTEMPLATE*)pHdr->apRes[iSel], hwndDlg, tab_hook);
         EnableThemeDialogTexture(*dlg_hwnd, ETDT_USETABTEXTURE);
     }
 
@@ -75,14 +75,14 @@ void OnSelChanged(HWND hwndDlg)
         EnableWindow(*dlg_hwnd, 1);
         ShowWindow(*dlg_hwnd, 1);
     }
-    *hwnd_dis=*dlg_hwnd;
+    *hwnd_dis = *dlg_hwnd;
     return;
 }
 
 //Sets & Activates a new tab
 void SelectTab(HWND hwndDlg, int id)
 {
-    DLGHDR* pHdr=(DLGHDR*)GetWindowLong(hwndDlg, GWL_USERDATA);
+    DLGHDR* pHdr = (DLGHDR*)GetWindowLong(hwndDlg, GWL_USERDATA);
     TabCtrl_SetCurSel(pHdr->hwndTab, id);
     OnSelChanged(hwndDlg);
 }
@@ -90,8 +90,8 @@ void SelectTab(HWND hwndDlg, int id)
 //Hooks the WM_NOTIFY message of the main window to detect selection changes
 BOOL CALLBACK notify_hook(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    DLGHDR* pHdr=(DLGHDR*)GetWindowLong(hwndDlg, GWL_USERDATA);
-    int iSel=TabCtrl_GetCurSel(pHdr->hwndTab);
+    DLGHDR* pHdr = (DLGHDR*)GetWindowLong(hwndDlg, GWL_USERDATA);
+    int iSel = TabCtrl_GetCurSel(pHdr->hwndTab);
     switch(uMsg)
     {
     case WM_HELP:
@@ -107,7 +107,7 @@ BOOL CALLBACK notify_hook(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
         {
         case IDC_BTN_BROWSE:
         {
-            static char filename[1024]="";
+            static char filename[1024] = "";
             if(!BrowseFileOpen(hwndDlg, "Executables (*.exe, *.dll)\0*.exe;*.dll", 0, filename, 1024, 0))
                 return TRUE;
             SendMessageA(pHdr->dlg_hwnd[iSel], WM_BROWSE, (WPARAM)filename, 0);
@@ -136,28 +136,28 @@ BOOL CALLBACK notify_hook(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 //Handles file drag & drop
 BOOL CALLBACK DropFileSubClass(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    HWND hwndParent=GetParent(hwndDlg);
-    DLGHDR* pHdr=(DLGHDR*)GetWindowLong(hwndParent, GWL_USERDATA);
+    HWND hwndParent = GetParent(hwndDlg);
+    DLGHDR* pHdr = (DLGHDR*)GetWindowLong(hwndParent, GWL_USERDATA);
     switch(uMsg)
     {
     case WM_DROPFILES:
     {
-        int iSel=TabCtrl_GetCurSel(pHdr->hwndTab);
+        int iSel = TabCtrl_GetCurSel(pHdr->hwndTab);
         if(pHdr->accept_files[iSel]) //Tab selected that accepts files
         {
             SendMessageA(pHdr->dlg_hwnd[iSel], WM_DROPFILES, wParam, 0);
         }
         else //Create menu with supported tabs
         {
-            int totalTabs=TabCtrl_GetItemCount(pHdr->hwndTab);
-            HMENU myMenu=0;
-            myMenu=CreatePopupMenu();
+            int totalTabs = TabCtrl_GetItemCount(pHdr->hwndTab);
+            HMENU myMenu = 0;
+            myMenu = CreatePopupMenu();
 
             bool accept;
-            int counter=0;
-            while(counter<totalTabs)
+            int counter = 0;
+            while(counter < totalTabs)
             {
-                accept=pHdr->accept_files[counter];
+                accept = pHdr->accept_files[counter];
                 if(accept)
                 {
                     AppendMenuA(myMenu, MF_STRING, counter, pHdr->tab_name[counter]);
@@ -168,7 +168,7 @@ BOOL CALLBACK DropFileSubClass(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lP
             POINT cursorPos;
             GetCursorPos(&cursorPos);
             SetForegroundWindow(hwndParent);
-            UINT MenuItemClicked=TrackPopupMenu(myMenu, TPM_RETURNCMD|TPM_NONOTIFY, cursorPos.x, cursorPos.y, 0, hwndParent, 0);
+            UINT MenuItemClicked = TrackPopupMenu(myMenu, TPM_RETURNCMD | TPM_NONOTIFY, cursorPos.x, cursorPos.y, 0, hwndParent, 0);
             SendMessage(hwndParent, WM_NULL, 0, 0);
             if(!MenuItemClicked)
                 return TRUE;
@@ -185,29 +185,29 @@ BOOL CALLBACK DropFileSubClass(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lP
 //Loads and locks a dialog resource (for creating the child dialog)
 DLGTEMPLATE* DoLockDlgRes(HINSTANCE hInstance, LPCTSTR lpszResName)
 {
-    HRSRC hrsrc=FindResource(0, lpszResName, RT_DIALOG);
-    HGLOBAL hglb=LoadResource(hInstance, hrsrc);
+    HRSRC hrsrc = FindResource(0, lpszResName, RT_DIALOG);
+    HGLOBAL hglb = LoadResource(hInstance, hrsrc);
     return (DLGTEMPLATE*)LockResource(hglb);
 }
 
 //Initialize the structure for the tab control (currently only one control is supported)
 void InitTabStruct(HWND hwndDlg, UINT tab_id, bool auto_resize_window, bool auto_resize_tab_control)
 {
-    DLGHDR* pHdr=(DLGHDR*)LocalAlloc(LPTR, sizeof(DLGHDR));
+    DLGHDR* pHdr = (DLGHDR*)LocalAlloc(LPTR, sizeof(DLGHDR));
     SetWindowLong(hwndDlg, GWL_USERDATA, (LONG)pHdr);
-    pHdr->father_proc=(DLGPROC)SetWindowLong(hwndDlg, DWL_DLGPROC, (LONG)notify_hook);
-    pHdr->hwndTab=GetDlgItem(hwndDlg, tab_id);
-    pHdr->total_tabs=0;
-    pHdr->auto_resize_window=auto_resize_window;
-    pHdr->auto_resize_tab_control=auto_resize_tab_control;
-    pHdr->tabWndProcOld=(WNDPROC)SetWindowLong(pHdr->hwndTab, GWLP_WNDPROC, (LONG)DropFileSubClass);
+    pHdr->father_proc = (DLGPROC)SetWindowLong(hwndDlg, DWL_DLGPROC, (LONG)notify_hook);
+    pHdr->hwndTab = GetDlgItem(hwndDlg, tab_id);
+    pHdr->total_tabs = 0;
+    pHdr->auto_resize_window = auto_resize_window;
+    pHdr->auto_resize_tab_control = auto_resize_tab_control;
+    pHdr->tabWndProcOld = (WNDPROC)SetWindowLong(pHdr->hwndTab, GWLP_WNDPROC, (LONG)DropFileSubClass);
 }
 
 //Used for debugging, prints information about a specified rectangle
 void print_rect(RECT* r, const char* title) //TODO: never used
 {
-    char print_text[512]="";
-    sprintf(print_text, "left (x of the upper-left corner):\r\n%d\r\ntop (y upper-left corner):\r\n%d\r\nright (x lower-right corner):\r\n%d\r\nbottom (y lower-right corner):\r\n%d\r\nheight (bottom-top)\r\n%d\r\nwidth (right-left)\r\n%d", (int)r->left, (int)r->top, (int)r->right, (int)r->bottom, (int)(r->bottom-r->top), (int)(r->right-r->left));
+    char print_text[512] = "";
+    sprintf(print_text, "left (x of the upper-left corner):\r\n%d\r\ntop (y upper-left corner):\r\n%d\r\nright (x lower-right corner):\r\n%d\r\nbottom (y lower-right corner):\r\n%d\r\nheight (bottom-top)\r\n%d\r\nwidth (right-left)\r\n%d", (int)r->left, (int)r->top, (int)r->right, (int)r->bottom, (int)(r->bottom - r->top), (int)(r->right - r->left));
     if(title)
         MessageBoxA(0, print_text, title, MB_ICONINFORMATION);
     else
@@ -220,36 +220,36 @@ void AddTabbedDialog(HINSTANCE hInstance, HWND hwndDlg, const char* tab_title, U
     //DWORD dwDlgBase=GetDialogBaseUnits();
     //int cxMargin=LOWORD(dwDlgBase)/4;
     //int cyMargin=HIWORD(dwDlgBase)/8;
-    int* total_tabs=0;
+    int* total_tabs = 0;
     TCITEM tab;
     //RECT rcTab;
     //Retrieve our tab structure
-    DLGHDR* pHdr=(DLGHDR*)GetWindowLong(hwndDlg, GWL_USERDATA);
+    DLGHDR* pHdr = (DLGHDR*)GetWindowLong(hwndDlg, GWL_USERDATA);
     //Assign some pointers to local vars for code size
-    HWND hwndTab=pHdr->hwndTab;
-    total_tabs=&pHdr->total_tabs;
-    HINSTANCE* dlg_hinst=&pHdr->dlg_hinst[*total_tabs];
+    HWND hwndTab = pHdr->hwndTab;
+    total_tabs = &pHdr->total_tabs;
+    HINSTANCE* dlg_hinst = &pHdr->dlg_hinst[*total_tabs];
     //Inserts a tab
-    tab.mask=TCIF_TEXT; //Just text
-    tab.pszText=(char*)tab_title; //Title
+    tab.mask = TCIF_TEXT; //Just text
+    tab.pszText = (char*)tab_title; //Title
     TabCtrl_InsertItem(hwndTab, *total_tabs, &tab); //Insert the tab
     //Backup name for later use
-    int namelen=strlen(tab_title);
-    char* namebak=(char*)malloc(namelen+1);
-    memset(namebak, 0, namelen+1);
+    int namelen = strlen(tab_title);
+    char* namebak = (char*)malloc(namelen + 1);
+    memset(namebak, 0, namelen + 1);
     strcpy(namebak, tab_title);
     //Add the specified dialog in the structure
     if(hInstance)
-        *dlg_hinst=hInstance;
+        *dlg_hinst = hInstance;
     else
-        *dlg_hinst=GetModuleHandleA(0);
-    pHdr->apRes[*total_tabs]=DoLockDlgRes(*dlg_hinst, MAKEINTRESOURCE(dlg_id));
-    pHdr->dlg_id[*total_tabs]=dlg_id;
+        *dlg_hinst = GetModuleHandleA(0);
+    pHdr->apRes[*total_tabs] = DoLockDlgRes(*dlg_hinst, MAKEINTRESOURCE(dlg_id));
+    pHdr->dlg_id[*total_tabs] = dlg_id;
     //pHdr->apRes[*total_tabs]->style=DS_CONTROL|DS_SHELLFONT|WS_BORDER|WS_VISIBLE|WS_CHILDWINDOW;
-    pHdr->windowProc[*total_tabs]=dlg_proc;
-    pHdr->accept_files[*total_tabs]=accept_files;
-    pHdr->handles_help[*total_tabs]=handles_help;
-    pHdr->tab_name[*total_tabs]=namebak;
+    pHdr->windowProc[*total_tabs] = dlg_proc;
+    pHdr->accept_files[*total_tabs] = accept_files;
+    pHdr->handles_help[*total_tabs] = handles_help;
+    pHdr->tab_name[*total_tabs] = namebak;
     total_tabs[0]++;
     //Determine a bounding rectangle that is large enough to
     //contain the largest child dialog box.

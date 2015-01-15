@@ -5,7 +5,7 @@
 
 
 /**********************************************************************
- *						Prototypes
+ *                      Prototypes
  *********************************************************************/
 void VF_ExtraOptions(char* szFileName, unsigned int* extra_options, cbErrorMessage errorCallback);
 

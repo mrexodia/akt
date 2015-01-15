@@ -1,20 +1,20 @@
 #include "main.h"
 
 ///Plugin details.
-char plugin_name[]="Re-Enable NGEN (v7.20+?)";
+char plugin_name[] = "Re-Enable NGEN (v7.20+?)";
 
 ///Global variables.
-char dll_dump[MAX_PATH]="";
-char register_used[10]="";
-unsigned int patch_addr=0;
-unsigned char register_byte=0;
+char dll_dump[MAX_PATH] = "";
+char register_used[10] = "";
+unsigned int patch_addr = 0;
+unsigned char register_byte = 0;
 
 void CopyToClipboard(const char* text) ///Copies a string to the clipboard.
 {
     HGLOBAL hText;
-    char *pText;
+    char* pText;
 
-    hText = GlobalAlloc(GMEM_DDESHARE | GMEM_MOVEABLE, strlen(text)+1);
+    hText = GlobalAlloc(GMEM_DDESHARE | GMEM_MOVEABLE, strlen(text) + 1);
     pText = (char*)GlobalLock(hText);
     strcpy(pText, text);
 
@@ -30,20 +30,20 @@ void CopyToClipboard(const char* text) ///Copies a string to the clipboard.
 
 unsigned int FindPattern(BYTE* d, unsigned int size)
 {
-    for(unsigned int i=0; i<size; i++) //03??????????5?8D??????????5?E8????????83C41485C074
-        if(d[i]==0x03 and (d[i+6]>>4)==0x05 and d[i+7]==0x8D and (d[i+13]>>4)==0x05 and d[i+14]==0xE8 and d[i+19]==0x83 and d[i+20]==0xC4 and d[i+21]==0x14 and d[i+22]==0x85 and d[i+23]==0xC0 and d[i+24]==0x74)
-            return i+14;
+    for(unsigned int i = 0; i < size; i++) //03??????????5?8D??????????5?E8????????83C41485C074
+        if(d[i] == 0x03 and (d[i + 6] >> 4) == 0x05 and d[i + 7] == 0x8D and (d[i + 13] >> 4) == 0x05 and d[i + 14] == 0xE8 and d[i + 19] == 0x83 and d[i + 20] == 0xC4 and d[i + 21] == 0x14 and d[i + 22] == 0x85 and d[i + 23] == 0xC0 and d[i + 24] == 0x74)
+            return i + 14;
     return 0;
 }
 
 unsigned int FindPatchAddr()
 {
-    HANDLE hFile=CreateFileA(dll_dump, GENERIC_ALL, 0, 0, OPEN_EXISTING, 0, 0);
-    if(hFile==INVALID_HANDLE_VALUE)
+    HANDLE hFile = CreateFileA(dll_dump, GENERIC_ALL, 0, 0, OPEN_EXISTING, 0, 0);
+    if(hFile == INVALID_HANDLE_VALUE)
         return 0;
 
-    DWORD high=0,filesize=GetFileSize(hFile, &high);
-    BYTE* mem_addr=(BYTE*)malloc(filesize);
+    DWORD high = 0, filesize = GetFileSize(hFile, &high);
+    BYTE* mem_addr = (BYTE*)malloc(filesize);
     if(!ReadFile(hFile, mem_addr, filesize, &high, 0))
     {
         CloseHandle(hFile);
@@ -51,7 +51,7 @@ unsigned int FindPatchAddr()
         return 0;
     }
     CloseHandle(hFile);
-    unsigned int retn=FindPattern(mem_addr, filesize);
+    unsigned int retn = FindPattern(mem_addr, filesize);
     free(mem_addr);
     return retn;
 }
@@ -62,8 +62,8 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
     case WM_INITDIALOG:
     {
-        char code_text[255]="";
-        patch_addr=FindPatchAddr();
+        char code_text[255] = "";
+        patch_addr = FindPatchAddr();
         if(!patch_addr)
         {
             MessageBoxA(hwndDlg, "Something went wrong, try loading a .exe file first...", "Error!", MB_ICONERROR);
@@ -89,7 +89,7 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
         {
         case IDC_BTN_COPY:
         {
-            char code_text[255]="";
+            char code_text[255] = "";
             GetDlgItemTextA(hwndDlg, IDC_EDT_CODE, code_text, 255);
             CopyToClipboard(code_text);
         }

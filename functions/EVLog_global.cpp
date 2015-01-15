@@ -3,5 +3,5 @@
 //Debugger
 HWND EV_shared;
 HWND EV_list_hwnd;
-char EV_szFileName[256]="";
+char EV_szFileName[256] = "";
 

@@ -27,7 +27,7 @@
 #include "keygen\keygen_main.h"
 
 /**********************************************************************
- *						Standard Callbacks
+ *                      Standard Callbacks
  *********************************************************************/
 typedef void (*cbErrorMessage)(char*, char*);
 typedef void (*cbGenericTwoArg)(void*, void*);
@@ -63,7 +63,7 @@ unsigned int FindEB6APattern(BYTE* d, unsigned int size);
 unsigned int FindCallPattern(BYTE* d, unsigned int size);
 bool FixIsDebuggerPresent(HANDLE hProcess, bool hide);
 void* malloc2(size_t size);
-void free2(void *address);
+void free2(void* address);
 void UpdateHorizontalScrollLen(HWND list, const char* string);
 const char* wpmerror();
 const char* rpmerror();
@@ -111,7 +111,7 @@ typedef struct _NTPEB
     ULONG HeapDeCommitFreeBlockThreshold;
     ULONG NumberOfHeaps;
     ULONG MaximumNumberOfHeaps;
-    PVOID**ProcessHeaps;
+    PVOID** ProcessHeaps;
     PVOID diSharedHandleTable;
     PVOID ProcessStarterHelper;
     PVOID GdiDCAttributeList;

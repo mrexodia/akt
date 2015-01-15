@@ -13,7 +13,7 @@ extern "C"
 
 void DLL_EXPORT BruteSettings(HWND parent);
 void DLL_EXPORT BruteStop();
-void DLL_EXPORT BruteStart(int alg, hash_list *list, unsigned long from, unsigned long to, unsigned long* param);
+void DLL_EXPORT BruteStart(int alg, hash_list* list, unsigned long from, unsigned long to, unsigned long* param);
 void DLL_EXPORT SetCallbacks(PRINT_FOUND cb1, PRINT_PROGRESS cb2, PRINT_ERROR cb3);
 
 #ifdef __cplusplus

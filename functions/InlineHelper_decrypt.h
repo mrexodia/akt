@@ -5,7 +5,7 @@
 
 
 /**********************************************************************
- *						Prototypes
+ *                      Prototypes
  *********************************************************************/
 void IHD_FatalError(const char* msg);
 unsigned int IHD_FindJump(BYTE* d, unsigned int size, char* reg);

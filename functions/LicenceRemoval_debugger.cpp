@@ -26,21 +26,21 @@
 
 
 /**************************************************************************
- * 							Global Variables
+ *                          Global Variables
  **************************************************************************/
-static uint32_t    mImageBase     =0;
-static uint32_t    mEntryPoint    =0;
-static uint32_t    mSizeOfImage   =0;
+static uint32_t    mImageBase     = 0;
+static uint32_t    mEntryPoint    = 0;
+static uint32_t    mSizeOfImage   = 0;
 static HANDLE      mHandle;
-static char*       mFileName      =0;
+static char*       mFileName      = 0;
 
-static RegOpenKeyExAContext_t       	mRegOpenKeyExAContext;
-static RegQueryValueExAContext_t    	mRegQueryValueExAContext;
-static CreateFileAContext_t         	mCreateFileAContext;
-static vector<APIContextContainer_t>	mAPIContextContainerList;
-static vector<ArmaLicenseEntry_t>*   	mArmaLicenseEntryPtr;
-static uint32_t                     	mMutexCallCount=0;
-static unsigned int 					mIsGreaterThanArma940=0;
+static RegOpenKeyExAContext_t           mRegOpenKeyExAContext;
+static RegQueryValueExAContext_t        mRegQueryValueExAContext;
+static CreateFileAContext_t             mCreateFileAContext;
+static vector<APIContextContainer_t>    mAPIContextContainerList;
+static vector<ArmaLicenseEntry_t>*      mArmaLicenseEntryPtr;
+static uint32_t                         mMutexCallCount = 0;
+static unsigned int                     mIsGreaterThanArma940 = 0;
 
 HWND hwndDlg;
 
@@ -56,13 +56,13 @@ HWND hwndDlg;
  */
 DWORD WINAPI LR_GetArmaLicenseDataThread(void* parstruct)
 {
-    LRPARSTRUCT* par=(LRPARSTRUCT*)parstruct;
-    bool* isdebugging=par->isdebugging;
-    *isdebugging=true;
-    hwndDlg=par->hwndDlg;
+    LRPARSTRUCT* par = (LRPARSTRUCT*)parstruct;
+    bool* isdebugging = par->isdebugging;
+    *isdebugging = true;
+    hwndDlg = par->hwndDlg;
     LR_GetArmaLicenseData(par->parFileName, par->parArmaLicenseEntryListPtr);
     par->filllist(par->list, par->parArmaLicenseEntryListPtr);
-    *isdebugging=false;
+    *isdebugging = false;
     free2(par);
     return 0;
 }
@@ -79,10 +79,10 @@ DWORD WINAPI LR_GetArmaLicenseDataThread(void* parstruct)
 void LR_GetArmaLicenseData(char parFileName[], vector<ArmaLicenseEntry_t>* parArmaLicenseEntryListPtr)
 {
     FILE_STATUS_INFO wFileStatus;
-    LPPROCESS_INFORMATION wProcessInfo=0;
+    LPPROCESS_INFORMATION wProcessInfo = 0;
 
-    mArmaLicenseEntryPtr=parArmaLicenseEntryListPtr;
-    mFileName=parFileName;
+    mArmaLicenseEntryPtr = parArmaLicenseEntryListPtr;
+    mFileName = parFileName;
 
     // Check if the file to debug has a valid PE
     IsPE32FileValidEx(parFileName, UE_DEPTH_SURFACE, &wFileStatus);
@@ -90,22 +90,22 @@ void LR_GetArmaLicenseData(char parFileName[], vector<ArmaLicenseEntry_t>* parAr
     printf("Start\n");
 
     // Get PE Data (ImageBase and OriginalEntryPoint)
-    mImageBase=(uint32_t)GetPE32Data(parFileName, 0, UE_IMAGEBASE);
+    mImageBase = (uint32_t)GetPE32Data(parFileName, 0, UE_IMAGEBASE);
     printf("mImageBase : 0x%08X\n", mImageBase);
 
-    mEntryPoint=(uint32_t)GetPE32Data(parFileName, 0, UE_OEP);
+    mEntryPoint = (uint32_t)GetPE32Data(parFileName, 0, UE_OEP);
     printf("mEntryPoint : 0x%08X\n", mEntryPoint);
 
-    mSizeOfImage=(uint32_t)GetPE32Data(parFileName, 0, UE_SIZEOFIMAGE);
+    mSizeOfImage = (uint32_t)GetPE32Data(parFileName, 0, UE_SIZEOFIMAGE);
     printf("mSizeOfImage : 0x%08X\n", mSizeOfImage);
 
     // Initialize the debugged process
-    wProcessInfo=(LPPROCESS_INFORMATION)InitDebug(parFileName, 0, 0);
-    mHandle=wProcessInfo->hProcess;
+    wProcessInfo = (LPPROCESS_INFORMATION)InitDebug(parFileName, 0, 0);
+    mHandle = wProcessInfo->hProcess;
     printf("mHandle : 0x%08X\n", (int32_t)mHandle);
 
     // Set a breakpint on the entry point
-    SetBPX(mImageBase + mEntryPoint, UE_SINGLESHOOT|UE_BREAKPOINT_TYPE_INT3, (void*)LR_EntryPointArma960Callback);
+    SetBPX(mImageBase + mEntryPoint, UE_SINGLESHOOT | UE_BREAKPOINT_TYPE_INT3, (void*)LR_EntryPointArma960Callback);
 
     // Hide Debugger
     FixIsDebuggerPresent(mHandle, true);
@@ -129,52 +129,52 @@ void LR_EntryPointArma960Callback()
     printf("Entry Point BP hit\n");
 
     // Clear the mutex call counter
-    mMutexCallCount=0;
+    mMutexCallCount = 0;
 
     // Set a single shoot breakpoint on the OpenMutexA API
-    if(SetAPIBreakPoint((char*)"kernel32.dll", (char*)"OpenMutexA", UE_BREAKPOINT|UE_BREAKPOINT_TYPE_LONG_INT3, UE_APISTART, (void*)LR_OpenMutexAArma960Callback)==false)
+    if(SetAPIBreakPoint((char*)"kernel32.dll", (char*)"OpenMutexA", UE_BREAKPOINT | UE_BREAKPOINT_TYPE_LONG_INT3, UE_APISTART, (void*)LR_OpenMutexAArma960Callback) == false)
         printf("OpenMutexA breakpoint has not been set\n");
 
     // Set a single shoot breakpoint on the VirtualProtect API
-    if(SetAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_BREAKPOINT|UE_BREAKPOINT_TYPE_LONG_INT3, UE_APISTART, (void*)LR_VirtualProtectCallback)==false)
+    if(SetAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_BREAKPOINT | UE_BREAKPOINT_TYPE_LONG_INT3, UE_APISTART, (void*)LR_VirtualProtectCallback) == false)
         printf("VirtualProtect breakpoint has not been set\n");
 }
 
 
 /**
  * @brief       This callback is called when the breakpoint on VirtualProtect hits. In this library this callback is used to retrieve
- * 				the timestamp of the security.dll (Date and time of link) in order to deduce the Armadillo version of the file.
+ *              the timestamp of the security.dll (Date and time of link) in order to deduce the Armadillo version of the file.
  *
  * @return      Nothing.
  */
 void LR_VirtualProtectCallback()
 {
     unsigned int wTimeStamp;
-    unsigned int wSecurityDLLCodeBaseAddr=0;
+    unsigned int wSecurityDLLCodeBaseAddr = 0;
     //unsigned int wSecurityDLLCodeSize=0;
-    unsigned char* wHeaderCode=(unsigned char*)malloc2(0x1000);
-    IMAGE_DOS_HEADER *wDosHeaderPtr;
-    IMAGE_NT_HEADERS *wNTHeaderPtr;
+    unsigned char* wHeaderCode = (unsigned char*)malloc2(0x1000);
+    IMAGE_DOS_HEADER* wDosHeaderPtr;
+    IMAGE_NT_HEADERS* wNTHeaderPtr;
 
     // Get parameter from VirtualProtect (Code Address)
-    wSecurityDLLCodeBaseAddr=GetFunctionParameter(mHandle, UE_FUNCTION_STDCALL, 1, UE_PARAMETER_DWORD);
+    wSecurityDLLCodeBaseAddr = GetFunctionParameter(mHandle, UE_FUNCTION_STDCALL, 1, UE_PARAMETER_DWORD);
 
     ReadProcessMemory(mHandle, (void*)(wSecurityDLLCodeBaseAddr - 0x1000), wHeaderCode, 0x1000, 0);
 
-    wDosHeaderPtr=(IMAGE_DOS_HEADER*)((DWORD)wHeaderCode);
+    wDosHeaderPtr = (IMAGE_DOS_HEADER*)((DWORD)wHeaderCode);
     if(*(unsigned short*)wHeaderCode != 0x5A4D) //not a PE file
     {
         free2(wHeaderCode);
         return;
     }
 
-    wNTHeaderPtr=(IMAGE_NT_HEADERS*)((DWORD)wHeaderCode + wDosHeaderPtr->e_lfanew);
+    wNTHeaderPtr = (IMAGE_NT_HEADERS*)((DWORD)wHeaderCode + wDosHeaderPtr->e_lfanew);
 
-    wTimeStamp=wNTHeaderPtr->FileHeader.TimeDateStamp;
+    wTimeStamp = wNTHeaderPtr->FileHeader.TimeDateStamp;
 
-    if(wTimeStamp>0x50700000) // 0x50624580=9.40 26-09-2012
+    if(wTimeStamp > 0x50700000) // 0x50624580=9.40 26-09-2012
     {
-        mIsGreaterThanArma940=1;
+        mIsGreaterThanArma940 = 1;
     }
 
     printf("Security.dll TimeStamp : %d\n", wTimeStamp);
@@ -202,7 +202,7 @@ void LR_OpenMutexAArma960Callback()
     mMutexCallCount++;
 
     // Retrieve the third parameter of the OpenMutexA API that is the name of the mutex
-    wMutexNameAddr=GetFunctionParameter(mHandle, UE_FUNCTION_STDCALL, 3, UE_PARAMETER_DWORD);
+    wMutexNameAddr = GetFunctionParameter(mHandle, UE_FUNCTION_STDCALL, 3, UE_PARAMETER_DWORD);
     printf("wMutexNameAddr : 0x%08X\n", wMutexNameAddr);
 
     // Copy the mutex name from the protected target
@@ -210,29 +210,29 @@ void LR_OpenMutexAArma960Callback()
     printf("wMutexNameString : %s\n", &wMutexNameString[0]);
 
     // Get the length of the mutex name
-    wMutexNameLength=strlen((const char*)wMutexNameString);
+    wMutexNameLength = strlen((const char*)wMutexNameString);
 
-    if(mMutexCallCount==1)
+    if(mMutexCallCount == 1)
     {
         CreateMutexA(0, 0, (const CHAR*)wMutexNameString);
     }
     else
     {
         // If the name length is greater than 16 characters, it could be the SIMULATEEXPIRED mutex
-        if(wMutexNameLength>16)
+        if(wMutexNameLength > 16)
         {
             if(!strcmp((const char*)(wMutexNameString + wMutexNameLength - 16), (const char*)":SIMULATEEXPIRED"))
             {
                 // Set a breakpoint on the start of RegOpenKeyExA API
-                if(SetAPIBreakPoint((char*)"Advapi32.dll", (char*)"RegOpenKeyExA", UE_BREAKPOINT|UE_BREAKPOINT_TYPE_LONG_INT3, UE_APISTART, (void*)LR_RegOpenKeyExAStartArma960BPCallback)==false)
+                if(SetAPIBreakPoint((char*)"Advapi32.dll", (char*)"RegOpenKeyExA", UE_BREAKPOINT | UE_BREAKPOINT_TYPE_LONG_INT3, UE_APISTART, (void*)LR_RegOpenKeyExAStartArma960BPCallback) == false)
                     printf("RegOpenKeyExA start breakpoint has not been set\n");
 
                 // Set a breakpoint on the start of the RegQueryValueExA API
-                if(SetAPIBreakPoint((char*)"Advapi32.dll", (char*)"RegQueryValueExA", UE_BREAKPOINT|UE_BREAKPOINT_TYPE_LONG_INT3, UE_APISTART, (void*)LR_RegQueryValueExAStartArma960BPCallback)==false)
+                if(SetAPIBreakPoint((char*)"Advapi32.dll", (char*)"RegQueryValueExA", UE_BREAKPOINT | UE_BREAKPOINT_TYPE_LONG_INT3, UE_APISTART, (void*)LR_RegQueryValueExAStartArma960BPCallback) == false)
                     printf("RegQueryValueExA start breakpoint has not been set\n");
 
                 // Set a breakpoint on the start of the CreateFileA API
-                if(SetAPIBreakPoint((char*)"Kernel32.dll", (char*)"CreateFileA", UE_BREAKPOINT|UE_BREAKPOINT_TYPE_LONG_INT3, UE_APISTART, (void*)LR_CreateFileAStartArma960BPCallback)==false)
+                if(SetAPIBreakPoint((char*)"Kernel32.dll", (char*)"CreateFileA", UE_BREAKPOINT | UE_BREAKPOINT_TYPE_LONG_INT3, UE_APISTART, (void*)LR_CreateFileAStartArma960BPCallback) == false)
                     printf("CreateFileA start breakpoint has not been set\n");
             }
         }
@@ -259,31 +259,31 @@ void LR_RegOpenKeyExAStartArma960BPCallback()
     printf("RegOpenKeyExA start BP hit\n");
 
     // Retrieve the first parameter of the RegOpenKeyEx API that is the key handle
-    wHKey=GetFunctionParameter(mHandle, UE_FUNCTION_STDCALL, 1, UE_PARAMETER_DWORD);
+    wHKey = GetFunctionParameter(mHandle, UE_FUNCTION_STDCALL, 1, UE_PARAMETER_DWORD);
     printf("wHKey : 0x%08X\n", wHKey);
 
     // Retrieve the second parameter of the RegOpenKeyEx API that is a pointer to the subkey string
-    wSubKeyPtr=GetFunctionParameter(mHandle, UE_FUNCTION_STDCALL, 2, UE_PARAMETER_DWORD);
+    wSubKeyPtr = GetFunctionParameter(mHandle, UE_FUNCTION_STDCALL, 2, UE_PARAMETER_DWORD);
     printf("wSubKeyPtr : 0x%08X\n", wSubKeyPtr);
     GetRemoteString(mHandle, (LPVOID)wSubKeyPtr, (LPVOID)wSubKeyString, 0x100);
     printf("wSubKeyString : %s\n", wSubKeyString);
 
     // Retrieve the fourth parameter of the RegOpenKeyEx API that is the acess attribute
-    wAccess=GetFunctionParameter(mHandle, UE_FUNCTION_STDCALL, 4, UE_PARAMETER_DWORD);
+    wAccess = GetFunctionParameter(mHandle, UE_FUNCTION_STDCALL, 4, UE_PARAMETER_DWORD);
     printf("wAccess : 0x%08X\n", wAccess);
 
     // Retrieve the fourth parameter of the RegOpenKeyEx API that is the acess attribute
-    wResultHandle=GetFunctionParameter(mHandle, UE_FUNCTION_STDCALL, 5, UE_PARAMETER_DWORD);
+    wResultHandle = GetFunctionParameter(mHandle, UE_FUNCTION_STDCALL, 5, UE_PARAMETER_DWORD);
     printf("wResultHandle : 0x%08X\n", wResultHandle);
 
     // Fill the context of the current API call
-    mRegOpenKeyExAContext.hKey=(uint32_t)wHKey;
-    mRegOpenKeyExAContext.subKeyStr=string((const char*)wSubKeyString);
-    mRegOpenKeyExAContext.access=(uint32_t)wAccess;
-    mRegOpenKeyExAContext.hkResult=(uint32_t)0;
+    mRegOpenKeyExAContext.hKey = (uint32_t)wHKey;
+    mRegOpenKeyExAContext.subKeyStr = string((const char*)wSubKeyString);
+    mRegOpenKeyExAContext.access = (uint32_t)wAccess;
+    mRegOpenKeyExAContext.hkResult = (uint32_t)0;
 
-    wAPIContextContainer.APIType=REG_OPEN_KEY_EX_A_CONTEXT;
-    wAPIContextContainer.RegOpenKeyExAContext=mRegOpenKeyExAContext;
+    wAPIContextContainer.APIType = REG_OPEN_KEY_EX_A_CONTEXT;
+    wAPIContextContainer.RegOpenKeyExAContext = mRegOpenKeyExAContext;
 
     mAPIContextContainerList.push_back(wAPIContextContainer);
 }
@@ -304,21 +304,21 @@ void LR_RegQueryValueExAStartArma960BPCallback()
     printf("RegQueryValueExA start BP hit\n");
 
     // Retrieve the first parameter of the RegQueryValueExA API that is the key handle
-    wHKey=GetFunctionParameter(mHandle, UE_FUNCTION_STDCALL, 1, UE_PARAMETER_DWORD);
+    wHKey = GetFunctionParameter(mHandle, UE_FUNCTION_STDCALL, 1, UE_PARAMETER_DWORD);
     printf("wHKey : 0x%08X\n", wHKey);
 
     // Retrieve the second parameter of the RegQueryValueExA API that is a pointer to the value name string
-    wValueKeyPtr=GetFunctionParameter(mHandle, UE_FUNCTION_STDCALL, 2, UE_PARAMETER_DWORD);
+    wValueKeyPtr = GetFunctionParameter(mHandle, UE_FUNCTION_STDCALL, 2, UE_PARAMETER_DWORD);
     printf("wValueKeyPtr : 0x%08X\n", wValueKeyPtr);
     GetRemoteString(mHandle, (LPVOID)wValueKeyPtr, (LPVOID)wValueKeyString, 0x100);
     printf("wValueKeyString : %s\n", wValueKeyString);
 
     // Fill the context of the current API call
-    mRegQueryValueExAContext.hKey=(uint32_t)wHKey;
-    mRegQueryValueExAContext.valueNameStr=string((const char*)wValueKeyString);
+    mRegQueryValueExAContext.hKey = (uint32_t)wHKey;
+    mRegQueryValueExAContext.valueNameStr = string((const char*)wValueKeyString);
 
-    wAPIContextContainer.APIType=REG_QUERY_VALUE_EX_A_CONTEXT;
-    wAPIContextContainer.RegQueryValueExAContext=mRegQueryValueExAContext;
+    wAPIContextContainer.APIType = REG_QUERY_VALUE_EX_A_CONTEXT;
+    wAPIContextContainer.RegQueryValueExAContext = mRegQueryValueExAContext;
 
     mAPIContextContainerList.push_back(wAPIContextContainer);
 }
@@ -342,7 +342,7 @@ void LR_CreateFileAStartArma960BPCallback()
     printf("CreateFileA start BP hit\n");
 
     // Retrieve the first parameter of the CreateFileA API that is the file name
-    wFileNamePtr=GetFunctionParameter(mHandle, UE_FUNCTION_STDCALL, 1, UE_PARAMETER_DWORD);
+    wFileNamePtr = GetFunctionParameter(mHandle, UE_FUNCTION_STDCALL, 1, UE_PARAMETER_DWORD);
     printf("wFileNamePtr : 0x%08X\n", wFileNamePtr);
     GetRemoteString(mHandle, (LPVOID)wFileNamePtr, (LPVOID)wFileNameString, 0x100);
     printf("wFileNameString : %s\n", wFileNameString);
@@ -357,7 +357,7 @@ void LR_CreateFileAStartArma960BPCallback()
             (strcmp((const char *)(wFileNameString + (strlen((const char *)wFileNameString) - 5)), (const char *)".RREF")==0)
       )*/
     if(!strncmp((char*)wFileNameString, "\\\\.\\", 4) or
-            !strcmp((char*)wFileNameString+strlen((char*)wFileNameString)-5, ".RREF"))
+            !strcmp((char*)wFileNameString + strlen((char*)wFileNameString) - 5, ".RREF"))
     {
         // Stop debugging
         printf("Stop\n");
@@ -365,10 +365,10 @@ void LR_CreateFileAStartArma960BPCallback()
     }
     else
     {
-        mCreateFileAContext.fileNameStr=string((const char *)wFileNameString);
+        mCreateFileAContext.fileNameStr = string((const char*)wFileNameString);
 
-        wAPIContextContainer.APIType=CREATE_FILE_A_CONTEXT;
-        wAPIContextContainer.CreateFileAContext=mCreateFileAContext;
+        wAPIContextContainer.APIType = CREATE_FILE_A_CONTEXT;
+        wAPIContextContainer.CreateFileAContext = mCreateFileAContext;
 
         mAPIContextContainerList.push_back(wAPIContextContainer);
     }
@@ -406,17 +406,17 @@ void LR_ProcessAPIContextLog()
     else
     {
         // Arma >940
-    	wArmaLicenseEntry = LR_FilterAPIContextContainerListArma940AndLess(mAPIContextContainerList);
+        wArmaLicenseEntry = LR_FilterAPIContextContainerListArma940AndLess(mAPIContextContainerList);
         //wArmaLicenseEntry = LR_FilterAPIContextContainerListArma960(mAPIContextContainerList);
     }
     */
 
-    for(wI=0; wI<wArmaLicenseEntry.size(); wI++)
+    for(wI = 0; wI < wArmaLicenseEntry.size(); wI++)
     {
         printf("Debug : %s\n", wArmaLicenseEntry.at(wI).Path.c_str());
     }
 
-    *mArmaLicenseEntryPtr=wArmaLicenseEntry;
+    *mArmaLicenseEntryPtr = wArmaLicenseEntry;
 }
 
 
@@ -431,17 +431,17 @@ void LR_PrintAPIContextContainerList(vector<APIContextContainer_t> parAPIContext
 {
     uint32_t wI;
 
-    for(wI=0; wI<parAPIContextContainerList.size(); wI++)
+    for(wI = 0; wI < parAPIContextContainerList.size(); wI++)
     {
-        if(parAPIContextContainerList.at(wI).APIType==REG_OPEN_KEY_EX_A_CONTEXT)
+        if(parAPIContextContainerList.at(wI).APIType == REG_OPEN_KEY_EX_A_CONTEXT)
         {
             printf("RegOpenKeyExAContext_t\n");
 
-            if((HKEY)(parAPIContextContainerList.at(wI).RegOpenKeyExAContext.hKey)==HKEY_LOCAL_MACHINE)
+            if((HKEY)(parAPIContextContainerList.at(wI).RegOpenKeyExAContext.hKey) == HKEY_LOCAL_MACHINE)
                 printf("\tHKey : HKEY_LOCAL_MACHINE\n");
-            else if((HKEY)(parAPIContextContainerList.at(wI).RegOpenKeyExAContext.hKey)==HKEY_CLASSES_ROOT)
+            else if((HKEY)(parAPIContextContainerList.at(wI).RegOpenKeyExAContext.hKey) == HKEY_CLASSES_ROOT)
                 printf("\tHKey : HKEY_CLASSES_ROOT\n");
-            else if((HKEY)(parAPIContextContainerList.at(wI).RegOpenKeyExAContext.hKey)==HKEY_CURRENT_USER)
+            else if((HKEY)(parAPIContextContainerList.at(wI).RegOpenKeyExAContext.hKey) == HKEY_CURRENT_USER)
                 printf("\tHKey : HKEY_CURRENT_USER\n");
             else
                 printf("\tHKey : %08X\n", parAPIContextContainerList.at(wI).RegOpenKeyExAContext.hKey);
@@ -450,7 +450,7 @@ void LR_PrintAPIContextContainerList(vector<APIContextContainer_t> parAPIContext
 
             printf("\tHandle : %08X\n", parAPIContextContainerList.at(wI).RegOpenKeyExAContext.hkResult);
         }
-        else if(parAPIContextContainerList.at(wI).APIType==REG_QUERY_VALUE_EX_A_CONTEXT)
+        else if(parAPIContextContainerList.at(wI).APIType == REG_QUERY_VALUE_EX_A_CONTEXT)
         {
             printf("RegQueryValueExAContext_t\n");
 
@@ -458,7 +458,7 @@ void LR_PrintAPIContextContainerList(vector<APIContextContainer_t> parAPIContext
 
             printf("\tValue Name : %s\n", parAPIContextContainerList.at(wI).RegQueryValueExAContext.valueNameStr.data());
         }
-        else if(parAPIContextContainerList.at(wI).APIType==CREATE_FILE_A_CONTEXT)
+        else if(parAPIContextContainerList.at(wI).APIType == CREATE_FILE_A_CONTEXT)
         {
             printf("CreateFileAContext_t\n");
 
@@ -486,26 +486,26 @@ vector<ArmaLicenseEntry_t> LR_FilterAPIContextContainerList(vector<APIContextCon
     // Filter License Reg keys
     for(wI = 0; wI < wListSize; wI++)
     {
-        if(wI < (wListSize-1))
+        if(wI < (wListSize - 1))
         {
-            if((parAPIContextContainerList.at(wI).APIType == REG_OPEN_KEY_EX_A_CONTEXT) && (parAPIContextContainerList.at(wI+1).APIType == REG_QUERY_VALUE_EX_A_CONTEXT))
+            if((parAPIContextContainerList.at(wI).APIType == REG_OPEN_KEY_EX_A_CONTEXT) && (parAPIContextContainerList.at(wI + 1).APIType == REG_QUERY_VALUE_EX_A_CONTEXT))
             {
                 if(parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr.find('{') == std::string::npos)
                 {
-                    if(((HKEY)parAPIContextContainerList.at(wI).RegOpenKeyExAContext.hKey == HKEY_LOCAL_MACHINE) && ((parAPIContextContainerList.at(wI+1).RegQueryValueExAContext.valueNameStr.data())[0] == '{'))
+                    if(((HKEY)parAPIContextContainerList.at(wI).RegOpenKeyExAContext.hKey == HKEY_LOCAL_MACHINE) && ((parAPIContextContainerList.at(wI + 1).RegQueryValueExAContext.valueNameStr.data())[0] == '{'))
                     {
                         wTempArmaLicenseEntry.Type = REGISTRY_KEY_ENRTY;
-                        wTempArmaLicenseEntry.Path = string("HKEY_LOCAL_MACHINE\\") + parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr + "\\" + parAPIContextContainerList.at(wI+1).RegQueryValueExAContext.valueNameStr;
+                        wTempArmaLicenseEntry.Path = string("HKEY_LOCAL_MACHINE\\") + parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr + "\\" + parAPIContextContainerList.at(wI + 1).RegQueryValueExAContext.valueNameStr;
 
-                        if(LR_RegKeyExists(HKEY_LOCAL_MACHINE, (LPCSTR)parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr.data(), (LPCSTR)parAPIContextContainerList.at(wI+1).RegQueryValueExAContext.valueNameStr.data()) == true)
+                        if(LR_RegKeyExists(HKEY_LOCAL_MACHINE, (LPCSTR)parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr.data(), (LPCSTR)parAPIContextContainerList.at(wI + 1).RegQueryValueExAContext.valueNameStr.data()) == true)
                             wArmaLicenseEntryList.push_back(wTempArmaLicenseEntry);
                     }
-                    else if(((HKEY)parAPIContextContainerList.at(wI).RegOpenKeyExAContext.hKey == HKEY_CURRENT_USER) && ((parAPIContextContainerList.at(wI+1).RegQueryValueExAContext.valueNameStr.data())[0] == '{'))
+                    else if(((HKEY)parAPIContextContainerList.at(wI).RegOpenKeyExAContext.hKey == HKEY_CURRENT_USER) && ((parAPIContextContainerList.at(wI + 1).RegQueryValueExAContext.valueNameStr.data())[0] == '{'))
                     {
                         wTempArmaLicenseEntry.Type = REGISTRY_KEY_ENRTY;
-                        wTempArmaLicenseEntry.Path = string("HKEY_CURRENT_USER\\") + parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr + "\\" + parAPIContextContainerList.at(wI+1).RegQueryValueExAContext.valueNameStr;
+                        wTempArmaLicenseEntry.Path = string("HKEY_CURRENT_USER\\") + parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr + "\\" + parAPIContextContainerList.at(wI + 1).RegQueryValueExAContext.valueNameStr;
 
-                        if(LR_RegKeyExists(HKEY_CURRENT_USER, (LPCSTR)parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr.data(), (LPCSTR)parAPIContextContainerList.at(wI+1).RegQueryValueExAContext.valueNameStr.data()) == true)
+                        if(LR_RegKeyExists(HKEY_CURRENT_USER, (LPCSTR)parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr.data(), (LPCSTR)parAPIContextContainerList.at(wI + 1).RegQueryValueExAContext.valueNameStr.data()) == true)
                             wArmaLicenseEntryList.push_back(wTempArmaLicenseEntry);
                     }
                 }
@@ -611,31 +611,31 @@ vector<ArmaLicenseEntry_t> LR_FilterAPIContextContainerList(vector<APIContextCon
 vector<ArmaLicenseEntry_t> LR_FilterAPIContextContainerListArma940AndLess(vector<APIContextContainer_t> parAPIContextContainerList)
 {
     uint32_t wI, wJ;
-    uint32_t wListSize=parAPIContextContainerList.size();
+    uint32_t wListSize = parAPIContextContainerList.size();
     ArmaLicenseEntry_t wTempArmaLicenseEntry;
     vector<ArmaLicenseEntry_t> wArmaLicenseEntryList;
 
     // Filter License Reg keys
-    for(wI=0; wI<wListSize; wI++)
+    for(wI = 0; wI < wListSize; wI++)
     {
-        if(wI<(wListSize-1))
+        if(wI < (wListSize - 1))
         {
-            if((parAPIContextContainerList.at(wI).APIType==REG_OPEN_KEY_EX_A_CONTEXT) && (parAPIContextContainerList.at(wI+1).APIType==REG_QUERY_VALUE_EX_A_CONTEXT))
+            if((parAPIContextContainerList.at(wI).APIType == REG_OPEN_KEY_EX_A_CONTEXT) && (parAPIContextContainerList.at(wI + 1).APIType == REG_QUERY_VALUE_EX_A_CONTEXT))
             {
-                if(((HKEY)parAPIContextContainerList.at(wI).RegOpenKeyExAContext.hKey==HKEY_LOCAL_MACHINE) && ((parAPIContextContainerList.at(wI+1).RegQueryValueExAContext.valueNameStr.data())[0]=='{'))
+                if(((HKEY)parAPIContextContainerList.at(wI).RegOpenKeyExAContext.hKey == HKEY_LOCAL_MACHINE) && ((parAPIContextContainerList.at(wI + 1).RegQueryValueExAContext.valueNameStr.data())[0] == '{'))
                 {
-                    wTempArmaLicenseEntry.Type=REGISTRY_KEY_ENRTY;
-                    wTempArmaLicenseEntry.Path=string("HKEY_LOCAL_MACHINE\\") + parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr + "\\" + parAPIContextContainerList.at(wI+1).RegQueryValueExAContext.valueNameStr;
+                    wTempArmaLicenseEntry.Type = REGISTRY_KEY_ENRTY;
+                    wTempArmaLicenseEntry.Path = string("HKEY_LOCAL_MACHINE\\") + parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr + "\\" + parAPIContextContainerList.at(wI + 1).RegQueryValueExAContext.valueNameStr;
 
-                    if(LR_RegKeyExists(HKEY_LOCAL_MACHINE, (LPCSTR)parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr.data(), (LPCSTR)parAPIContextContainerList.at(wI+1).RegQueryValueExAContext.valueNameStr.data())==true)
+                    if(LR_RegKeyExists(HKEY_LOCAL_MACHINE, (LPCSTR)parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr.data(), (LPCSTR)parAPIContextContainerList.at(wI + 1).RegQueryValueExAContext.valueNameStr.data()) == true)
                         wArmaLicenseEntryList.push_back(wTempArmaLicenseEntry);
                 }
-                else if(((HKEY)parAPIContextContainerList.at(wI).RegOpenKeyExAContext.hKey==HKEY_CLASSES_ROOT) && (!strncmp(parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr.data(), "CLSID\\{", 7)))
+                else if(((HKEY)parAPIContextContainerList.at(wI).RegOpenKeyExAContext.hKey == HKEY_CLASSES_ROOT) && (!strncmp(parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr.data(), "CLSID\\{", 7)))
                 {
-                    wTempArmaLicenseEntry.Type=REGISTRY_KEY_ENRTY;
-                    wTempArmaLicenseEntry.Path=string("HKEY_CLASSES_ROOT\\") + parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr;
+                    wTempArmaLicenseEntry.Type = REGISTRY_KEY_ENRTY;
+                    wTempArmaLicenseEntry.Path = string("HKEY_CLASSES_ROOT\\") + parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr;
 
-                    if(LR_RegKeyExists(HKEY_CLASSES_ROOT, (LPCSTR)parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr.data(), (LPCSTR)"")==true)
+                    if(LR_RegKeyExists(HKEY_CLASSES_ROOT, (LPCSTR)parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr.data(), (LPCSTR)"") == true)
                         wArmaLicenseEntryList.push_back(wTempArmaLicenseEntry);
                 }
             }
@@ -643,31 +643,31 @@ vector<ArmaLicenseEntry_t> LR_FilterAPIContextContainerListArma940AndLess(vector
     }
 
     // Filter License Files
-    for(wI=0; wI<wListSize; wI++)
+    for(wI = 0; wI < wListSize; wI++)
     {
-        if(parAPIContextContainerList.at(wI).APIType==CREATE_FILE_A_CONTEXT)
+        if(parAPIContextContainerList.at(wI).APIType == CREATE_FILE_A_CONTEXT)
         {
-            wTempArmaLicenseEntry.Type=FILE_ENRTY;
-            wTempArmaLicenseEntry.Path=parAPIContextContainerList.at(wI).CreateFileAContext.fileNameStr;
+            wTempArmaLicenseEntry.Type = FILE_ENRTY;
+            wTempArmaLicenseEntry.Path = parAPIContextContainerList.at(wI).CreateFileAContext.fileNameStr;
 
-            if(LR_FileExists((LPSTR)wTempArmaLicenseEntry.Path.data())==true)
+            if(LR_FileExists((LPSTR)wTempArmaLicenseEntry.Path.data()) == true)
                 wArmaLicenseEntryList.push_back(wTempArmaLicenseEntry);
         }
     }
 
 
     // Remove doubles
-    for(wI=0; wI<wArmaLicenseEntryList.size(); wI++)
+    for(wI = 0; wI < wArmaLicenseEntryList.size(); wI++)
     {
-        for(wJ=0; wJ<wArmaLicenseEntryList.size(); wJ++)
+        for(wJ = 0; wJ < wArmaLicenseEntryList.size(); wJ++)
         {
-            if(wI!=wJ)
+            if(wI != wJ)
             {
-                if((wArmaLicenseEntryList.at(wI).Type==wArmaLicenseEntryList.at(wJ).Type) && !(wArmaLicenseEntryList.at(wI).Path.compare(wArmaLicenseEntryList.at(wJ).Path)))
+                if((wArmaLicenseEntryList.at(wI).Type == wArmaLicenseEntryList.at(wJ).Type) && !(wArmaLicenseEntryList.at(wI).Path.compare(wArmaLicenseEntryList.at(wJ).Path)))
                 {
                     wArmaLicenseEntryList.erase(wArmaLicenseEntryList.begin() + wJ);
-                    wI=0;
-                    wJ=0;
+                    wI = 0;
+                    wJ = 0;
                 }
             }
         }
@@ -688,39 +688,39 @@ vector<ArmaLicenseEntry_t> LR_FilterAPIContextContainerListArma940AndLess(vector
 vector<ArmaLicenseEntry_t> LR_FilterAPIContextContainerListArma960(vector<APIContextContainer_t> parAPIContextContainerList)
 {
     uint32_t wI, wJ;
-    uint32_t wListSize=parAPIContextContainerList.size();
+    uint32_t wListSize = parAPIContextContainerList.size();
     ArmaLicenseEntry_t wTempArmaLicenseEntry;
     vector<ArmaLicenseEntry_t> wArmaLicenseEntryList;
 
     // Filter License Reg keys
-    for(wI=0; wI<wListSize; wI++)
+    for(wI = 0; wI < wListSize; wI++)
     {
-        if(wI<(wListSize-1))
+        if(wI < (wListSize - 1))
         {
-            if((parAPIContextContainerList.at(wI).APIType==REG_OPEN_KEY_EX_A_CONTEXT) && (parAPIContextContainerList.at(wI+1).APIType==REG_QUERY_VALUE_EX_A_CONTEXT))
+            if((parAPIContextContainerList.at(wI).APIType == REG_OPEN_KEY_EX_A_CONTEXT) && (parAPIContextContainerList.at(wI + 1).APIType == REG_QUERY_VALUE_EX_A_CONTEXT))
             {
-                if(((HKEY)parAPIContextContainerList.at(wI).RegOpenKeyExAContext.hKey==HKEY_CURRENT_USER) && !(parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr.compare("Software\\Licenses")))
+                if(((HKEY)parAPIContextContainerList.at(wI).RegOpenKeyExAContext.hKey == HKEY_CURRENT_USER) && !(parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr.compare("Software\\Licenses")))
                 {
-                    wTempArmaLicenseEntry.Type=REGISTRY_KEY_ENRTY;
-                    wTempArmaLicenseEntry.Path=string("HKEY_CURRENT_USER\\") + parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr + "\\" + parAPIContextContainerList.at(wI+1).RegQueryValueExAContext.valueNameStr;
+                    wTempArmaLicenseEntry.Type = REGISTRY_KEY_ENRTY;
+                    wTempArmaLicenseEntry.Path = string("HKEY_CURRENT_USER\\") + parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr + "\\" + parAPIContextContainerList.at(wI + 1).RegQueryValueExAContext.valueNameStr;
 
-                    if(LR_RegKeyExists(HKEY_CURRENT_USER, (LPCSTR)wTempArmaLicenseEntry.Path.substr(18, wTempArmaLicenseEntry.Path.find("{") - 18 - 1).data(), (LPCSTR)wTempArmaLicenseEntry.Path.substr(wTempArmaLicenseEntry.Path.find("{")).data())==true)
+                    if(LR_RegKeyExists(HKEY_CURRENT_USER, (LPCSTR)wTempArmaLicenseEntry.Path.substr(18, wTempArmaLicenseEntry.Path.find("{") - 18 - 1).data(), (LPCSTR)wTempArmaLicenseEntry.Path.substr(wTempArmaLicenseEntry.Path.find("{")).data()) == true)
                         wArmaLicenseEntryList.push_back(wTempArmaLicenseEntry);
                 }
-                else if(((HKEY)parAPIContextContainerList.at(wI).RegOpenKeyExAContext.hKey==HKEY_CURRENT_USER) && (strncmp(parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr.data(), "Software\\Classes", 16)==0))
+                else if(((HKEY)parAPIContextContainerList.at(wI).RegOpenKeyExAContext.hKey == HKEY_CURRENT_USER) && (strncmp(parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr.data(), "Software\\Classes", 16) == 0))
                 {
-                    wTempArmaLicenseEntry.Type=REGISTRY_KEY_ENRTY;
-                    wTempArmaLicenseEntry.Path=string("HKEY_CURRENT_USER\\") + parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr;
+                    wTempArmaLicenseEntry.Type = REGISTRY_KEY_ENRTY;
+                    wTempArmaLicenseEntry.Path = string("HKEY_CURRENT_USER\\") + parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr;
 
-                    if(LR_RegKeyExists(HKEY_CURRENT_USER, (LPCSTR)wTempArmaLicenseEntry.Path.substr(18).data(), (LPCSTR)"")==true)
+                    if(LR_RegKeyExists(HKEY_CURRENT_USER, (LPCSTR)wTempArmaLicenseEntry.Path.substr(18).data(), (LPCSTR)"") == true)
                         wArmaLicenseEntryList.push_back(wTempArmaLicenseEntry);
                 }
-                else if(((HKEY)parAPIContextContainerList.at(wI).RegOpenKeyExAContext.hKey==HKEY_CLASSES_ROOT) && (strncmp(parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr.data(), "CLSID\\{", 7)==0))
+                else if(((HKEY)parAPIContextContainerList.at(wI).RegOpenKeyExAContext.hKey == HKEY_CLASSES_ROOT) && (strncmp(parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr.data(), "CLSID\\{", 7) == 0))
                 {
-                    wTempArmaLicenseEntry.Type=REGISTRY_KEY_ENRTY;
-                    wTempArmaLicenseEntry.Path=string("HKEY_CLASSES_ROOT\\") + parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr;
+                    wTempArmaLicenseEntry.Type = REGISTRY_KEY_ENRTY;
+                    wTempArmaLicenseEntry.Path = string("HKEY_CLASSES_ROOT\\") + parAPIContextContainerList.at(wI).RegOpenKeyExAContext.subKeyStr;
 
-                    if(LR_RegKeyExists(HKEY_CLASSES_ROOT, (LPCSTR)wTempArmaLicenseEntry.Path.substr(18).data(), (LPCSTR)"")==true)
+                    if(LR_RegKeyExists(HKEY_CLASSES_ROOT, (LPCSTR)wTempArmaLicenseEntry.Path.substr(18).data(), (LPCSTR)"") == true)
                         wArmaLicenseEntryList.push_back(wTempArmaLicenseEntry);
                 }
             }
@@ -728,31 +728,31 @@ vector<ArmaLicenseEntry_t> LR_FilterAPIContextContainerListArma960(vector<APICon
     }
 
     // Filter License Files
-    for(wI=0; wI<wListSize; wI++)
+    for(wI = 0; wI < wListSize; wI++)
     {
-        if(parAPIContextContainerList.at(wI).APIType==CREATE_FILE_A_CONTEXT)
+        if(parAPIContextContainerList.at(wI).APIType == CREATE_FILE_A_CONTEXT)
         {
-            wTempArmaLicenseEntry.Type=FILE_ENRTY;
-            wTempArmaLicenseEntry.Path=parAPIContextContainerList.at(wI).CreateFileAContext.fileNameStr;
+            wTempArmaLicenseEntry.Type = FILE_ENRTY;
+            wTempArmaLicenseEntry.Path = parAPIContextContainerList.at(wI).CreateFileAContext.fileNameStr;
 
-            if(LR_FileExists((LPSTR)wTempArmaLicenseEntry.Path.data())==true)
+            if(LR_FileExists((LPSTR)wTempArmaLicenseEntry.Path.data()) == true)
                 wArmaLicenseEntryList.push_back(wTempArmaLicenseEntry);
         }
     }
 
 
     // Remove doubles
-    for(wI=0; wI<wArmaLicenseEntryList.size(); wI++)
+    for(wI = 0; wI < wArmaLicenseEntryList.size(); wI++)
     {
-        for(wJ=0; wJ<wArmaLicenseEntryList.size(); wJ++)
+        for(wJ = 0; wJ < wArmaLicenseEntryList.size(); wJ++)
         {
-            if(wI!=wJ)
+            if(wI != wJ)
             {
-                if((wArmaLicenseEntryList.at(wI).Type==wArmaLicenseEntryList.at(wJ).Type) && (wArmaLicenseEntryList.at(wI).Path.compare(wArmaLicenseEntryList.at(wJ).Path)==0))
+                if((wArmaLicenseEntryList.at(wI).Type == wArmaLicenseEntryList.at(wJ).Type) && (wArmaLicenseEntryList.at(wI).Path.compare(wArmaLicenseEntryList.at(wJ).Path) == 0))
                 {
                     wArmaLicenseEntryList.erase(wArmaLicenseEntryList.begin() + wJ);
-                    wI=0;
-                    wJ=0;
+                    wI = 0;
+                    wJ = 0;
                 }
             }
         }
@@ -778,11 +778,11 @@ bool LR_RegKeyExists(HKEY parKeyHandle, LPCSTR parSubKeyName, LPCSTR parKeyValue
     HKEY wTempKeyHandle;
     uint32_t wValueDataSize;
 
-    if(RegOpenKeyExA(parKeyHandle, parSubKeyName, 0, KEY_READ, &wTempKeyHandle)==ERROR_SUCCESS)
+    if(RegOpenKeyExA(parKeyHandle, parSubKeyName, 0, KEY_READ, &wTempKeyHandle) == ERROR_SUCCESS)
     {
-        if(parKeyValueName[0]!='\0')
+        if(parKeyValueName[0] != '\0')
         {
-            if(RegQueryValueExA(wTempKeyHandle, parKeyValueName, 0, 0, 0, (DWORD*)&wValueDataSize)==ERROR_SUCCESS)
+            if(RegQueryValueExA(wTempKeyHandle, parKeyValueName, 0, 0, 0, (DWORD*)&wValueDataSize) == ERROR_SUCCESS)
             {
                 RegCloseKey(wTempKeyHandle);
                 return true;
@@ -818,9 +818,9 @@ bool LR_FileExists(LPSTR parFileName)
 {
     HANDLE wTemFileHandle;
 
-    wTemFileHandle=CreateFileA(parFileName, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+    wTemFileHandle = CreateFileA(parFileName, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
 
-    if(wTemFileHandle!=INVALID_HANDLE_VALUE)
+    if(wTemFileHandle != INVALID_HANDLE_VALUE)
     {
         CloseHandle(wTemFileHandle);
         return true;
@@ -843,36 +843,36 @@ void LR_RemoveArmaLicenseData(vector<ArmaLicenseEntry_t> parArmaLicenseEntry)
 {
     uint32_t wI;
 
-    for(wI=0; wI<parArmaLicenseEntry.size(); wI++)
+    for(wI = 0; wI < parArmaLicenseEntry.size(); wI++)
     {
-        if(parArmaLicenseEntry.at(wI).Type==REGISTRY_KEY_ENRTY)
+        if(parArmaLicenseEntry.at(wI).Type == REGISTRY_KEY_ENRTY)
         {
-            string wHKey=parArmaLicenseEntry.at(wI).Path.substr(0, parArmaLicenseEntry.at(wI).Path.find("\\"));
+            string wHKey = parArmaLicenseEntry.at(wI).Path.substr(0, parArmaLicenseEntry.at(wI).Path.find("\\"));
 
-            if(wHKey.compare(string("HKEY_LOCAL_MACHINE"))==0)
+            if(wHKey.compare(string("HKEY_LOCAL_MACHINE")) == 0)
             {
-                if(LR_DeleteRegKeyAuto(HKEY_LOCAL_MACHINE, (LPSTR)parArmaLicenseEntry.at(wI).Path.substr(parArmaLicenseEntry.at(wI).Path.find("\\")+1).data())==true)
+                if(LR_DeleteRegKeyAuto(HKEY_LOCAL_MACHINE, (LPSTR)parArmaLicenseEntry.at(wI).Path.substr(parArmaLicenseEntry.at(wI).Path.find("\\") + 1).data()) == true)
                     printf("%s key has been deleted.\n", parArmaLicenseEntry.at(wI).Path.data());
                 else
                     printf("%s key has not been deleted.\n", parArmaLicenseEntry.at(wI).Path.data());
             }
-            else if(wHKey.compare(string("HKEY_CLASSES_ROOT"))==0)
+            else if(wHKey.compare(string("HKEY_CLASSES_ROOT")) == 0)
             {
-                if(LR_DeleteRegKeyAuto(HKEY_CLASSES_ROOT, (LPSTR)parArmaLicenseEntry.at(wI).Path.substr(parArmaLicenseEntry.at(wI).Path.find("\\")+1).data())==true)
+                if(LR_DeleteRegKeyAuto(HKEY_CLASSES_ROOT, (LPSTR)parArmaLicenseEntry.at(wI).Path.substr(parArmaLicenseEntry.at(wI).Path.find("\\") + 1).data()) == true)
                     printf("%s key has been deleted.\n", parArmaLicenseEntry.at(wI).Path.data());
                 else
                     printf("%s key has not been deleted.\n", parArmaLicenseEntry.at(wI).Path.data());
             }
-            else if(wHKey.compare(string("HKEY_CURRENT_USER"))==0)
+            else if(wHKey.compare(string("HKEY_CURRENT_USER")) == 0)
             {
-                if(LR_DeleteRegKeyAuto(HKEY_CURRENT_USER, (LPSTR)parArmaLicenseEntry.at(wI).Path.substr(parArmaLicenseEntry.at(wI).Path.find("\\")+1).data())==true)
+                if(LR_DeleteRegKeyAuto(HKEY_CURRENT_USER, (LPSTR)parArmaLicenseEntry.at(wI).Path.substr(parArmaLicenseEntry.at(wI).Path.find("\\") + 1).data()) == true)
                     printf("%s key has been deleted.\n", parArmaLicenseEntry.at(wI).Path.data());
                 else
                     printf("%s key has not been deleted.\n", parArmaLicenseEntry.at(wI).Path.data());
             }
-            else if(wHKey.compare(string("HKEY_USERS"))==0)
+            else if(wHKey.compare(string("HKEY_USERS")) == 0)
             {
-                if(LR_DeleteRegKeyAuto(HKEY_USERS, (LPSTR)parArmaLicenseEntry.at(wI).Path.substr(parArmaLicenseEntry.at(wI).Path.find("\\")+1).data())==true)
+                if(LR_DeleteRegKeyAuto(HKEY_USERS, (LPSTR)parArmaLicenseEntry.at(wI).Path.substr(parArmaLicenseEntry.at(wI).Path.find("\\") + 1).data()) == true)
                     printf("%s key has been deleted.\n", parArmaLicenseEntry.at(wI).Path.data());
                 else
                     printf("%s key has not been deleted.\n", parArmaLicenseEntry.at(wI).Path.data());
@@ -882,9 +882,9 @@ void LR_RemoveArmaLicenseData(vector<ArmaLicenseEntry_t> parArmaLicenseEntry)
                 printf("Bad entry.\n");
             }
         }
-        else if(parArmaLicenseEntry.at(wI).Type==FILE_ENRTY)
+        else if(parArmaLicenseEntry.at(wI).Type == FILE_ENRTY)
         {
-            if(DeleteFileA(parArmaLicenseEntry.at(wI).Path.data())!=0)
+            if(DeleteFileA(parArmaLicenseEntry.at(wI).Path.data()) != 0)
                 printf("%s file has been deleted.\n", parArmaLicenseEntry.at(wI).Path.data());
             else
                 printf("%s file has not been deleted.\n", parArmaLicenseEntry.at(wI).Path.data());
@@ -906,34 +906,34 @@ void LR_RemoveArmaLicenseData(vector<ArmaLicenseEntry_t> parArmaLicenseEntry)
  */
 void LR_RemoveSingleArmaLicenseData(ArmaLicenseEntry_t parArmaLicenseEntry)
 {
-    if(parArmaLicenseEntry.Type==REGISTRY_KEY_ENRTY)
+    if(parArmaLicenseEntry.Type == REGISTRY_KEY_ENRTY)
     {
-        string wHKey=parArmaLicenseEntry.Path.substr(0, parArmaLicenseEntry.Path.find("\\"));
+        string wHKey = parArmaLicenseEntry.Path.substr(0, parArmaLicenseEntry.Path.find("\\"));
 
-        if(wHKey.compare(string("HKEY_LOCAL_MACHINE"))==0)
+        if(wHKey.compare(string("HKEY_LOCAL_MACHINE")) == 0)
         {
-            if(LR_DeleteRegKeyAuto(HKEY_LOCAL_MACHINE, (LPSTR)parArmaLicenseEntry.Path.substr(parArmaLicenseEntry.Path.find("\\")+1).data())==true)
+            if(LR_DeleteRegKeyAuto(HKEY_LOCAL_MACHINE, (LPSTR)parArmaLicenseEntry.Path.substr(parArmaLicenseEntry.Path.find("\\") + 1).data()) == true)
                 printf("%s key has been deleted.\n", parArmaLicenseEntry.Path.data());
             else
                 printf("%s key has not been deleted.\n", parArmaLicenseEntry.Path.data());
         }
-        else if(wHKey.compare(string("HKEY_CLASSES_ROOT"))==0)
+        else if(wHKey.compare(string("HKEY_CLASSES_ROOT")) == 0)
         {
-            if(LR_DeleteRegKeyAuto(HKEY_CLASSES_ROOT, (LPSTR)parArmaLicenseEntry.Path.substr(parArmaLicenseEntry.Path.find("\\")+1).data())==true)
+            if(LR_DeleteRegKeyAuto(HKEY_CLASSES_ROOT, (LPSTR)parArmaLicenseEntry.Path.substr(parArmaLicenseEntry.Path.find("\\") + 1).data()) == true)
                 printf("%s key has been deleted.\n", parArmaLicenseEntry.Path.data());
             else
                 printf("%s key has not been deleted.\n", parArmaLicenseEntry.Path.data());
         }
-        else if(wHKey.compare(string("HKEY_CURRENT_USER"))==0)
+        else if(wHKey.compare(string("HKEY_CURRENT_USER")) == 0)
         {
-            if(LR_DeleteRegKeyAuto(HKEY_CURRENT_USER, (LPSTR)parArmaLicenseEntry.Path.substr(parArmaLicenseEntry.Path.find("\\")+1).data())==true)
+            if(LR_DeleteRegKeyAuto(HKEY_CURRENT_USER, (LPSTR)parArmaLicenseEntry.Path.substr(parArmaLicenseEntry.Path.find("\\") + 1).data()) == true)
                 printf("%s key has been deleted.\n", parArmaLicenseEntry.Path.data());
             else
                 printf("%s key has not been deleted.\n", parArmaLicenseEntry.Path.data());
         }
-        else if(wHKey.compare(string("HKEY_USERS"))==0)
+        else if(wHKey.compare(string("HKEY_USERS")) == 0)
         {
-            if(LR_DeleteRegKeyAuto(HKEY_USERS, (LPSTR)parArmaLicenseEntry.Path.substr(parArmaLicenseEntry.Path.find("\\")+1).data())==true)
+            if(LR_DeleteRegKeyAuto(HKEY_USERS, (LPSTR)parArmaLicenseEntry.Path.substr(parArmaLicenseEntry.Path.find("\\") + 1).data()) == true)
                 printf("%s key has been deleted.\n", parArmaLicenseEntry.Path.data());
             else
                 printf("%s key has not been deleted.\n", parArmaLicenseEntry.Path.data());
@@ -943,9 +943,9 @@ void LR_RemoveSingleArmaLicenseData(ArmaLicenseEntry_t parArmaLicenseEntry)
             printf("Bad entry.\n");
         }
     }
-    else if(parArmaLicenseEntry.Type==FILE_ENRTY)
+    else if(parArmaLicenseEntry.Type == FILE_ENRTY)
     {
-        if(DeleteFileA(parArmaLicenseEntry.Path.data())!=0)
+        if(DeleteFileA(parArmaLicenseEntry.Path.data()) != 0)
             printf("%s file has been deleted.\n", parArmaLicenseEntry.Path.data());
         else
             printf("%s file has not been deleted.\n", parArmaLicenseEntry.Path.data());
@@ -974,27 +974,27 @@ void LR_RemoveSingleArmaLicenseData(ArmaLicenseEntry_t parArmaLicenseEntry)
 bool LR_DeleteRegKeyAuto(HKEY parHKey, LPSTR parSubKey)
 {
     HKEY wKeyHandle;
-    int32_t wI=0;
+    int32_t wI = 0;
 
-    if(RegOpenKeyExA(parHKey, parSubKey, 0, KEY_ALL_ACCESS, &wKeyHandle)==ERROR_SUCCESS)
+    if(RegOpenKeyExA(parHKey, parSubKey, 0, KEY_ALL_ACCESS, &wKeyHandle) == ERROR_SUCCESS)
     {
         return LR_RecursiveRegKeyDelete(parHKey, parSubKey);
     }
     else
     {
-        while(parSubKey[wI]!='\0')
+        while(parSubKey[wI] != '\0')
         {
             wI++;
         }
 
-        while(parSubKey[wI]!='\\')
+        while(parSubKey[wI] != '\\')
         {
             wI--;
         }
 
-        parSubKey[wI]='\0';
+        parSubKey[wI] = '\0';
 
-        return LR_RegKeyDelete(parHKey, parSubKey, parSubKey+wI+1);
+        return LR_RegKeyDelete(parHKey, parSubKey, parSubKey + wI + 1);
     }
 }
 
@@ -1014,14 +1014,14 @@ bool LR_RecursiveRegKeyDelete(HKEY parParentNode, LPCSTR wKeyToDelete)
     int8_t wSubKeyName[0x100];
 
     // Opens the specified registry key to delete (wKeyToDelete) that is located the "parParentNode" key
-    if(RegOpenKeyExA(parParentNode, wKeyToDelete, 0, KEY_ALL_ACCESS, &wKeyHandle)!=ERROR_SUCCESS)
+    if(RegOpenKeyExA(parParentNode, wKeyToDelete, 0, KEY_ALL_ACCESS, &wKeyHandle) != ERROR_SUCCESS)
     {
         return false;
     }
 
-    while(RegEnumKeyA(wKeyHandle, 0, (LPSTR)wSubKeyName, 0x100)!=ERROR_NO_MORE_ITEMS)
+    while(RegEnumKeyA(wKeyHandle, 0, (LPSTR)wSubKeyName, 0x100) != ERROR_NO_MORE_ITEMS)
     {
-        if(LR_RecursiveRegKeyDelete(wKeyHandle, (LPCSTR)wSubKeyName)==false)
+        if(LR_RecursiveRegKeyDelete(wKeyHandle, (LPCSTR)wSubKeyName) == false)
         {
             break;
         }
@@ -1029,7 +1029,7 @@ bool LR_RecursiveRegKeyDelete(HKEY parParentNode, LPCSTR wKeyToDelete)
 
     RegCloseKey(wKeyHandle);
 
-    if(RegDeleteKeyA(parParentNode , wKeyToDelete)!=ERROR_SUCCESS)
+    if(RegDeleteKeyA(parParentNode , wKeyToDelete) != ERROR_SUCCESS)
     {
         return false;
     }
@@ -1051,9 +1051,9 @@ bool LR_RegKeyDelete(HKEY parKeyHandle, LPCSTR parSubKeyName, LPCSTR parKeyValue
 {
     HKEY wTempKeyHandle;
 
-    if(RegOpenKeyExA(parKeyHandle, parSubKeyName, 0, KEY_ALL_ACCESS, &wTempKeyHandle)==ERROR_SUCCESS)
+    if(RegOpenKeyExA(parKeyHandle, parSubKeyName, 0, KEY_ALL_ACCESS, &wTempKeyHandle) == ERROR_SUCCESS)
     {
-        if(RegDeleteValueA(wTempKeyHandle, parKeyValueName)==ERROR_SUCCESS)
+        if(RegDeleteValueA(wTempKeyHandle, parKeyValueName) == ERROR_SUCCESS)
         {
             RegCloseKey(wTempKeyHandle);
             return true;
@@ -1073,7 +1073,7 @@ bool LR_RegKeyDelete(HKEY parKeyHandle, LPCSTR parSubKeyName, LPCSTR parKeyValue
 
 
 /**************************************************************************
- * 							Error Routines
+ *                          Error Routines
  **************************************************************************/
 /**
  * @brief       This function stops the debugger and prints the message given in parameter. @n
