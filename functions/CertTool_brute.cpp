@@ -30,6 +30,8 @@ bool InitializeSymBruteLibrary(HWND hwndDlg)
         FreeLibrary(hBrute);
     hBrute = LoadLibraryA("brute_sym_prvt.dll");
     if(!hBrute)
+        hBrute = LoadLibraryA("armabrut_opencl.dll");
+    if(!hBrute)
         hBrute = LoadLibraryA("brute_sym.dll");
     if(hBrute)
     {
