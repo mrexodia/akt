@@ -285,7 +285,7 @@ void GenerateKeyNumberFromString(char* string, BigInt p, BigInt* keynumber, int 
     BigInt_Destroy(n);
 }
 
-int MakeEccSignature(unsigned char* keybytes, int* keylength, char* name_to_make_key_for, int level, char* prvt_text, char* public_text, bool baboon, HWND log)
+int MakeEccSignature(unsigned char* keybytes, int* keylength, char* name_to_make_key_for, int level, const char* prvt_text, const char* public_text, bool baboon, HWND log)
 {
     EC_PARAMETER Base;
     EC_KEYPAIR Signer;
@@ -325,7 +325,7 @@ int MakeEccSignature(unsigned char* keybytes, int* keylength, char* name_to_make
         template. */
         char basepoint_text[10] = "";
         char pubx[100] = "", puby[100] = "";
-        char* pubs = public_text;
+        const char* pubs = public_text;
 
         while(*pubs != ',')
         {
@@ -398,7 +398,7 @@ int MakeEccSignature(unsigned char* keybytes, int* keylength, char* name_to_make
     return 1;
 }
 
-int MakeSignature(unsigned char* keybytes, int* keylength, char* name_encryptkey, int level, char* pvt_kg_txt, char* y_kg_txt, bool baboon, HWND log)
+int MakeSignature(unsigned char* keybytes, int* keylength, char* name_encryptkey, int level, const char* pvt_kg_txt, const char* y_kg_txt, bool baboon, HWND log)
 {
     BigInt message, p, p1, pub, pvt, y, temp, temp2, temp3, a, b, k, c1, c2;
     char tmp[2048], tmp2[2048];
@@ -668,7 +668,7 @@ void EncryptSignedKey(unsigned char* keybytes, int keylength, char* encryptkey, 
     }
 }
 
-const char* CreateSignedKey(int level, unsigned int symmetric_key, unsigned int sym_xor, char* pvt_kg_txt, char* y_kg_txt, char* keystring, short today, char* _name_to_make_key_for, unsigned long hardwareID, unsigned short otherinfo1, unsigned short otherinfo2, unsigned short otherinfo3, unsigned short otherinfo4, unsigned short otherinfo5, bool baboon, HWND log)
+const char* CreateSignedKey(int level, unsigned int symmetric_key, unsigned int sym_xor, const char* pvt_kg_txt, const char* y_kg_txt, const char* keystring, short today, const char* _name_to_make_key_for, unsigned long hardwareID, unsigned short otherinfo1, unsigned short otherinfo2, unsigned short otherinfo3, unsigned short otherinfo4, unsigned short otherinfo5, bool baboon, HWND log)
 {
     static char retval[1024] = "";
     char name_to_make_key_for[1024] = "", *cc, *cc2, *shortv3digits = (char*)"0123456789ABCDEFGHJKMNPQRTUVWXYZ";

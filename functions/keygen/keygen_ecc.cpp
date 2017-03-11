@@ -666,7 +666,7 @@ void ECC_RandomPoint(ECC_POINT* point, ECC_CURVE* curve)
     ECC_Embed(&rf, curve, ECC_NUMWORD, (ECC_INDEX)(rf.e[ECC_NUMWORD] & 1), point);
 }
 
-void ECC_Initialize(EC_PARAMETER* Base, EC_KEYPAIR* Signer, unsigned long basepointinit, const char* _rndinitstring, char* prvt_text, char* pubx_text, char* puby_text)
+void ECC_Initialize(EC_PARAMETER* Base, EC_KEYPAIR* Signer, unsigned long basepointinit, const char* _rndinitstring, const char* prvt_text, const char* pubx_text, const char* puby_text)
 {
     BigInt secretkeyhash = BigInt_Create();
     BigInt prime_order = BigInt_Create();

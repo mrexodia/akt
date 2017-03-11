@@ -3,7 +3,7 @@
 
 #include "Misc_global.h"
 
-#define max_bufsize 65535
+#define max_bufsize 65535*100
 
 unsigned int MSC_FindMagicPattern(BYTE* d, unsigned int size, unsigned int* ebp_sub);
 void MSC_cbMagicValue();

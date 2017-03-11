@@ -133,6 +133,6 @@ void ECC_FOFX(ECC_FIELD* x, ECC_CURVE* curv, ECC_FIELD* f);
 int ECC_Quadratic(ECC_FIELD* a, ECC_FIELD* b, ECC_FIELD* y);
 void ECC_Embed(ECC_FIELD* data, ECC_CURVE* curv, ECC_INDEX incrmt, ECC_INDEX root, ECC_POINT* pnt);
 void ECC_RandomPoint(ECC_POINT* point, ECC_CURVE* curve);
-void ECC_Initialize(EC_PARAMETER* Base, EC_KEYPAIR* Signer, unsigned long basepointinit, const char* _rndinitstring, char* prvt_text, char* pubx_text, char* puby_text);
+void ECC_Initialize(EC_PARAMETER* Base, EC_KEYPAIR* Signer, unsigned long basepointinit, const char* _rndinitstring, const char* prvt_text, const char* pubx_text, const char* puby_text);
 
 #endif
