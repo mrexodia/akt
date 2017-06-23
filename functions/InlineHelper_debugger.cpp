@@ -79,8 +79,8 @@ void IH_GetImportTableAddresses() //Retrieve basic import data
     unsigned int LoadLibraryA_Addr;             // LoadLibraryA Address
     unsigned int GetProcAddress_Addr;           // GetProcAddress address
 
-    DeleteFile("loaded_binary.mem");
-    DumpProcess(IH_fdProcessInfo->hProcess, (void*)g_fdImageBase, (char*)"loaded_binary.mem", g_fdEntryPoint);
+    DeleteFile(sg_loaded_binary);
+    DumpProcess(IH_fdProcessInfo->hProcess, (void*)g_fdImageBase, sg_loaded_binary, g_fdEntryPoint);
     kernel32 = GetModuleHandleA("kernel32");
 
     VirtualProtect_Addr = ImporterGetRemoteAPIAddress(IH_fdProcessInfo->hProcess, (unsigned int)GetProcAddress(kernel32, "VirtualProtect"));
@@ -91,7 +91,7 @@ void IH_GetImportTableAddresses() //Retrieve basic import data
     GetProcAddress_Addr = ImporterGetRemoteAPIAddress(IH_fdProcessInfo->hProcess, (unsigned int)GetProcAddress(kernel32, "GetProcAddress"));
     WriteProcessMemory_Addr = ImporterGetRemoteAPIAddress(IH_fdProcessInfo->hProcess, (unsigned int)GetProcAddress(kernel32, "WriteProcessMemory"));
 
-    HANDLE hFile = CreateFileA("loaded_binary.mem", GENERIC_ALL, 0, 0, OPEN_EXISTING, 0, 0);
+    HANDLE hFile = CreateFileA(sg_loaded_binary, GENERIC_ALL, 0, 0, OPEN_EXISTING, 0, 0);
     DWORD high = 0, filesize = GetFileSize(hFile, &high);
     BYTE* dump_addr = (BYTE*)VirtualAlloc(VirtualAlloc(0, filesize + 0x1000, MEM_RESERVE, PAGE_EXECUTE_READWRITE), filesize + 0x1000, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
     ReadFile(hFile, dump_addr, filesize, &high, 0);
@@ -294,7 +294,7 @@ void IH_cbVirtualProtect() // Callback for VirtualProtect
     DeleteAPIBreakPoint((char*)"kernel32.dll", (char*)"VirtualProtect", UE_APISTART);
     SetAPIBreakPoint((char*)"kernel32.dll", (char*)"OutputDebugStringA", UE_BREAKPOINT, UE_APISTART, (void*)IH_cbOutputDebugStringA);
 
-    DumpMemory(IH_fdProcessInfo->hProcess, (void*)security_addr, code_size, (char*)"security_code.mem");
+    DumpMemory(IH_fdProcessInfo->hProcess, (void*)security_addr, code_size, sg_security_code);
 
     if(GetContextData(UE_EAX) == security_addr)
         strcpy(szSecurityAddrRegister, "EAX");

@@ -35,6 +35,8 @@ typedef void (*cbStd)();
 
 extern char sg_szAKTDirectory[256];
 extern char sg_szPluginIniFilePath[256];
+extern char sg_loaded_binary[256];
+extern char sg_security_code[256];
 
 extern HINSTANCE hInst;
 extern bool log_version;

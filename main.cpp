@@ -107,8 +107,6 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
     hInst = hInstance;
     InitCommonControls();
     LoadLibrary("riched20.dll");
-    DeleteFile("loaded_binary.mem");
-    DeleteFile("security_code.mem");
     GetModuleFileNameA(hInst, sg_szAKTDirectory, 256);
     int i = strlen(sg_szAKTDirectory);
     while(sg_szAKTDirectory[i] != '\\')
@@ -117,6 +115,12 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
     strcpy(program_dir, sg_szAKTDirectory);
     strcpy(sg_szPluginIniFilePath, sg_szAKTDirectory);
     strcat(sg_szPluginIniFilePath, "\\plugins\\plugins.ini");
+    strcpy(sg_loaded_binary, sg_szAKTDirectory);
+    strcat(sg_loaded_binary, "\\loaded_binary.mem");
+    DeleteFile(sg_loaded_binary);
+    strcpy(sg_security_code, sg_szAKTDirectory);
+    strcat(sg_security_code, "\\security_code.mem");
+    DeleteFile(sg_security_code);
     DeleteFileA(sg_szPluginIniFilePath);
     IH_GetPluginList();
     SetCurrentDirectoryA(sg_szAKTDirectory);
@@ -156,7 +160,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
         setting[0] = '0';
     WritePrivateProfileStringA("Settings", "nologversion", setting, settings_ini);
     DeleteFile(sg_szPluginIniFilePath);
-    DeleteFile("loaded_binary.mem");
-    DeleteFile("security_code.mem");
+    DeleteFile(sg_loaded_binary);
+    DeleteFile(sg_security_code);
     return retn;
 }

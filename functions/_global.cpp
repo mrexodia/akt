@@ -2,6 +2,8 @@
 
 char sg_szAKTDirectory[256] = ""; //Current directory
 char sg_szPluginIniFilePath[256] = "";
+char sg_loaded_binary[256] = "";
+char sg_security_code[256] = "";
 
 HINSTANCE hInst;
 bool log_version = true; //Log version...
