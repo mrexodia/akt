@@ -5,6 +5,17 @@ bool start_ontop = false;
 int bkColor = GetSysColor(15);
 HBRUSH hbr = CreateSolidBrush(bkColor);
 
+typedef BOOL(WINAPI *ChangeWindowMessageFilter_p)(
+    _In_ UINT  message,
+    _In_ DWORD dwFlag
+    );
+
+static BOOL MyChangeWindowMessageFilter(UINT message, DWORD dwFlag)
+{
+    static ChangeWindowMessageFilter_p func = (ChangeWindowMessageFilter_p)GetProcAddress(GetModuleHandleW(L"user32.dll"), "ChangeWindowMessageFilter");
+    return func ? func(message, dwFlag) : FALSE;
+}
+
 BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     switch(uMsg)
@@ -35,6 +46,11 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             SetWindowPos(hwndDlg, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
             CheckDlgButton(hwndDlg, IDC_CHK_ONTOP, 1);
         }
+
+        int c_MSGFLT_ALLOW = 1;
+        MyChangeWindowMessageFilter(WM_DROPFILES, c_MSGFLT_ALLOW);
+        MyChangeWindowMessageFilter(WM_COPYDATA, c_MSGFLT_ALLOW);
+        MyChangeWindowMessageFilter(0x0049, c_MSGFLT_ALLOW);
     }
     return TRUE;
 
