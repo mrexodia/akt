@@ -214,27 +214,27 @@ void GenerateCode(HWND hwndDlg)
                 else
                     jump_type = " short ";
             }
-            sprintf(md5_patch_block, "cmp eax,0%X ; %s\r\njne short @skip%d\r\nmov eax,0%X\r\njmp%s@md5_patch_end\r\n@skip%d:\r\n", key_vals.key_list[i].repl_dw, key_vals.key_list[i].template_text, i, key_vals.key_list[i].md5_dw, jump_type, i);
+            sprintf(md5_patch_block, "cmp eax,0x%X ; %s\r\njne short @skip%d\r\nmov eax,0x%X\r\njmp%s@md5_patch_end\r\n@skip%d:\r\n", key_vals.key_list[i].repl_dw, key_vals.key_list[i].template_text, i, key_vals.key_list[i].md5_dw, jump_type, i);
             strcat(md5_patch_code, md5_patch_block);
         }
         strcat(md5_patch_code, "@md5_patch_end:\r\n\"\\xE9\\0\\0\\0\\0\"");
     }
     char cert_patch_code[8000] = "";
-    sprintf(cert_patch_code, "@cert_patch:\r\ncmp dword ptr ds:[eax],%X\r\nje short @replace\r\nretn\r\n@replace:\r\npushad\r\n", key_vals.first_dw);
+    sprintf(cert_patch_code, "@cert_patch:\r\ncmp dword ptr ds:[eax],0x%X\r\nje short @replace\r\nret\r\n@replace:\r\npushad\r\n", key_vals.first_dw);
     char cert_patch_block[8000] = "";
     char cert_patch_final[8000] = "";
     if(projectid)
     {
         if(key_vals.seed1 || key_vals.key_list[0].seed2)
-            sprintf(cert_patch_code, "%smov byte ptr ds:[eax+0%X], 0%X\r\n", cert_patch_code, key_vals.projectid_diff, key_vals.projectid_byte);
+            sprintf(cert_patch_code, "%smov byte ptr ds:[eax+0x%X], 0x%X\r\n", cert_patch_code, key_vals.projectid_diff, key_vals.projectid_byte);
         else
-            sprintf(cert_patch_code, "%smov byte ptr ds:[eax+2], 0%X\r\n", cert_patch_code, key_vals.projectid_byte);
+            sprintf(cert_patch_code, "%smov byte ptr ds:[eax+2], 0x%X\r\n", cert_patch_code, key_vals.projectid_byte);
     }
 
 
     for(int i = 0; i < key_vals.total_key_entries; i++)
     {
-        sprintf(cert_patch_block, "lea edi, dword ptr ds:[eax+0%X]\r\nlea esi, dword ptr ds:[@patch%d]\r\nmov ecx, %X\r\nrep movs byte ptr es:[edi], byte ptr ds:[esi]\r\n", key_vals.key_list[i].diff, i, strlen(key_vals.key_list[i].replace_value));
+        sprintf(cert_patch_block, "lea edi, dword ptr ds:[eax+0x%X]\r\nlea esi, dword ptr ds:[@patch%d]\r\nmov ecx, 0x%X\r\nrep movsb\r\n", key_vals.key_list[i].diff, i, strlen(key_vals.key_list[i].replace_value));
         strcat(cert_patch_code, cert_patch_block);
 
         //v9.60 support
@@ -257,7 +257,7 @@ void GenerateCode(HWND hwndDlg)
         sprintf(cert_patch_block, "@patch%d:\r\n\"%s\\0\"\r\n", i, replaced_pub_string);
         strcat(cert_patch_final, cert_patch_block);
     }
-    strcat(cert_patch_code, "popad\r\nretn\r\n");
+    strcat(cert_patch_code, "popad\r\nret\r\n");
     strcat(cert_patch_code, cert_patch_final);
     int total_len = strlen(cert_patch_code) + strlen(md5_patch_code);
     key_vals.repl_code = (char*)malloc_(total_len + 1);
@@ -271,11 +271,11 @@ void GenerateCode(HWND hwndDlg)
         strcpy(key_vals.repl_code, cert_patch_code);
     //Base code
     cert_patch_code[0] = 0;
-    sprintf(cert_patch_code, "lea edi, dword ptr ds:[%s+0%X]\r\nmov byte ptr [edi], 0E9\r\nlea ebx, dword ptr ds:[@cert_patch]\r\nsub ebx, edi\r\nlea ebx, dword ptr ds:[ebx-5]\r\nmov dword ptr [edi+1], ebx\r\n", register_used, cert_function_addr);
+    sprintf(cert_patch_code, "lea edi, dword ptr ds:[%s+0x%X]\r\nmov byte ptr [edi], 0xE9\r\nlea ebx, dword ptr ds:[@cert_patch]\r\nsub ebx, edi\r\nlea ebx, dword ptr ds:[ebx-5]\r\nmov dword ptr [edi+1], ebx\r\n", register_used, cert_function_addr);
     if(md5_replace_addr)
     {
         md5_patch_code[0] = 0;
-        sprintf(md5_patch_code, "lea edi, dword ptr ds:[%s+0%X]\r\nmov word ptr ds:[edi], 0E990\r\nlea ebx, dword ptr ds:[@md5_patch]\r\nsub ebx, edi\r\nlea ebx, dword ptr ds:[ebx-6]\r\nmov dword ptr ds:[edi+2], ebx\r\ninc edi\r\nlea ebx, dword ptr ds:[@md5_patch_end]\r\nmov eax, ebx\r\nsub edi, eax\r\nmov dword ptr ds:[eax+1], edi\r\n", register_used, md5_replace_addr);
+        sprintf(md5_patch_code, "lea edi, dword ptr ds:[%s+0x%X]\r\nmov word ptr ds:[edi], 0xE990\r\nlea ebx, dword ptr ds:[@md5_patch]\r\nsub ebx, edi\r\nlea ebx, dword ptr ds:[ebx-6]\r\nmov dword ptr ds:[edi+2], ebx\r\ninc edi\r\nlea ebx, dword ptr ds:[@md5_patch_end]\r\nmov eax, ebx\r\nsub edi, eax\r\nmov dword ptr ds:[eax+1], edi\r\n", register_used, md5_replace_addr);
         strcat(cert_patch_code, md5_patch_code);
     }
     key_vals.base_code = (char*)malloc_(strlen(cert_patch_code) + 1);

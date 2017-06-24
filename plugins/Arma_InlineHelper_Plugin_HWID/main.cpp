@@ -126,7 +126,7 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam) ///
             if(hwid_text[0])
             {
                 sscanf(hwid_text, "%X", (unsigned int*)(dword_struct + 1));
-                sprintf(code_text, "lea edi, dword ptr ds:[%s+0%X]\r\nmov dword ptr ds:[edi],0%.08X\r\nlea edi, dword ptr ds:[edi+4]\r\nmov dword ptr ds:[edi],0%.08X", register_used, fingerprint_function_addr, struct_addr[0], struct_addr[1]);
+                sprintf(code_text, "lea edi, dword ptr ds:[%s+0x%X]\r\nmov dword ptr ds:[edi],0x%X\r\nlea edi, dword ptr ds:[edi+4]\r\nmov dword ptr ds:[edi],0x%X", register_used, fingerprint_function_addr, struct_addr[0], struct_addr[1]);
                 EnableWindow(GetDlgItem(hwndDlg, IDC_BTN_COPY), TRUE);
                 SetDlgItemTextA(hwndDlg, IDC_EDT_CODE, code_text);
             }

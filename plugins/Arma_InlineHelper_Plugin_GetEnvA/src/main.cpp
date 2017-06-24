@@ -164,7 +164,7 @@ void SeperateVarVal(char* val, char* var, const char* varval, int len)
 void GenerateCode(bool create_env)
 {
     char code_text[65536] = "", current_var[256] = "", current_val[256] = "", env_file[32768] = "";
-    int j = sprintf(code_text, "lea edi, dword ptr ds:[%s+0%X]\r\nmov byte ptr ds:[edi],0E9\r\nmov eax, dword ptr ds:[ebp+0%X]\r\nsub eax,edi\r\nsub eax,5\r\ninc edi\r\nmov dword ptr ds:[edi], eax\r\nlea edi, dword ptr ds:[%s+0%X]\r\nmov byte ptr ds:[edi],0E9\r\ncall @f\r\n\"kernel32\\0\"\r\n@@:\r\ncall dword ptr ds:[ebp+0%X]\r\ncall @f\r\n\"GetEnvironmentVariableW\\0\"\r\n@@:\r\npush eax\r\ncall dword ptr ds:[ebp+0%X]\r\nsub eax,edi\r\nsub eax,5\r\ninc edi\r\nmov dword ptr ds:[edi], eax\r\nmov ebx,dword ptr ds:[ebp+0%X]\r\n",
+    int j = sprintf(code_text, "lea edi, dword ptr ds:[%s+0x%X]\r\nmov byte ptr ds:[edi],0xE9\r\nmov eax, dword ptr ds:[ebp+0x%X]\r\nsub eax,edi\r\nsub eax,5\r\ninc edi\r\nmov dword ptr ds:[edi], eax\r\nlea edi, dword ptr ds:[%s+0x%X]\r\nmov byte ptr ds:[edi],0xE9\r\ncall @f\r\n\"kernel32\\0\"\r\n@@:\r\ncall dword ptr ds:[ebp+0x%X]\r\ncall @f\r\n\"GetEnvironmentVariableW\\0\"\r\n@@:\r\npush eax\r\ncall dword ptr ds:[ebp+0x%X]\r\nsub eax,edi\r\nsub eax,5\r\ninc edi\r\nmov dword ptr ds:[edi], eax\r\nmov ebx,dword ptr ds:[ebp+0x%X]\r\n",
                     register_used,
                     getenva_function_addr,
                     getenvironmentvariablea - imgbase,

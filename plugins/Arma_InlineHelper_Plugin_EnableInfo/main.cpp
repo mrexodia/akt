@@ -90,7 +90,7 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
         {
             unsigned int patch_dword1 = 0x88900100 ^ info_byte1;
             unsigned int patch_dword2 = 0x88900100 ^ info_byte2;
-            sprintf(code_text, "lea edi, dword ptr ds:[%s+%X]\r\nmov dword ptr ds:[edi],%X\r\nlea edi, dword ptr ds:[%s+%X]\r\nmov dword ptr ds:[edi],%X", register_used, patch_addrs[0], patch_dword1, register_used, patch_addrs[1], patch_dword2);
+            sprintf(code_text, "lea edi, dword ptr ds:[%s+0x%X]\r\nmov dword ptr ds:[edi],0x%X\r\nlea edi, dword ptr ds:[%s+0x%X]\r\nmov dword ptr ds:[edi],0x%X", register_used, patch_addrs[0], patch_dword1, register_used, patch_addrs[1], patch_dword2);
             SetDlgItemTextA(hwndDlg, IDC_EDT_CODE, code_text);
         }
     }

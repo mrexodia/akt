@@ -8,7 +8,7 @@ void IH_GenerateAsmCode(char* codeText, IH_InlineHelperData_t targetData)
     char crc_replace_code[2048] = "";
     if(targetData.Arma960)
     {
-        sprintf(crc_replace_code, "mov dword ptr ds:[ebp-%X],%X\r\nmov eax,dword ptr ds:[esp+4]\r\nmov eax,dword ptr ds:[eax+%X]\r\nmov dword ptr ds:[eax],%X\r\nmov dword ptr ds:[eax+4],%X\r\nmov dword ptr ds:[eax+8],%X\r\nmov dword ptr ds:[eax+0C],%X",
+        sprintf(crc_replace_code, "mov dword ptr ds:[ebp-0x%X],0x%X\r\nmov eax,dword ptr ds:[esp+4]\r\nmov eax,dword ptr ds:[eax+0x%X]\r\nmov dword ptr ds:[eax],0x%X\r\nmov dword ptr ds:[eax+4],0x%X\r\nmov dword ptr ds:[eax+8],0x%X\r\nmov dword ptr ds:[eax+0xC],0x%X",
                 targetData.CRCBase,
                 targetData.CrcOriginalVals[0],
                 targetData.Arma960_add,
@@ -19,7 +19,7 @@ void IH_GenerateAsmCode(char* codeText, IH_InlineHelperData_t targetData)
     }
     else
     {
-        sprintf(crc_replace_code, "mov dword ptr ds:[ebp-%X],%X\r\nmov dword ptr ds:[ebp-%X],%X\r\nmov dword ptr ds:[ebp-%X],%X\r\nmov dword ptr ds:[ebp-%X],%X\r\nmov dword ptr ds:[ebp-%X],%X",
+        sprintf(crc_replace_code, "mov dword ptr ds:[ebp-0x%X],0x%X\r\nmov dword ptr ds:[ebp-0x%X],0x%X\r\nmov dword ptr ds:[ebp-0x%X],0x%X\r\nmov dword ptr ds:[ebp-0x%X],0x%X\r\nmov dword ptr ds:[ebp-0x%X],0x%X",
                 targetData.CRCBase,
                 targetData.CrcOriginalVals[0],
                 targetData.CRCBase + 8,

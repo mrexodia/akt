@@ -3,27 +3,27 @@ pushad\r\n\
 call @f\r\n\
 @@:\r\n\
 pop ebp\r\n\
-sub ebp, %X ; newentry+5-imagebase\r\n\
+sub ebp, 0x%X ; newentry+5-imagebase\r\n\
 \r\n\
 ; Store imagebase\r\n\
 call @f\r\n\
 @getimagebase:\r\n\
-mov ebp, 0FFFFFFFF\r\n\
+mov ebp, 0xFFFFFFFF\r\n\
 ret\r\n\
 @@:\r\n\
 pop eax\r\n\
 mov dword ptr ds:[eax+1],ebp\r\n\
 \r\n\
 ; Get API addresses\r\n\
-mov ebx, dword ptr ds:[ebp+%X] ; OutputDebugStringA\r\n\
-lea esi, dword ptr ds:[ebp+%X] ; VirtualProtect\r\n\
+mov ebx, dword ptr ds:[ebp+0x%X] ; OutputDebugStringA\r\n\
+lea esi, dword ptr ds:[ebp+0x%X] ; VirtualProtect\r\n\
 \r\n\
 ; change page protection\r\n\
 call @f\r\n\
 \"\\x00\\x00\\x00\\x00\" ; oldprotect\r\n\
 @@:\r\n\
-push 40 ; newprotect\r\n\
-push 50 ; size\r\n\
+push 0x40 ; newprotect\r\n\
+push 0x50 ; size\r\n\
 push ebx ; OutputDebugStringA\r\n\
 call dword ptr ds:[esi] ; VirtualProtect\r\n\
 \r\n\
@@ -38,7 +38,7 @@ call @getimagebase\r\n\
 ; restore IAT hook\r\n\
 push esi\r\n\
 push eax\r\n\
-lea esi, dword ptr ds:[ebp+%X] ; VirtualProtect\r\n\
+lea esi, dword ptr ds:[ebp+0x%X] ; VirtualProtect\r\n\
 call @getvirtualprotect\r\n\
 xchg dword ptr ds:[esi],eax\r\n\
 pop eax\r\n\
@@ -54,7 +54,7 @@ xchg dword ptr ds:[esi],ebp\r\n\
 ; store old VirtualProtect\r\n\
 call @f\r\n\
 @getvirtualprotect:\r\n\
-mov eax,0FFFFFFFF\r\n\
+mov eax,0xFFFFFFFF\r\n\
 ret\r\n\
 @@:\r\n\
 pop eax\r\n\
@@ -72,9 +72,9 @@ pop edi\r\n\
 add edi,5\r\n\
 mov esi,ebx\r\n\
 mov ecx,5\r\n\
-rep movs byte ptr es:[edi],byte ptr ds:[esi]\r\n\
+rep movsb\r\n\
 sub esi,5\r\n\
-mov byte ptr ds:[esi],0E9\r\n\
+mov byte ptr ds:[esi],0xE9\r\n\
 call @od_hook_end\r\n\
 \r\n\
 @hook_OutputDebugStringA:\r\n\
@@ -96,10 +96,10 @@ jmp short @od_original_bytes\r\n\
 @od_hook_back:\r\n\
 pop esi\r\n\
 call @getimagebase\r\n\
-mov eax,dword ptr ds:[ebp+%X] ; OutputDebugStringA\r\n\
+mov eax,dword ptr ds:[ebp+0x%X] ; OutputDebugStringA\r\n\
 mov edi,eax\r\n\
 mov ecx,5\r\n\
-rep movs byte ptr es:[edi],byte ptr ds:[esi]\r\n\
+rep movsb\r\n\
 pop ebp\r\n\
 pop ecx\r\n\
 pop esi\r\n\

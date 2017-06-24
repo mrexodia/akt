@@ -91,7 +91,7 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
         }
         else
         {
-            sprintf(code_text, "lea edi, dword ptr ds:[%s+0%X]\r\nmov dword ptr ds:[edi],5D40C033", register_used, ecdsaverify_function_addr);
+            sprintf(code_text, "lea edi, dword ptr ds:[%s+0x%X]\r\nmov dword ptr ds:[edi],0x5D40C033", register_used, ecdsaverify_function_addr);
             SetDlgItemTextA(hwndDlg, IDC_EDT_CODE, code_text);
         }
     }

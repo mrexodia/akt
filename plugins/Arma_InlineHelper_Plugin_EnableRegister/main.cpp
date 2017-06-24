@@ -75,7 +75,7 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
         else
         {
             unsigned int patch_dword = 0x88900100 ^ register_byte;
-            sprintf(code_text, "lea edi, dword ptr ds:[%s+0%X]\r\nmov dword ptr ds:[edi],%X", register_used, patch_addr, patch_dword);
+            sprintf(code_text, "lea edi, dword ptr ds:[%s+0x%X]\r\nmov dword ptr ds:[edi],0x%X", register_used, patch_addr, patch_dword);
             SetDlgItemTextA(hwndDlg, IDC_EDT_CODE, code_text);
         }
     }

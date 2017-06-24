@@ -71,7 +71,7 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
         }
         else
         {
-            sprintf(code_text, "lea edi, dword ptr ds:[%s+0%X]\r\nmov word ptr ds:[edi],3EB", register_used, patch_addr);
+            sprintf(code_text, "lea edi, dword ptr ds:[%s+0x%X]\r\nmov word ptr ds:[edi],0x3EB", register_used, patch_addr);
             SetDlgItemTextA(hwndDlg, IDC_EDT_CODE, code_text);
         }
     }

@@ -134,7 +134,7 @@ BOOL CALLBACK IH_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
             IH_GenerateAsmCode(g_codeText, g_TargetData);
             CopyToClipboard(g_codeText);
-            MessageBoxA(hwndDlg, "1) Open the file you just saved with OllyDbg\n2) Open Multimate Assembler v1.5+\n3) Paste the code\n4) Modify the code to do something with the Security DLL\n5) Save the patched file with OllyDbg\n6) Enjoy!", "Instructions", MB_ICONINFORMATION);
+            MessageBoxA(hwndDlg, "1) Open the file you just saved with x64dbg\n2) Open Multimate Assembler v1.5+\n3) Paste the code\n4) Modify the code to do something with the Security DLL\n5) Save the patched file with x64dbg\n6) Enjoy!", "Instructions", MB_ICONINFORMATION);
         }
         return TRUE;
 

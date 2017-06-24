@@ -129,13 +129,13 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
                     strcpy(message, " ; Could not find API");
                 FreeLibrary(mod);
             }
-            sprintf(code, "call @f%s\r\n\"%s\\0\"\r\n@@:\r\ncall dword ptr ds:[ebp+0%X] ; lla\r\ncall @f\r\n\"%s\\0\"\r\n@@:\r\npush eax\r\ncall dword ptr ds:[ebp+0%X] ; gpa",
+            sprintf(code, "call @f%s\r\n\"%s\\0\"\r\n@@:\r\ncall dword ptr ds:[ebp+0x%X] ; lla\r\ncall @f\r\n\"%s\\0\"\r\n@@:\r\npush eax\r\ncall dword ptr ds:[ebp+0x%X] ; gpa",
                     message,
                     dll,
                     apis[0] - imgbase,
                     api,
                     apis[1] - imgbase);
-            /*sprintf(code, "jmp @skip_text%s\r\n@dll:\r\n\"%s\\0\"\r\n@import:\r\n\"%s\\0\"\r\n@skip_text:\r\npush @dll\r\ncall dword ptr ds:[0%X] ; LoadLibraryA\r\npush @import\r\npush eax\r\ncall dword ptr ds:[0%X] ; GetProcAddress",
+            /*sprintf(code, "jmp @skip_text%s\r\n@dll:\r\n\"%s\\0\"\r\n@import:\r\n\"%s\\0\"\r\n@skip_text:\r\npush @dll\r\ncall dword ptr ds:[0x%X] ; LoadLibraryA\r\npush @import\r\npush eax\r\ncall dword ptr ds:[0x%X] ; GetProcAddress",
                     message, dll, api, apis[0], apis[1]);*/
             SetDlgItemTextA(hwndDlg, IDC_EDT_CODE, code);
         }
