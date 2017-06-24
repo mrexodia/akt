@@ -3,6 +3,24 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Armadillo_KeyTool", "Armadillo_KeyTool.vcxproj", "{3A22175E-6B72-FDCC-1603-C4A2163C7900}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ECDSA_Replace_Old", "plugins\Arma_InlineHelper_Plugin_ECDSA_Replace\ECDSA_Replace.vcxproj", "{7A8400CF-5473-461A-A880-EE1DD0F5EFD0}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ECDSA_Replace", "plugins\Arma_InlineHelper_Plugin_ECDSA_Full_Replace\ECDSA_Full_Replace.vcxproj", "{883B09E7-8DBB-4FEE-B92B-487CFC6A95A9}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GetEnvA", "plugins\Arma_InlineHelper_Plugin_GetEnvA\GetEnvA.vcxproj", "{14C94B6F-CD87-4246-9E11-13DA93EB2CA7}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ECDSA_Verify", "plugins\Arma_InlineHelper_Plugin_ECDSA_Verify\ECDSA_Verify.vcxproj", "{85D8F26C-67F9-4B9C-9779-137ED5844F26}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EnableInfo", "plugins\Arma_InlineHelper_Plugin_EnableInfo\EnableInfo.vcxproj", "{551E5EBE-0580-4372-BF74-F8F27E164789}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EnableRegister", "plugins\Arma_InlineHelper_Plugin_EnableRegister\EnableRegister.vcxproj", "{E3A208EC-FDEF-4C4E-94B8-992AAE8705B5}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GetProcAddress", "plugins\Arma_InlineHelper_Plugin_GetProcAdress\GetProcAddress.vcxproj", "{60937C81-EE51-435E-ADC1-B9CA2254FFCC}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HWID", "plugins\Arma_InlineHelper_Plugin_HWID\HWID.vcxproj", "{06F88E38-AEAA-4FA0-8E67-D1AF9293C33C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NGEN_Enable", "plugins\Arma_InlineHelper_Plugin_NGEN_Enable\NGEN_Enable.vcxproj", "{161BBE36-9CE4-4082-9A09-9EFF67437A6F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Release|Win32 = Release|Win32
@@ -10,6 +28,24 @@ Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{3A22175E-6B72-FDCC-1603-C4A2163C7900}.Release|Win32.ActiveCfg = Release|Win32
 		{3A22175E-6B72-FDCC-1603-C4A2163C7900}.Release|Win32.Build.0 = Release|Win32
+		{7A8400CF-5473-461A-A880-EE1DD0F5EFD0}.Release|Win32.ActiveCfg = Release|Win32
+		{7A8400CF-5473-461A-A880-EE1DD0F5EFD0}.Release|Win32.Build.0 = Release|Win32
+		{883B09E7-8DBB-4FEE-B92B-487CFC6A95A9}.Release|Win32.ActiveCfg = Release|Win32
+		{883B09E7-8DBB-4FEE-B92B-487CFC6A95A9}.Release|Win32.Build.0 = Release|Win32
+		{14C94B6F-CD87-4246-9E11-13DA93EB2CA7}.Release|Win32.ActiveCfg = Release|Win32
+		{14C94B6F-CD87-4246-9E11-13DA93EB2CA7}.Release|Win32.Build.0 = Release|Win32
+		{85D8F26C-67F9-4B9C-9779-137ED5844F26}.Release|Win32.ActiveCfg = Release|Win32
+		{85D8F26C-67F9-4B9C-9779-137ED5844F26}.Release|Win32.Build.0 = Release|Win32
+		{551E5EBE-0580-4372-BF74-F8F27E164789}.Release|Win32.ActiveCfg = Release|Win32
+		{551E5EBE-0580-4372-BF74-F8F27E164789}.Release|Win32.Build.0 = Release|Win32
+		{E3A208EC-FDEF-4C4E-94B8-992AAE8705B5}.Release|Win32.ActiveCfg = Release|Win32
+		{E3A208EC-FDEF-4C4E-94B8-992AAE8705B5}.Release|Win32.Build.0 = Release|Win32
+		{60937C81-EE51-435E-ADC1-B9CA2254FFCC}.Release|Win32.ActiveCfg = Release|Win32
+		{60937C81-EE51-435E-ADC1-B9CA2254FFCC}.Release|Win32.Build.0 = Release|Win32
+		{06F88E38-AEAA-4FA0-8E67-D1AF9293C33C}.Release|Win32.ActiveCfg = Release|Win32
+		{06F88E38-AEAA-4FA0-8E67-D1AF9293C33C}.Release|Win32.Build.0 = Release|Win32
+		{161BBE36-9CE4-4082-9A09-9EFF67437A6F}.Release|Win32.ActiveCfg = Release|Win32
+		{161BBE36-9CE4-4082-9A09-9EFF67437A6F}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

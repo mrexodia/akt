@@ -17,6 +17,9 @@ Public/
 *.log
 *.bmarks
 bin/cudart*.dll
+bin/armabrut_cuda.exe
+bin/*.bin
+bin/*.txt
 bin/Armadillo_KeyTool.exe
 bin/brute_sym.dll
 armadillo_analysis_custombuild_download.txt
@@ -30,5 +33,9 @@ ipch/
 Win32/
 *.pdb
 *.mem
-
+*.rar
 .vs/
+Release/
+Debug/
+Win32/
+x64/
