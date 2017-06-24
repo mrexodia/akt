@@ -401,7 +401,7 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
             //v9.60 support
             unsigned char xor_byte = 0;
-            if(cur_seed1_text[0] and cur_seed2_text[0])
+            if(cur_seed1_text[0] && cur_seed2_text[0])
             {
                 unsigned int seed1 = 0;
                 sscanf(cur_seed1_text, "%X", &seed1);
@@ -417,7 +417,7 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 char replaced_pub_string[1024] = "";
                 unsigned int proj_diff = 2;
                 //v9.60 support
-                if(cur_seed1_text[0] and cur_seed2_text[0])
+                if(cur_seed1_text[0] && cur_seed2_text[0])
                 {
                     sscanf(cur_projectid_diff_text, "%X", &proj_diff);
                     unsigned char cpy[256] = "";
@@ -494,12 +494,12 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     return FALSE;
 }
 
-const char* DLL_EXPORT PluginInfo(void)
+DLL_EXPORT const char* PluginInfo(void)
 {
     return plugin_name;
 }
 
-void DLL_EXPORT PluginFunction(HINSTANCE hInst, HWND hwndDlg, const char* register_vp, const char* program_dir, unsigned int imagebase)
+DLL_EXPORT void PluginFunction(HINSTANCE hInst, HWND hwndDlg, const char* register_vp, const char* program_dir, unsigned int imagebase)
 {
     hInstance = hInst;
     sprintf(dll_dump, "%s\\security_code.mem", program_dir);

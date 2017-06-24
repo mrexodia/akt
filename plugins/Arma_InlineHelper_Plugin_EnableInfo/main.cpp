@@ -32,7 +32,7 @@ void CopyToClipboard(const char* text) ///Copies a string to the clipboard.
 unsigned int FindPattern1(BYTE* d, unsigned int size, unsigned char* return_byte)
 {
     for(unsigned int i = 0; i < size; i++) //002000000F95??88
-        if(d[i] == 0x00 and d[i + 1] == 0x20 and d[i + 2] == 0x00 and d[i + 3] == 0x00 and d[i + 4] == 0x0F and d[i + 5] == 0x95 and d[i + 7] == 0x88)
+        if(d[i] == 0x00 && d[i + 1] == 0x20 && d[i + 2] == 0x00 && d[i + 3] == 0x00 && d[i + 4] == 0x0F && d[i + 5] == 0x95 && d[i + 7] == 0x88)
         {
             *return_byte = d[i + 6] ^ 0x70;
             return i + 4;
@@ -43,7 +43,7 @@ unsigned int FindPattern1(BYTE* d, unsigned int size, unsigned char* return_byte
 unsigned int FindPattern2(BYTE* d, unsigned int size, unsigned char* return_byte)
 {
     for(unsigned int i = 0; i < size; i++) //000004000F94??88
-        if(d[i] == 0x00 and d[i + 1] == 0x00 and d[i + 2] == 0x04 and d[i + 3] == 0x00 and d[i + 4] == 0x0F and d[i + 5] == 0x94 and d[i + 7] == 0x88)
+        if(d[i] == 0x00 && d[i + 1] == 0x00 && d[i + 2] == 0x04 && d[i + 3] == 0x00 && d[i + 4] == 0x0F && d[i + 5] == 0x94 && d[i + 7] == 0x88)
         {
             *return_byte = d[i + 6] ^ 0x70;
             return i + 4;
@@ -81,7 +81,7 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
         char code_text[255] = "";
         patch_addrs = FindPatchAddrs();
-        if(!patch_addrs[0] or !patch_addrs[1])
+        if(!patch_addrs[0] || !patch_addrs[1])
         {
             MessageBoxA(hwndDlg, "Something went wrong, try loading a .exe file first...", "Error!", MB_ICONERROR);
             EndDialog(hwndDlg, 0);
@@ -120,12 +120,12 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     return FALSE;
 }
 
-const char* DLL_EXPORT PluginInfo(void)
+DLL_EXPORT const char* PluginInfo(void)
 {
     return plugin_name;
 }
 
-void DLL_EXPORT PluginFunction(HINSTANCE hInst, HWND hwndDlg, const char* register_vp, const char* program_dir, unsigned int imagebase)
+DLL_EXPORT void PluginFunction(HINSTANCE hInst, HWND hwndDlg, const char* register_vp, const char* program_dir, unsigned int imagebase)
 {
     sprintf(dll_dump, "%s\\security_code.mem", program_dir);
     strcpy(register_used, register_vp);

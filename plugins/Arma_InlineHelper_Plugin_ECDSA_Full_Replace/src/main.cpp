@@ -225,7 +225,7 @@ void GenerateCode(HWND hwndDlg)
     char cert_patch_final[8000] = "";
     if(projectid)
     {
-        if(key_vals.seed1 or key_vals.key_list[0].seed2)
+        if(key_vals.seed1 || key_vals.key_list[0].seed2)
             sprintf(cert_patch_code, "%smov byte ptr ds:[eax+0%X], 0%X\r\n", cert_patch_code, key_vals.projectid_diff, key_vals.projectid_byte);
         else
             sprintf(cert_patch_code, "%smov byte ptr ds:[eax+2], 0%X\r\n", cert_patch_code, key_vals.projectid_byte);
@@ -239,7 +239,7 @@ void GenerateCode(HWND hwndDlg)
 
         //v9.60 support
         char replaced_pub_string[1024] = "";
-        if(key_vals.key_list[i].seed2 or key_vals.seed1)
+        if(key_vals.key_list[i].seed2 || key_vals.seed1)
         {
             unsigned char cpy[256] = "";
             strcpy((char*)cpy, key_vals.key_list[i].replace_value);
@@ -351,7 +351,7 @@ void ReadKeysFile(HWND hwndDlg, const char* dropped_file)
         {
             lvl_text[0] = 0;
             GetPrivateProfileStringA(temp, "level", "", lvl_text, 10, dropped_file);
-            if(lvl_text[0] and !strcmp(lvl_text, "29"))
+            if(lvl_text[0] && !strcmp(lvl_text, "29"))
             {
                 cert_names[j] = (char*)malloc_(strlen(temp) + 1);
                 strcpy(cert_names[j], temp);
@@ -521,7 +521,7 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 }
                 //v9.60 support
                 unsigned char xor_byte = 0;
-                if(key_vals.seed1 or key_vals.key_list[0].seed2)
+                if(key_vals.seed1 || key_vals.key_list[0].seed2)
                 {
                     CT_a = key_vals.seed1;
                     unsigned int result = CT_NextRandomRange(256);
@@ -543,7 +543,7 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             {
                 if(i)
                     strcat(save_file_string, "\r\n\r\n");
-                if(key_vals.seed1 or key_vals.key_list[0].seed2)
+                if(key_vals.seed1 || key_vals.key_list[0].seed2)
                 {
                     sprintf(current_line, "  Chk : %.8X\r\n Size : %X\r\n Diff : %X\r\n  MD5 : %.8X\r\nTempl : %s\r\n Orig : %s\r\n Repl : %s\r\n Seed : %.8X",
                             key_vals.key_list[i].checksum,
@@ -632,12 +632,12 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     return FALSE;
 }
 
-const char* DLL_EXPORT PluginInfo(void)
+DLL_EXPORT const char* PluginInfo(void)
 {
     return plugin_name;
 }
 
-void DLL_EXPORT PluginFunction(HINSTANCE hInst, HWND hwndDlg, const char* register_vp, const char* program_dir, unsigned int imagebase)
+DLL_EXPORT void PluginFunction(HINSTANCE hInst, HWND hwndDlg, const char* register_vp, const char* program_dir, unsigned int imagebase)
 {
     hInstance = hInst;
     sprintf(dll_dump, "%s\\security_code.mem", program_dir);

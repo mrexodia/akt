@@ -46,7 +46,7 @@ void FormatTextHex(char* text) ///Formats the entered fingerprint.
     int len = strlen(text);
     for(int i = 0; i < len; i++)
     {
-        if((text[i] > 64 and text[i] < 71) or (text[i] > 47 and text[i] < 58))
+        if((text[i] > 64 && text[i] < 71) || (text[i] > 47 && text[i] < 58))
             sprintf(FormatTextHex_format, "%s%c", FormatTextHex_format, text[i]);
     }
     strcpy(text, FormatTextHex_format);
@@ -67,10 +67,10 @@ unsigned int FindGetEnvAAddr()
     }
     for(unsigned int i = 0; i < filesize; i++) //Pattern : 55 8B EC 83 EC 0C 53 56 57 6A 00 FF 15 ?? ?? ?? ?? 8B 45 08 50
     {
-        if(security_code[i] == 0x55 and security_code[i + 1] == 0x8B and security_code[i + 2] == 0xEC and security_code[i + 3] == 0x83 and security_code[i + 4] == 0xEC)
-            if(security_code[i + 5] == 0x0C and security_code[i + 6] == 0x53 and security_code[i + 7] == 0x56 and security_code[i + 8] == 0x57 and security_code[i + 9] == 0x6A)
-                if(security_code[i + 10] == 0 and security_code[i + 11] == 0xFF and security_code[i + 12] == 0x15 and security_code[i + 17] == 0x8B and security_code[i + 18] == 0x45)
-                    if(security_code[i + 19] == 0x08 and security_code[i + 20] == 0x50)
+        if(security_code[i] == 0x55 && security_code[i + 1] == 0x8B && security_code[i + 2] == 0xEC && security_code[i + 3] == 0x83 && security_code[i + 4] == 0xEC)
+            if(security_code[i + 5] == 0x0C && security_code[i + 6] == 0x53 && security_code[i + 7] == 0x56 && security_code[i + 8] == 0x57 && security_code[i + 9] == 0x6A)
+                if(security_code[i + 10] == 0 && security_code[i + 11] == 0xFF && security_code[i + 12] == 0x15 && security_code[i + 17] == 0x8B && security_code[i + 18] == 0x45)
+                    if(security_code[i + 19] == 0x08 && security_code[i + 20] == 0x50)
                     {
                         CloseHandle(hFile);
                         free(security_code);
@@ -98,10 +98,10 @@ unsigned int FindGetEnvWAddr()
     }
     for(unsigned int i = 0, j = 0; i < filesize; i++) //Pattern : 55 8B EC 83 EC 0C 53 56 57 6A 00 FF 15 ?? ?? ?? ?? 8B 45 08 50
     {
-        if(security_code[i] == 0x55 and security_code[i + 1] == 0x8B and security_code[i + 2] == 0xEC and security_code[i + 3] == 0x83 and security_code[i + 4] == 0xEC)
-            if(security_code[i + 5] == 0x0C and security_code[i + 6] == 0x53 and security_code[i + 7] == 0x56 and security_code[i + 8] == 0x57 and security_code[i + 9] == 0x6A)
-                if(security_code[i + 10] == 0 and security_code[i + 11] == 0xFF and security_code[i + 12] == 0x15 and security_code[i + 17] == 0x8B and security_code[i + 18] == 0x45)
-                    if(security_code[i + 19] == 0x08 and security_code[i + 20] == 0x50)
+        if(security_code[i] == 0x55 && security_code[i + 1] == 0x8B && security_code[i + 2] == 0xEC && security_code[i + 3] == 0x83 && security_code[i + 4] == 0xEC)
+            if(security_code[i + 5] == 0x0C && security_code[i + 6] == 0x53 && security_code[i + 7] == 0x56 && security_code[i + 8] == 0x57 && security_code[i + 9] == 0x6A)
+                if(security_code[i + 10] == 0 && security_code[i + 11] == 0xFF && security_code[i + 12] == 0x15 && security_code[i + 17] == 0x8B && security_code[i + 18] == 0x45)
+                    if(security_code[i + 19] == 0x08 && security_code[i + 20] == 0x50)
                     {
                         if(j)
                         {
@@ -212,7 +212,7 @@ int Remove0D0A(char* string)
     int len = strlen(string);
     for(int i = 0; i < len; i++)
     {
-        if(string[i] != 0x0D and string[i] != 0x0A)
+        if(string[i] != 0x0D && string[i] != 0x0A)
             sprintf(string2, "%s%c", string2, string[i]);
     }
     strcpy(string, string2);
@@ -231,7 +231,7 @@ void ReadEnvFile(const char* filename)
         int len = strlen(env_file);
         for(int i = 0; i != len; i++)
         {
-            if(env_file[i] == 0x0D or env_file[i] == 0x0A)
+            if(env_file[i] == 0x0D || env_file[i] == 0x0A)
             {
                 if(Remove0D0A(varval_temp))
                     SendDlgItemMessageA(mainDlg, IDC_LIST_VARS, LB_ADDSTRING, 0, (LPARAM)varval_temp);
@@ -280,7 +280,7 @@ BOOL CALLBACK DlgList(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
         {
         case IDC_EDT_VAR:
         {
-            if(GetDlgItemTextA(hwndDlg, IDC_EDT_VAR, var_text, 256) and GetDlgItemTextA(hwndDlg, IDC_EDT_VAL, val_text, 256))
+            if(GetDlgItemTextA(hwndDlg, IDC_EDT_VAR, var_text, 256) && GetDlgItemTextA(hwndDlg, IDC_EDT_VAL, val_text, 256))
                 EnableWindow(GetDlgItem(hwndDlg, IDC_BTN_SAVE), TRUE);
             else
                 EnableWindow(GetDlgItem(hwndDlg, IDC_BTN_SAVE), FALSE);
@@ -289,7 +289,7 @@ BOOL CALLBACK DlgList(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
         case IDC_EDT_VAL:
         {
-            if(GetDlgItemTextA(hwndDlg, IDC_EDT_VAR, var_text, 256) and GetDlgItemTextA(hwndDlg, IDC_EDT_VAL, val_text, 256))
+            if(GetDlgItemTextA(hwndDlg, IDC_EDT_VAR, var_text, 256) && GetDlgItemTextA(hwndDlg, IDC_EDT_VAL, val_text, 256))
                 EnableWindow(GetDlgItem(hwndDlg, IDC_BTN_SAVE), TRUE);
             else
                 EnableWindow(GetDlgItem(hwndDlg, IDC_BTN_SAVE), FALSE);
@@ -338,7 +338,7 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
         mainDlg = hwndDlg;
         getenva_function_addr = FindGetEnvAAddr();
         getenvw_function_addr = FindGetEnvWAddr();
-        if(!getenva_function_addr or !getenvw_function_addr)
+        if(!getenva_function_addr || !getenvw_function_addr)
         {
             MessageBoxA(hwndDlg, "Something went wrong, try loading a .exe file first...", "Error!", MB_ICONERROR);
             EndDialog(hwndDlg, 0);
@@ -501,7 +501,7 @@ Description:
 Arguments:
    None.
 */
-const char* DLL_EXPORT PluginInfo(void)
+DLL_EXPORT const char* PluginInfo(void)
 {
     return plugin_name;
 }
@@ -516,7 +516,7 @@ Arguments:
    program_dir the directory of ArmaInlineHelper.exe, use to get paths to the dumps.
    imagebase, ImageBase of the selected process.
 */
-void DLL_EXPORT PluginFunction(HINSTANCE hInst, HWND hwndDlg, const char* register_vp, const char* program_dir, unsigned int imagebase)
+DLL_EXPORT void PluginFunction(HINSTANCE hInst, HWND hwndDlg, const char* register_vp, const char* program_dir, unsigned int imagebase)
 {
     imgbase = imagebase;
     hDllInst = hInst;

@@ -31,7 +31,7 @@ void CopyToClipboard(const char* text) ///Copies a string to the clipboard.
 unsigned int FindPattern(BYTE* d, unsigned int size, unsigned char* return_byte)
 {
     for(unsigned int i = 0; i < size; i++) //008000000F95??88
-        if(d[i] == 0x00 and d[i + 1] == 0x80 and d[i + 2] == 0x00 and d[i + 3] == 0x00 and d[i + 4] == 0x0F and d[i + 5] == 0x95 and d[i + 7] == 0x88)
+        if(d[i] == 0x00 && d[i + 1] == 0x80 && d[i + 2] == 0x00 && d[i + 3] == 0x00 && d[i + 4] == 0x0F && d[i + 5] == 0x95 && d[i + 7] == 0x88)
         {
             *return_byte = d[i + 6] ^ 0x70;
             return i + 4;
@@ -105,12 +105,12 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     return FALSE;
 }
 
-const char* DLL_EXPORT PluginInfo(void)
+DLL_EXPORT const char* PluginInfo(void)
 {
     return plugin_name;
 }
 
-void DLL_EXPORT PluginFunction(HINSTANCE hInst, HWND hwndDlg, const char* register_vp, const char* program_dir, unsigned int imagebase)
+DLL_EXPORT void PluginFunction(HINSTANCE hInst, HWND hwndDlg, const char* register_vp, const char* program_dir, unsigned int imagebase)
 {
     sprintf(dll_dump, "%s\\security_code.mem", program_dir);
     strcpy(register_used, register_vp);

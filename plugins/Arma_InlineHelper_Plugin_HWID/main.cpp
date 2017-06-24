@@ -33,7 +33,7 @@ void FormatTextHex(char* text) ///Formats the entered fingerprint.
     int len = strlen(text);
     for(int i = 0; i < len; i++)
     {
-        if((text[i] > 64 and text[i] < 71) or (text[i] > 47 and text[i] < 58))
+        if((text[i] > 64 && text[i] < 71) || (text[i] > 47 && text[i] < 58))
             sprintf(FormatTextHex_format, "%s%c", FormatTextHex_format, text[i]);
     }
     strcpy(text, FormatTextHex_format);
@@ -164,7 +164,7 @@ Description:
 Arguments:
    None.
 */
-const char* DLL_EXPORT PluginInfo(void)
+DLL_EXPORT const char* PluginInfo(void)
 {
     return plugin_name;
 }
@@ -179,7 +179,7 @@ Arguments:
    program_dir the directory of ArmaInlineHelper.exe, use to get paths to the dumps.
    imagebase ImageBase of the selected process.
 */
-void DLL_EXPORT PluginFunction(HINSTANCE hInst, HWND hwndDlg, const char* register_vp, const char* program_dir, unsigned int imagebase)
+DLL_EXPORT void PluginFunction(HINSTANCE hInst, HWND hwndDlg, const char* register_vp, const char* program_dir, unsigned int imagebase)
 {
     sprintf(dll_dump, "%s\\security_code.mem", program_dir);
     strcpy(register_used, register_vp);

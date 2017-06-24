@@ -1041,11 +1041,11 @@ void BigInt_ToString(BigInt s, int base, char* d)
 
 bool BigInt_ToHexString(BigInt n, char* d)
 {
-    if(!n or !d)
+    if(!n || !d)
         return false;
     if(n->length)
     {
-        if(!n->digits or !n->alloc)
+        if(!n->digits || !n->alloc)
             return false;
         if(n->negative)
             strcpy(d, "-");
@@ -1129,7 +1129,7 @@ bool BigInt_FromHexString(const char* source, BigInt dest)
 
 bool BigInt_FromDecString(const char* source, BigInt dest)
 {
-    if(!source or !dest)
+    if(!source || !dest)
         return false;
     const char* c = source;
     BigInt t, t2, base_;
@@ -1154,7 +1154,7 @@ bool BigInt_FromDecString(const char* source, BigInt dest)
         return false;
     while(*c)
     {
-        if(*c >= '0' and * c <= '9')
+        if(*c >= '0' && * c <= '9')
         {
             BigInt_Set(t, *c - '0');
             BigInt_Multiply(dest, base_, t2);
@@ -1165,7 +1165,7 @@ bool BigInt_FromDecString(const char* source, BigInt dest)
         ++c;
     }
 
-    if(neg and dest->length and dest->digits[0])
+    if(neg && dest->length && dest->digits[0])
         dest->negative = 1;
 
     BigInt_Destroy(base_);
@@ -1186,7 +1186,7 @@ bool BigInt_FromString(const char* source, int base, BigInt dest)
 /*void BigInt_Dump(BigInt n, const char *title, HWND edit)
 {
     char log_string[1024]="";
-    if(!n or !title)
+    if(!n || !title)
         return;
     strcpy(log_string, title);
     sprintf(log_string, "%s:\r\n  length : %d\r\n   alloc : %d\r\nnegative : %d\r\n hdigits : ", log_string, n->length, n->alloc, n->negative);
