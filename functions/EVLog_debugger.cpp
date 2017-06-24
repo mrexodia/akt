@@ -62,13 +62,13 @@ unsigned int EV_FindSetEnvPattern(BYTE* d, unsigned int size, bool skip_first)
     bool skip = skip_first;
     for(unsigned int i = 0; i < size; i++) //55 8B EC 6A FF 68 ?? ?? ?? ?? 64 A1 00 00 00 00 50 83 EC 20 A1 ?? ?? ?? ?? 33 C5 50 8D 45 F4 64 A3 00 00 00 00 89 4D D8 6A FF 8B 4D
     {
-        if(d[i] == 0x55 and d[i + 1] == 0x8B and d[i + 2] == 0xEC and d[i + 3] == 0x6A and d[i + 4] == 0xFF and d[i + 5] == 0x68)
-            if(d[i + 10] == 0x64 and d[i + 11] == 0xA1 and d[i + 12] == 0 and d[i + 13] == 0 and d[i + 14] == 0 and d[i + 15] == 0)
-                if(d[i + 16] == 0x50 and d[i + 17] == 0x83 and d[i + 18] == 0xEC and d[i + 19] == 0x20 and d[i + 20] == 0xA1)
-                    if(d[i + 25] == 0x33 and d[i + 26] == 0xC5 and d[i + 27] == 0x50 and d[i + 28] == 0x8D and d[i + 29] == 0x45 and d[i + 30] == 0xF4)
-                        if(d[i + 31] == 0x64 and d[i + 32] == 0xA3 and d[i + 33] == 0 and d[i + 34] == 0 and d[i + 35] == 0 and d[i + 36] == 0)
-                            if(d[i + 37] == 0x89 and d[i + 38] == 0x4D and d[i + 39] == 0xD8 and d[i + 40] == 0x6A and d[i + 41] == 0xFF and d[i + 42] == 0x8B and d[i + 43] == 0x4D)
-                                if(d[i + 44] == 0xD8 and d[i + 45] == 0x83 and d[i + 46] == 0xC1 and d[i + 47] == 4 and d[i + 48] == 0xE8)
+        if(d[i] == 0x55 && d[i + 1] == 0x8B && d[i + 2] == 0xEC && d[i + 3] == 0x6A && d[i + 4] == 0xFF && d[i + 5] == 0x68)
+            if(d[i + 10] == 0x64 && d[i + 11] == 0xA1 && d[i + 12] == 0 && d[i + 13] == 0 && d[i + 14] == 0 && d[i + 15] == 0)
+                if(d[i + 16] == 0x50 && d[i + 17] == 0x83 && d[i + 18] == 0xEC && d[i + 19] == 0x20 && d[i + 20] == 0xA1)
+                    if(d[i + 25] == 0x33 && d[i + 26] == 0xC5 && d[i + 27] == 0x50 && d[i + 28] == 0x8D && d[i + 29] == 0x45 && d[i + 30] == 0xF4)
+                        if(d[i + 31] == 0x64 && d[i + 32] == 0xA3 && d[i + 33] == 0 && d[i + 34] == 0 && d[i + 35] == 0 && d[i + 36] == 0)
+                            if(d[i + 37] == 0x89 && d[i + 38] == 0x4D && d[i + 39] == 0xD8 && d[i + 40] == 0x6A && d[i + 41] == 0xFF && d[i + 42] == 0x8B && d[i + 43] == 0x4D)
+                                if(d[i + 44] == 0xD8 && d[i + 45] == 0x83 && d[i + 46] == 0xC1 && d[i + 47] == 4 && d[i + 48] == 0xE8)
                                 {
                                     if(!skip)
                                         return i;
@@ -84,9 +84,9 @@ unsigned int EV_FindSetEnvPatternOld(BYTE* d, unsigned int size, bool skip_first
     bool skip = skip_first;
     for(unsigned int i = 0; i < size; i++) //55 8B EC 83 EC 1C 89 4D E8 6A FF 8B 4D E8 83 C1 04 E8
     {
-        if(d[i] == 0x55 and d[i + 1] == 0x8B and d[i + 2] == 0xEC and d[i + 3] == 0x83 and d[i + 4] == 0xEC)
-            if(d[i + 5] == 0x1C and d[i + 6] == 0x89 and d[i + 7] == 0x4D and d[i + 8] == 0xE8 and d[i + 9] == 0x6A and d[i + 10] == 0xFF)
-                if(d[i + 11] == 0x8B and d[i + 12] == 0x4D and d[i + 13] == 0xE8 and d[i + 14] == 0x83 and d[i + 15] == 0xC1 and d[i + 16] == 0x04 and d[i + 17] == 0xE8)
+        if(d[i] == 0x55 && d[i + 1] == 0x8B && d[i + 2] == 0xEC && d[i + 3] == 0x83 && d[i + 4] == 0xEC)
+            if(d[i + 5] == 0x1C && d[i + 6] == 0x89 && d[i + 7] == 0x4D && d[i + 8] == 0xE8 && d[i + 9] == 0x6A && d[i + 10] == 0xFF)
+                if(d[i + 11] == 0x8B && d[i + 12] == 0x4D && d[i + 13] == 0xE8 && d[i + 14] == 0x83 && d[i + 15] == 0xC1 && d[i + 16] == 0x04 && d[i + 17] == 0xE8)
                 {
                     if(!skip)
                         return i;
@@ -102,9 +102,9 @@ unsigned int EV_FindSetEnvPatternOldOld(BYTE* d, unsigned int size, bool skip_fi
     bool skip = skip_first;
     for(unsigned int i = 0; i < size; i++) //55 8B EC 83 EC 14 89 4D F0 8B 4D F0 E8
     {
-        if(d[i] == 0x55 and d[i + 1] == 0x8B and d[i + 2] == 0xEC and d[i + 3] == 0x83 and d[i + 4] == 0xEC)
-            if(d[i + 5] == 0x14 and d[i + 6] == 0x89 and d[i + 7] == 0x4D and d[i + 8] == 0xF0 and d[i + 9] == 0x8B and d[i + 10] == 0x4D)
-                if(d[i + 11] == 0xF0 and d[i + 12] == 0xE8)
+        if(d[i] == 0x55 && d[i + 1] == 0x8B && d[i + 2] == 0xEC && d[i + 3] == 0x83 && d[i + 4] == 0xEC)
+            if(d[i + 5] == 0x14 && d[i + 6] == 0x89 && d[i + 7] == 0x4D && d[i + 8] == 0xF0 && d[i + 9] == 0x8B && d[i + 10] == 0x4D)
+                if(d[i + 11] == 0xF0 && d[i + 12] == 0xE8)
                 {
                     if(!skip)
                         return i;
@@ -144,10 +144,10 @@ void EV_cbEndLog()
 void EV_log_var_valW(const wchar_t* varname, const wchar_t* varvalue)
 {
     wchar_t final_string[512] = L"";
-    if(varvalue[0] and varname[0])
+    if(varvalue[0] && varname[0])
         swprintf(final_string, L"%s=%s", varname, varvalue);
     //swprintf(final_string, L"SetEnvW: %s=%s", varname, varvalue);
-    else if(varvalue[0] == 0 and varname[0] and varname[1])
+    else if(varvalue[0] == 0 && varname[0] && varname[1])
     {
         //swprintf(final_string, L"SetEnvW: %s=(null)", varname);
         swprintf(final_string, L"%s=(null)", varname);
@@ -162,10 +162,10 @@ void EV_log_var_valW(const wchar_t* varname, const wchar_t* varvalue)
 void EV_log_var_valA(const char* varname, const char* varvalue)
 {
     char final_string[512] = "";
-    if(varvalue[0] and varname[0])
+    if(varvalue[0] && varname[0])
         //sprintf(final_string, "SetEnvA: %s=%s", varname, varvalue);
         sprintf(final_string, "%s=%s", varname, varvalue);
-    else if(varvalue[0] == 0 and varname[0] and varname[1])
+    else if(varvalue[0] == 0 && varname[0] && varname[1])
     {
         //sprintf(final_string, "SetEnvA: %s=(null)", varname);
         sprintf(final_string, "%s=(null)", varname);
@@ -249,7 +249,7 @@ void EV_cbVirtualProtect()
         {
             SetEnvW = EV_FindSetEnvPatternOldOld(sec_data, sec_size, false) + sec_addr;
             if(!(SetEnvW - sec_addr))
-                EV_FatalError("Could not locate the SetEnvW function, please contact Mr. eXoDia...");
+                EV_FatalError("Could not locate the SetEnvW function...");
         }
     }
     //SetHardwareBreakPoint(SetEnvW, UE_DR1, UE_HARDWARE_EXECUTE, UE_HARDWARE_SIZE_1, (void*)EV_cbSetEnvW);
@@ -262,7 +262,7 @@ void EV_cbVirtualProtect()
         {
             SetEnvA = EV_FindSetEnvPatternOldOld(sec_data, sec_size, true) + sec_addr;
             if(!(SetEnvA - sec_addr))
-                EV_FatalError("Could not locate the SetEnvA function, please contact Mr. eXoDia...");
+                EV_FatalError("Could not locate the SetEnvA function...");
         }
     }
     //SetHardwareBreakPoint(SetEnvA, UE_DR0, UE_HARDWARE_EXECUTE, UE_HARDWARE_SIZE_1, (void*)EV_cbSetEnvA);

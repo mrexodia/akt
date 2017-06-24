@@ -356,7 +356,7 @@ void LR_CreateFileAStartArma960BPCallback()
             (strcmp((const char *)wFileNameString, (const char *)"\\\\.\\SIWVID")==0)         ||
             (strcmp((const char *)(wFileNameString + (strlen((const char *)wFileNameString) - 5)), (const char *)".RREF")==0)
       )*/
-    if(!strncmp((char*)wFileNameString, "\\\\.\\", 4) or
+    if(!strncmp((char*)wFileNameString, "\\\\.\\", 4) ||
             !strcmp((char*)wFileNameString + strlen((char*)wFileNameString) - 5, ".RREF"))
     {
         // Stop debugging

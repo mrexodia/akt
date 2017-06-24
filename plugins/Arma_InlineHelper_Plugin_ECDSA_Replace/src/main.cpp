@@ -283,7 +283,7 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
         EnableWindow(GetDlgItem(hwndDlg, IDC_BTN_COPY_CODE), 0);
         if(!Initialize(hwndDlg))
         {
-            MessageBoxA(hwndDlg, "Something went wrong during the initialization of the plugin.\n\nMaybe the file you are loading is unsupported, please contact me\n(Mr. eXoDia) at mr.exodia.tpodt@gmail.com, I can fix it...", "Error...", MB_ICONERROR);
+            MessageBoxA(hwndDlg, "Something went wrong during the initialization of the plugin.\n\nMaybe the file you are loading is unsupported...", "Error...", MB_ICONERROR);
             SendMessageA(hwndDlg, WM_CLOSE, 0, 0);
         }
     }
@@ -484,7 +484,7 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
         case IDC_BTN_ABOUT:
         {
-            MessageBoxA(hwndDlg, "This plugin is very simple... Just Drag&Drop a .akt file created by Armadillo Key Tool,\nselect the certificate you want to use and use the Generate button to create new\npublic vals.\n\nThe Base Code is supposed be copied after: \";PLACE YOU CODE AFTER THIS!!!\"\nThe Replace Code should be appended to your inline code...\n\nMr. eXoDia\nmr.exodia.tpodt@gmail.com", "Armadillo ECDSA Public Parameter Replace Plugin v0.4", MB_ICONINFORMATION);
+            MessageBoxA(hwndDlg, "This plugin is very simple... Just Drag&Drop a .akt file created by Armadillo Key Tool,\nselect the certificate you want to use and use the Generate button to create new\npublic vals.\n\nThe Base Code is supposed be copied after: \";PLACE YOU CODE AFTER THIS!!!\"\nThe Replace Code should be appended to your inline code...", "Armadillo ECDSA Public Parameter Replace Plugin v0.4", MB_ICONINFORMATION);
         }
         return TRUE;
         }

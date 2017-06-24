@@ -55,13 +55,13 @@ DWORD WINAPI VF_DebugThread(void* lpVoid)
     }
     else
         FillArmaOptionsStruct(g_raw_options, g_version, &op, 0, g_minimal);
-    if(g_extra_options or g_raw_options or g_version[0])
+    if(g_extra_options || g_raw_options || g_version[0])
     {
         if(log_version)
         {
             strcpy(log_location, g_szFileName);
             int len = strlen(log_location);
-            while(len and log_location[len] != '.')
+            while(len && log_location[len] != '.')
                 len--;
             if(len)
             {

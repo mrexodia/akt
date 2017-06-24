@@ -3,7 +3,7 @@
 unsigned int MSC_FindMagicPattern(BYTE* d, unsigned int size, unsigned int* ebp_sub)
 {
     for(unsigned int i = 0; i < size; i++) //8813000089
-        if(d[i] == 0x88 and d[i + 1] == 0x13 and d[i + 2] == 0x00 and d[i + 3] == 0x00 and d[i + 4] == 0x89)
+        if(d[i] == 0x88 && d[i + 1] == 0x13 && d[i + 2] == 0x00 && d[i + 3] == 0x00 && d[i + 4] == 0x89)
         {
             unsigned char ebp_sub1 = d[i + 6];
             if(ebp_sub1 > 0x7F)
@@ -391,7 +391,7 @@ DWORD WINAPI MSC_VR_BruteThread(LPVOID arg)
     CloseHandle(hFile);
     for(int i = 0, j = 0; i < len; i++)
     {
-        if((MSC_VR_keys[i] > 64 and MSC_VR_keys[i] < 71) or (MSC_VR_keys[i] > 47 and MSC_VR_keys[i] < 58) or (MSC_VR_keys[i] > 96 and MSC_VR_keys[i] < 103)) //1234567890ABCDEFabcdef
+        if((MSC_VR_keys[i] > 64 && MSC_VR_keys[i] < 71) || (MSC_VR_keys[i] > 47 && MSC_VR_keys[i] < 58) || (MSC_VR_keys[i] > 96 && MSC_VR_keys[i] < 103)) //1234567890ABCDEFabcdef
             j += sprintf(MSC_VR_keys_format + j, "%c", MSC_VR_keys[i]);
     }
     len = strlen(MSC_VR_keys_format);

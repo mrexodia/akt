@@ -130,7 +130,7 @@ BOOL CALLBACK MSC_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
         {
         case IDC_BTN_GETMAGIC: //VerifySym
         {
-            if(!MSC_isdebugging and MSC_szFileName[0])
+            if(!MSC_isdebugging && MSC_szFileName[0])
                 CreateThread(0, 0, MSC_VR_GetMagic, 0, 0, 0);
         }
         return TRUE;
@@ -140,16 +140,16 @@ BOOL CALLBACK MSC_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             HMENU myMenu = CreatePopupMenu();
             bool has_one = false;
             char sym_text[10] = "";
-            if(GetDlgItemTextA(hwndDlg, IDC_EDT_MAGIC1, MSC_VR_magic1, 10) and GetDlgItemTextA(hwndDlg, IDC_EDT_MAGIC2, MSC_VR_magic2, 10) and GetDlgItemTextA(hwndDlg, IDC_EDT_MD5, MSC_VR_md5_text, 10))
+            if(GetDlgItemTextA(hwndDlg, IDC_EDT_MAGIC1, MSC_VR_magic1, 10) && GetDlgItemTextA(hwndDlg, IDC_EDT_MAGIC2, MSC_VR_magic2, 10) && GetDlgItemTextA(hwndDlg, IDC_EDT_MD5, MSC_VR_md5_text, 10))
             {
                 char menu_text[50] = "";
-                if(GetDlgItemTextA(hwndDlg, IDC_EDT_SYMFOUND, sym_text, 10) and MSC_VR_certpath[0])
+                if(GetDlgItemTextA(hwndDlg, IDC_EDT_SYMFOUND, sym_text, 10) && MSC_VR_certpath[0])
                 {
                     has_one = true;
                     sprintf(menu_text, "&Verify %s", sym_text);
                     AppendMenuA(myMenu, MF_STRING, 1, menu_text);
                 }
-                if(MSC_VR_certpath[0] and MSC_VR_keyspath[0])
+                if(MSC_VR_certpath[0] && MSC_VR_keyspath[0])
                 {
                     has_one = true;
                     AppendMenuA(myMenu, MF_STRING, 2, "Verify &List");
@@ -327,14 +327,14 @@ BOOL CALLBACK MSC_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
         {
             SetFocus(GetDlgItem(hwndDlg, IDC_EDT_SALT));
             MessageBoxA(hwndDlg, "This functionality has been disabled, use the 'Certs' tab to get the salt...", "Error", MB_ICONERROR);
-            /*if(!MSC_isdebugging and MSC_szFileName[0])
+            /*if(!MSC_isdebugging && MSC_szFileName[0])
                 CreateThread(0, 0, MSC_GetSalt, 0, 0, 0);*/
         }
         return TRUE;
 
         case IDC_BTN_FINDCHECKSUM: //GenerateChecksum
         {
-            if(!MSC_isdebugging and MSC_szFileName[0])
+            if(!MSC_isdebugging && MSC_szFileName[0])
                 CreateThread(0, 0, MSC_FindChecksum, 0, 0, 0);
         }
         return TRUE;
@@ -423,7 +423,7 @@ BOOL CALLBACK MSC_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
         case IDC_BTN_GETPROJECTID: //FixClock
         {
-            if(!MSC_isdebugging and MSC_szFileName[0])
+            if(!MSC_isdebugging && MSC_szFileName[0])
                 CreateThread(0, 0, MSC_GetProjectID, 0, 0, 0);
         }
         return TRUE;
@@ -522,21 +522,21 @@ BOOL CALLBACK MSC_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
                     }
                 }
             }
-            if(MSC_SD_updated_sections or removedwatermark)
+            if(MSC_SD_updated_sections || removedwatermark)
                 MSC_SD_LoadFile(hwndDlg);
         }
         return TRUE;
 
         case IDC_BTN_GETCURSYM: //GetCurrentSym
         {
-            if(!MSC_isdebugging and MSC_szFileName[0])
+            if(!MSC_isdebugging && MSC_szFileName[0])
                 CreateThread(0, 0, MSC_CurSymDebugThread, 0, 0, 0);
         }
         return TRUE;
 
         case IDC_BTN_GETLICENSEDATA:
         {
-            if(MSC_isdebugging or !MSC_szFileName[0])
+            if(MSC_isdebugging || !MSC_szFileName[0])
                 return TRUE;
 
             HWND list = GetDlgItem(hwndDlg, IDC_LIST_LICENSES);

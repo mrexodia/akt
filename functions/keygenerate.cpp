@@ -75,7 +75,7 @@ bool KG_GeneratePvtY(int level, char* keytemplate, char* pvt_text, char* y_text)
     else
     {
         keysystem = KS_V2;
-        if(level<0 or level>3)
+        if(level<0 || level>3)
             return false;
     }
     size = level + 4;
@@ -220,12 +220,12 @@ BOOL CALLBACK KG_DlgKeyGenerate(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM l
                 if(y[i] == ',')
                     comma_count++;
             bool baboon = !!IsDlgButtonChecked(hwndDlg, IDC_CHK_BABOON);
-            if(keygenerate_level == 29 and comma_count != 2 and !baboon)
+            if(keygenerate_level == 29 && comma_count != 2 && !baboon)
             {
                 AddLogMessage(GetDlgItem(hwndDlg, IDC_EDT_ADVLOG), "Invalid ECDSA Public format...\nUse: ", true);
                 return TRUE;
             }
-            if(((!*pvt) or (!*y)) and keygenerate_level != -1 and !baboon)
+            if(((!*pvt) || (!*y)) && keygenerate_level != -1 && !baboon)
             {
                 if(GetDlgItemTextA(hwndDlg, IDC_EDT_TEMPLATE, templ, 512))
                 {
@@ -359,7 +359,7 @@ BOOL CALLBACK KG_DlgKeyGenerate(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM l
                 PasteFromClipboard(clipboard, 256);
                 FormatHex(clipboard);
                 int len = strlen(clipboard);
-                if(len and len < 9)
+                if(len && len < 9)
                 {
                     unsigned int clipboard_sym = 0;
                     sscanf(clipboard, "%X", &clipboard_sym);
@@ -451,14 +451,14 @@ BOOL CALLBACK KG_DlgKeyGenerate(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM l
             {
                 bool isNoSeperator = true;
                 keygenerate_level = SendDlgItemMessageA(hwndDlg, LOWORD(wParam), CB_GETCURSEL, 0, 0);
-                if(keygenerate_level == 1 or keygenerate_level == 6 or keygenerate_level == 16)
+                if(keygenerate_level == 1 || keygenerate_level == 6 || keygenerate_level == 16)
                     isNoSeperator = false;
 
                 if(!keygenerate_level)
                     keygenerate_level--;
-                else if(keygenerate_level > 1 and keygenerate_level < 6) //signed v2
+                else if(keygenerate_level > 1 && keygenerate_level < 6) //signed v2
                     keygenerate_level -= 2;
-                else if(keygenerate_level > 6 and keygenerate_level < 16) //signed v3
+                else if(keygenerate_level > 6 && keygenerate_level < 16) //signed v3
                     keygenerate_level += 3;
                 else if(keygenerate_level > 16) //short v3
                     keygenerate_level += 3;
@@ -485,7 +485,7 @@ BOOL CALLBACK KG_DlgKeyGenerate(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM l
                 EnableWindow(GetDlgItem(hwndDlg, IDC_EDT_PVT), en);
                 EnableWindow(GetDlgItem(hwndDlg, IDC_EDT_Y), en);
                 en = false;
-                if(keygenerate_level > 18 and isNoSeperator)
+                if(keygenerate_level > 18 && isNoSeperator)
                     en = true;
                 EnableWindow(GetDlgItem(hwndDlg, IDC_EDT_KEYSTRING), en);
 

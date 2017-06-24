@@ -67,11 +67,11 @@ void CT_AddLogMessage(HWND list, const char* text)
     char current_add[256] = "";
     for(int i = 0, j = 0; i < len; i++)
     {
-        if(text[i] != '\r' and text[i] != '\n')
+        if(text[i] != '\r' && text[i] != '\n')
             j += sprintf(current_add + j, "%c", text[i]);
         else
         {
-            if(text[i] == '\r' and text[i + 1] == '\n')
+            if(text[i] == '\r' && text[i + 1] == '\n')
                 i++;
             CT_AddToLog(list, current_add);
             j = 0;
@@ -107,7 +107,7 @@ void CT_DecodeCerts()
 {
     CERT_DATA* cd = CT_cert_data;
 
-    if(!cd->raw_data or !cd->raw_size)
+    if(!cd->raw_data || !cd->raw_size)
         return;
 
     unsigned int flags = GetFlagsFromTimeStamp(cd->timestamp);
@@ -230,7 +230,7 @@ void CT_ParseCerts()
         CT_DecodeCerts();
 
     //Global Information
-    if(cd->first_dw or cd->magic1 or cd->magic2 or cd->salt or cd->projectid or cd->decrypt_seed[0])
+    if(cd->first_dw || cd->magic1 || cd->magic2 || cd->salt || cd->projectid || cd->decrypt_seed[0])
     {
         something_done = true;
         CT_AddLogMessage(list, "Global Information:");
@@ -264,7 +264,7 @@ void CT_ParseCerts()
             sprintf(log_msg, "     Unknown : %s (please report if encountered)", cd->unknown_string);
             CT_AddLogMessage(list, log_msg);
         }
-        if(cd->magic1 or cd->magic2)
+        if(cd->magic1 || cd->magic2)
         {
             sprintf(log_msg, "      Magic1 : %.8X\n      Magic2 : %.4X", cd->magic1, cd->magic2);
             CT_AddLogMessage(list, log_msg);
@@ -283,7 +283,7 @@ void CT_ParseCerts()
     }
 
     //Encrypted certificate containers
-    if(cd->encrypted_size and cd->encrypted_data)
+    if(cd->encrypted_size && cd->encrypted_data)
     {
         //DeleteFileA(CT_szCryptCertFile);
         HANDLE hFile = CreateFileA(CT_szCryptCertFile, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
@@ -351,11 +351,11 @@ void CT_ParseCerts()
     char section_name[256] = "";
     CT_section_name = section_name;
 
-    if(cd->raw_size and cd->raw_data)
+    if(cd->raw_size && cd->raw_data)
     {
         DeleteFileA(CT_szAktLogFile);
         something_done = true;
-        if(cd->raw_size and cd->raw_data)
+        if(cd->raw_size && cd->raw_data)
         {
             //DeleteFileA(CT_szRawCertFile);
             HANDLE hFile = CreateFileA(CT_szRawCertFile, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
@@ -375,7 +375,7 @@ void CT_ParseCerts()
         //data++;
         while(data < data_end)
         {
-            //Get certificate level and public size
+            //Get certificate level && public size
             level = data[0];
             pub_size = data[1];
             data += 2; //We are done with the two bytes
@@ -385,7 +385,7 @@ void CT_ParseCerts()
             //Write to _cert.akt file
             sprintf(log_msg, "%d", level);
             WritePrivateProfileStringA(section_name, "level", log_msg, CT_szAktLogFile);
-            if(cd->first_dw or cd->magic1 or cd->magic2 or cd->salt or cd->projectid or cd->initial_diff or cd->decrypt_seed[0])
+            if(cd->first_dw || cd->magic1 || cd->magic2 || cd->salt || cd->projectid || cd->initial_diff || cd->decrypt_seed[0])
             {
                 sprintf(log_msg, "%.8X", cd->first_dw);
                 WritePrivateProfileStringA(section_name, "first_dw", log_msg, CT_szAktLogFile);
@@ -399,7 +399,7 @@ void CT_ParseCerts()
                     sprintf(log_msg, "%.8X", cd->salt);
                     WritePrivateProfileStringA(section_name, "salt", log_msg, CT_szAktLogFile);
                 }
-                if(cd->magic1 or cd->magic2)
+                if(cd->magic1 || cd->magic2)
                 {
                     sprintf(log_msg, "%.8X", cd->magic1);
                     WritePrivateProfileStringA(section_name, "magic1", log_msg, CT_szAktLogFile);
@@ -408,11 +408,11 @@ void CT_ParseCerts()
                 }
             }
 
-            if(level<4 and level> -1) //Signed V2
+            if(level<4 && level> -1) //Signed V2
                 sprintf(log_msg, "  Signed V2 Level %d:", level + 1);
-            else if(level<20 and level>9) //Signed V3
+            else if(level<20 && level>9) //Signed V3
                 sprintf(log_msg, "  Signed V3 Level %d:", level - 9);
-            else if(level<30 and level>19) //Short V3
+            else if(level<30 && level>19) //Short V3
                 sprintf(log_msg, "  Short V3 Level %d:", level - 19);
             else
                 strcpy(log_msg, "  Level unknown...");
@@ -442,7 +442,7 @@ void CT_ParseCerts()
                 WritePrivateProfileStringA(section_name, "md5", log_msg, CT_szAktLogFile);
             }
 
-            if(CT_brute and !CT_brute_nosym)
+            if(CT_brute && !CT_brute_nosym)
             {
                 //Fill the SymVerify struct
                 if(CT_brute_symverify)
@@ -453,7 +453,7 @@ void CT_ParseCerts()
                     CT_current_brute->encrypted_size = cd->encrypted_size;
                     CT_current_brute->magic1 = cd->magic1;
                     CT_current_brute->magic2 = cd->magic2;
-                    if(!cd->zero_md5_symverify and level > 19) //v5.xx and v6.xx have zero and Signed keys too
+                    if(!cd->zero_md5_symverify && level > 19) //v5.xx and v6.xx have zero and Signed keys too
                         CT_current_brute->md5 = md5_pub;
                 }
 
@@ -528,7 +528,7 @@ void CT_ParseCerts()
                         k += sprintf(byte_string + k, "%c", data[i]);
                     else
                     {
-                        if(!j and !cd->zero_md5_symverify)
+                        if(!j && !cd->zero_md5_symverify)
                             sprintf(log_msg, "  BaseP : %s (Size=%X, Diff=%X, MD5=%.8X)", byte_string, pub_size, diff, md5_pub);
                         else if(!j)
                             sprintf(log_msg, "  BaseP : %s (Size=%X, Diff=%X)", byte_string, pub_size, diff);
@@ -546,18 +546,18 @@ void CT_ParseCerts()
             {
                 ByteArrayToString(data, byte_string, pub_size, 256);
                 bool add_one = false;
-                if(byte_string[0] == '0' and byte_string[1])
+                if(byte_string[0] == '0' && byte_string[1])
                     add_one = true;
 
                 //Write to _cert.akt file
                 WritePrivateProfileStringA(section_name, "pub", byte_string + add_one, CT_szAktLogFile);
-                if(level > 19 and !cd->zero_md5_symverify)
+                if(level > 19 && !cd->zero_md5_symverify)
                     sprintf(log_msg, "      Y : %s (MD5=%.8X)", byte_string + add_one, md5_pub);
                 else
                     sprintf(log_msg, "      Y : %s", byte_string + add_one);
                 CT_AddLogMessage(list, log_msg);
 
-                if(CT_brute and CT_brute_dlp_initialized)
+                if(CT_brute && CT_brute_dlp_initialized)
                 {
                     char pvt_text[50] = "";
                     UpdateKeys(level, byte_string + add_one);
@@ -624,7 +624,7 @@ void CT_ParseCerts()
     //Enable controls
     EnableWindow(GetDlgItem(hwndDlg, IDC_BTN_START), 1);
 
-    if(CT_brute and !CT_brute_nosym and CT_brute_shutdown)
+    if(CT_brute && !CT_brute_nosym && CT_brute_shutdown)
     {
         STARTUPINFO si;
         PROCESS_INFORMATION pi;

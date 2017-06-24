@@ -144,7 +144,7 @@ BOOL CALLBACK DlgAnalysis(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             {
                 bool isNoSeperator = true;
                 keyinfo_level = SendDlgItemMessageA(hwndDlg, LOWORD(wParam), CB_GETCURSEL, 0, 0);
-                if(keyinfo_level == 1 or keyinfo_level == 6 or keyinfo_level == 16)
+                if(keyinfo_level == 1 || keyinfo_level == 6 || keyinfo_level == 16)
                     isNoSeperator = false;
                 bool en = isNoSeperator;
                 EnableWindow(GetDlgItem(hwndDlg, IDC_EDT_NAME), en);
@@ -154,9 +154,9 @@ BOOL CALLBACK DlgAnalysis(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 EnableWindow(GetDlgItem(hwndDlg, IDC_CHK_DIGITALRIVER), en);
                 EnableWindow(GetDlgItem(hwndDlg, IDC_CHK_ESELLERATE), en);
 
-                if(keyinfo_level > 1 and keyinfo_level < 6)
+                if(keyinfo_level > 1 && keyinfo_level < 6)
                     keyinfo_level--;
-                else if(keyinfo_level > 6 and keyinfo_level < 16)
+                else if(keyinfo_level > 6 && keyinfo_level < 16)
                     keyinfo_level -= 2;
                 else if(keyinfo_level > 16)
                     keyinfo_level -= 3;

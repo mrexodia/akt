@@ -14,7 +14,7 @@ BOOL CALLBACK CT_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
         ShowWindow(GetDlgItem(hwndDlg, IDC_PROGRESS_BRUTE), 0);
         CT_brute_initialized = InitializeSymBruteLibrary(hwndDlg);
         CT_brute_dlp_initialized = InitializeDlpBruteLibrary(hwndDlg);
-        if(!CT_brute_initialized and !CT_brute_dlp_initialized)
+        if(!CT_brute_initialized && !CT_brute_dlp_initialized)
             EnableWindow(GetDlgItem(hwndDlg, IDC_CHK_BRUTE), 0);
         EnableWindow(GetDlgItem(hwndDlg, IDC_BTN_BRUTESETTINGS), 0);
         EnableWindow(GetDlgItem(hwndDlg, IDC_CHK_BRUTESYMVERIFY), 0);
@@ -46,7 +46,7 @@ BOOL CALLBACK CT_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
         CT_szProgramDir[len] = 0;
         strcpy(CT_szLogFile, CT_szFileName);
         len = strlen(CT_szLogFile);
-        while(CT_szLogFile[len] != '.' and len)
+        while(CT_szLogFile[len] != '.' && len)
             len--;
         if(len)
             CT_szLogFile[len] = 0;
@@ -77,7 +77,7 @@ BOOL CALLBACK CT_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
         CT_szProgramDir[len] = 0;
         strcpy(CT_szLogFile, CT_szFileName);
         len = strlen(CT_szLogFile);
-        while(CT_szLogFile[len] != '.' and len)
+        while(CT_szLogFile[len] != '.' && len)
             len--;
         if(len)
             CT_szLogFile[len] = 0;
@@ -120,7 +120,7 @@ BOOL CALLBACK CT_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 int cursel = SendMessageA(list, LB_GETCURSEL, 0, 0);
                 char str[256] = "";
                 SendMessageA(list, LB_GETTEXT, cursel, (LPARAM)str);
-                if(!strlen(str) or strstr(str, "Global Information:") or strstr(str, "Public Certificate Information:") or strstr(str, "Intercepted Libraries:"))
+                if(!strlen(str) || strstr(str, "Global Information:") || strstr(str, "Public Certificate Information:") || strstr(str, "Intercepted Libraries:"))
                     return TRUE;
                 if(strstr(str, "BaseP")) //handle base point (md5, diff, basep)
                 {
@@ -213,7 +213,7 @@ BOOL CALLBACK CT_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
                     else
                         strcpy(str, y);
                 }
-                else if(str[0] == ' ' and str[1] == ' ' and (str[2] == '+' or str[2] == '-')) //intercepted library
+                else if(str[0] == ' ' && str[1] == ' ' && (str[2] == '+' || str[2] == '-')) //intercepted library
                 {
                     strcpy(str, str + 3);
                     //MessageBoxA(hwndDlg, str+3, "Library Name", 0);

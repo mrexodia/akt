@@ -5,6 +5,4 @@ and one that actually does something.
 
 Just see main.cpp for more information.
 
-Mr. eXoDia
-
 PS: Install plugins by copying them in the "Plugins" directory.

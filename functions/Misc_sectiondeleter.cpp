@@ -68,7 +68,7 @@ bool MSC_SD_IsValidPe(char* va)
         IMAGE_NT_HEADERS* pnth = (IMAGE_NT_HEADERS*)((DWORD)va + pdh->e_lfanew);
         if(!IsBadReadPtr(pnth, 4))
         {
-            if(pnth->Signature == IMAGE_NT_SIGNATURE and pnth->FileHeader.Machine == IMAGE_FILE_MACHINE_I386)
+            if(pnth->Signature == IMAGE_NT_SIGNATURE && pnth->FileHeader.Machine == IMAGE_FILE_MACHINE_I386)
                 return true;
         }
     }
@@ -183,7 +183,7 @@ void MSC_SD_LoadFile(HWND hwndDlg)
         MSC_SD_section_info.isDll = false;
         if(pnth->FileHeader.Characteristics & IMAGE_FILE_DLL)
             MSC_SD_section_info.isDll = true;
-        if(pnth->OptionalHeader.AddressOfEntryPoint >= va and pnth->OptionalHeader.AddressOfEntryPoint < va_next)
+        if(pnth->OptionalHeader.AddressOfEntryPoint >= va && pnth->OptionalHeader.AddressOfEntryPoint < va_next)
         {
             MSC_SD_section_info.entry_section = i;
             sprintf(name, "%s EP", name);
@@ -227,7 +227,7 @@ void MSC_SD_LoadFile(HWND hwndDlg)
     if(overlay_size)
         hasoverlay = true;
     bool continue_analysis = true;
-    if(MSC_SD_section_info.resource_section and MSC_SD_section_info.code_section and (MSC_SD_section_info.resource_section > MSC_SD_section_info.code_section))
+    if(MSC_SD_section_info.resource_section && MSC_SD_section_info.code_section && (MSC_SD_section_info.resource_section > MSC_SD_section_info.code_section))
     {
         if(!haswatermark)
         {
@@ -241,7 +241,7 @@ void MSC_SD_LoadFile(HWND hwndDlg)
             MSC_SD_section_info.first_arma_section = MSC_SD_section_info.code_section;
             if(!memcpy(good_bytes, &MSC_SD_section_info.code_section_bytes, 2))
                 MSC_SD_section_info.first_arma_section--;
-            if(MSC_SD_section_info.tls_section and MSC_SD_section_info.isDll)
+            if(MSC_SD_section_info.tls_section && MSC_SD_section_info.isDll)
                 MSC_SD_section_info.first_arma_section = MSC_SD_section_info.tls_section + 1;
             for(int i = MSC_SD_section_info.first_arma_section; i < MSC_SD_section_info.resource_section; i++)
                 SendMessageA(MSC_SD_list, LB_SETSEL, true, i);

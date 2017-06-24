@@ -45,7 +45,7 @@ void MSC_RetrieveSaltValue()
         len = Disasm(&MyDisasm);
         if(len != UNKNOWN_OPCODE)
         {
-            if(MyDisasm.EIP != (UIntPtr)MSC_salt_code and MyDisasm.Instruction.Mnemonic[0] == 'x' and MyDisasm.Instruction.Mnemonic[1] == 'o' and MyDisasm.Instruction.Mnemonic[2] == 'r')
+            if(MyDisasm.EIP != (UIntPtr)MSC_salt_code && MyDisasm.Instruction.Mnemonic[0] == 'x' && MyDisasm.Instruction.Mnemonic[1] == 'o' && MyDisasm.Instruction.Mnemonic[2] == 'r')
                 xor_count++;
             if(xor_count == 3)
                 break;
@@ -229,7 +229,7 @@ unsigned char* MSC_CHK_Decrypt(unsigned char** data, unsigned char** rand, unsig
 bool MSC_CHK_DecryptCerts(unsigned int* seed, unsigned char* raw_data, unsigned int raw_size)
 {
     puts("chk_decrypt");
-    if(!raw_data or !raw_size or !seed)
+    if(!raw_data || !raw_size || !seed)
         return 0;
     unsigned int real_cert_size = FindBAADF00DPattern(raw_data, raw_size);
     if(!real_cert_size)
@@ -324,7 +324,7 @@ void MSC_CHK_cbOtherSeeds()
         and_addrs[i] = MSC_FindAndPattern2(eip_data, size);
         if(!and_addrs[i])
             and_addrs[i] = MSC_FindAndPattern1(eip_data, size);
-        if(!and_addrs[i] or and_addrs[i] > retn)
+        if(!and_addrs[i] || and_addrs[i] > retn)
         {
             MSC_FatalError("Could not find AND [REG],[VAL]");
             return;

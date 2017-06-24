@@ -49,7 +49,7 @@ BYTE IH_FindCrcStart(BYTE* data) //Find the start of the CRC array
 unsigned int IH_FindFreeSpace(BYTE* d, unsigned int size)
 {
     for(unsigned int i = 0; i < size; i++) //0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-        if(d[i] == 0x00 and d[i + 1] == 0x00 and d[i + 2] == 0x00 and d[i + 3] == 0x00 and d[i + 4] == 0x00 and d[i + 5] == 0x00 and d[i + 6] == 0x00 and d[i + 7] == 0x00 and d[i + 8] == 0x00 and d[i + 9] == 0x00 and d[i + 10] == 0x00 and d[i + 11] == 0x00 and d[i + 12] == 0x00 and d[i + 13] == 0x00 and d[i + 14] == 0x00 and d[i + 15] == 0x00 and d[i + 16] == 0x00 and d[i + 17] == 0x00 and d[i + 18] == 0x00 and d[i + 19] == 0x00 and d[i + 20] == 0x00 and d[i + 21] == 0x00 and d[i + 22] == 0x00 and d[i + 23] == 0x00 and d[i + 24] == 0x00 and d[i + 25] == 0x00 and d[i + 26] == 0x00 and d[i + 27] == 0x00 and d[i + 28] == 0x00 and d[i + 29] == 0x00 and d[i + 30] == 0x00 and d[i + 31] == 0x00 and d[i + 32] == 0x00 and d[i + 33] == 0x00 and d[i + 34] == 0x00 and d[i + 35] == 0x00 and d[i + 36] == 0x00 and d[i + 37] == 0x00 and d[i + 38] == 0x00 and d[i + 39] == 0x00 and d[i + 40] == 0x00 and d[i + 41] == 0x00 and d[i + 42] == 0x00 and d[i + 43] == 0x00 and d[i + 44] == 0x00 and d[i + 45] == 0x00 and d[i + 46] == 0x00 and d[i + 47] == 0x00 and d[i + 48] == 0x00 and d[i + 49] == 0x00)
+        if(d[i] == 0x00 && d[i + 1] == 0x00 && d[i + 2] == 0x00 && d[i + 3] == 0x00 && d[i + 4] == 0x00 && d[i + 5] == 0x00 && d[i + 6] == 0x00 && d[i + 7] == 0x00 && d[i + 8] == 0x00 && d[i + 9] == 0x00 && d[i + 10] == 0x00 && d[i + 11] == 0x00 && d[i + 12] == 0x00 && d[i + 13] == 0x00 && d[i + 14] == 0x00 && d[i + 15] == 0x00 && d[i + 16] == 0x00 && d[i + 17] == 0x00 && d[i + 18] == 0x00 && d[i + 19] == 0x00 && d[i + 20] == 0x00 && d[i + 21] == 0x00 && d[i + 22] == 0x00 && d[i + 23] == 0x00 && d[i + 24] == 0x00 && d[i + 25] == 0x00 && d[i + 26] == 0x00 && d[i + 27] == 0x00 && d[i + 28] == 0x00 && d[i + 29] == 0x00 && d[i + 30] == 0x00 && d[i + 31] == 0x00 && d[i + 32] == 0x00 && d[i + 33] == 0x00 && d[i + 34] == 0x00 && d[i + 35] == 0x00 && d[i + 36] == 0x00 && d[i + 37] == 0x00 && d[i + 38] == 0x00 && d[i + 39] == 0x00 && d[i + 40] == 0x00 && d[i + 41] == 0x00 && d[i + 42] == 0x00 && d[i + 43] == 0x00 && d[i + 44] == 0x00 && d[i + 45] == 0x00 && d[i + 46] == 0x00 && d[i + 47] == 0x00 && d[i + 48] == 0x00 && d[i + 49] == 0x00)
             return i;
     return 0;
 }
@@ -182,7 +182,7 @@ void IH_cbOutputDebugStringA() //Callback for OutputDebugStringA
     unsigned int esp_addr = (long)GetContextData(UE_ESP), string_addr;
     ReadProcessMemory(IH_fdProcessInfo->hProcess, (void*)(esp_addr + 4), &string_addr, 4, 0);
     ReadProcessMemory(IH_fdProcessInfo->hProcess, (void*)string_addr, &debug_string, 255, 0);
-    if(debug_string[16] == '%' and debug_string[17] == 's')
+    if(debug_string[16] == '%' && debug_string[17] == 's')
         g_OutputDebugStringAMinorCount++;
 
     ///The second call to OutputDebugString("%s%s%s%s%s%s%s%s%s%...s%s%s%s%s%s%s"); is the call we need.
@@ -211,7 +211,7 @@ void IH_cbOutputDebugStringA() //Callback for OutputDebugStringA
             {
                 final_call += crc_check_call;
                 push_addr = Find960Pattern(search_bytes + crc_check_call, 1024 - crc_check_call);
-                if(push_addr and push_addr < final_call)
+                if(push_addr && push_addr < final_call)
                     arma960 = true;
                 push_addr += crc_check_call + 2;
             }

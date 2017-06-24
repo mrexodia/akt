@@ -122,7 +122,7 @@ static void cbVirtualProtect()
     unsigned int push100 = 0;
     for(int i = call_decrypt; i > 0; i--)
     {
-        if(sec_data[i] == 0x68 and sec_data[i + 1] == 0x00 and sec_data[i + 2] == 0x01 and sec_data[i + 3] == 0x00 and sec_data[i + 4] == 0x00)
+        if(sec_data[i] == 0x68 && sec_data[i + 1] == 0x00 && sec_data[i + 2] == 0x01 && sec_data[i + 3] == 0x00 && sec_data[i + 4] == 0x00)
         {
             push100 = i;
             break;

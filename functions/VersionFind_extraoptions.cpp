@@ -121,8 +121,8 @@ static void cbVirtualProtect()
         unsigned int invalidkey = 0;
         for(int i = usb_push; i > 0; i--)
         {
-            if(sec_data[i] == 0x68 and (sec_data[i + 5] >> 4) == 0x0B and sec_data[i + 10] == 0xE8)
-                //if(sec_data[i]==0x6A and(sec_data[i+1]>>4)==0x00 and sec_data[i+2]==0x6A and(sec_data[i+3]>>4)==0x00 and sec_data[i+4]==0x68)
+            if(sec_data[i] == 0x68 && (sec_data[i + 5] >> 4) == 0x0B && sec_data[i + 10] == 0xE8)
+                //if(sec_data[i]==0x6A and(sec_data[i+1]>>4)==0x00 && sec_data[i+2]==0x6A and(sec_data[i+3]>>4)==0x00 && sec_data[i+4]==0x68)
             {
                 invalidkey = i;
                 break;

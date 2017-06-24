@@ -485,7 +485,7 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
         case IDC_BTN_ABOUT:
         {
             SetFocus(GetDlgItem(hwndDlg, IDC_LIST_VARS));
-            MessageBoxA(hwndDlg, "Environment Variable Injection Plugin by Mr. eXoDia", plugin_name, MB_ICONINFORMATION);
+            MessageBoxA(hwndDlg, "Environment Variable Injection Plugin", plugin_name, MB_ICONINFORMATION);
         }
         return TRUE;
         }

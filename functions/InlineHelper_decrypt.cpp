@@ -45,7 +45,7 @@ void IHD_FatalError(const char* msg) //TODO: never used
 unsigned int IHD_FindJump(BYTE* d, unsigned int size, char* reg)
 {
     for(unsigned int i = 0; i < size; i++) //61FFE?
-        if(d[i] == 0x61 and d[i + 1] == 0xFF and (d[i + 2] >> 4) == 0x0E)
+        if(d[i] == 0x61 && d[i + 1] == 0xFF && (d[i + 2] >> 4) == 0x0E)
         {
             *reg = d[i + 2] ^ 0xE0;
             return i + 1;
@@ -145,7 +145,7 @@ void IHD_cbGuardPage()
     unsigned int bp_addr = IHD_FindJump(data, size_read, &g_reg);
     if(!bp_addr)
     {
-        g_ErrorMessageCallback((char*)"Could not find:\n\npushad\njmp [register]\n\nPlease contact Mr. eXoDia.", (char*)"Error!");
+        g_ErrorMessageCallback((char*)"Could not find:\n\npushad\njmp [register]", (char*)"Error!");
         StopDebug();
     }
     free2(data);

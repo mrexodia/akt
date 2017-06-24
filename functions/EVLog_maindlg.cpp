@@ -127,7 +127,7 @@ BOOL CALLBACK EV_DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
         case IDC_BTN_DUMP:
         {
-            char massive_string[32768] = "", single_string[255] = "Coded by Mr. eXoDia // T.P.o.D.T 2012\r\n\r\n";
+            char massive_string[32768] = "", single_string[255] = "Coded by mrexodia\r\n\r\n";
             int total = SendDlgItemMessage(hwndDlg, IDC_LIST, LB_GETCOUNT, 0, 0);
             for(int i = 0; i != total; i++)
             {

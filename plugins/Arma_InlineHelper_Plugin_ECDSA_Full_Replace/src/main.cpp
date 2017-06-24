@@ -448,7 +448,7 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
         EnableWindow(GetDlgItem(hwndDlg, IDC_BTN_SAVE), 0);
         if(!Initialize(hwndDlg))
         {
-            MessageBoxA(hwndDlg, "Something went wrong during the initialization of the plugin.\n\nMaybe the file you are loading is unsupported, please contact me\n(Mr. eXoDia) at mr.exodia.tpodt@gmail.com, I can fix it...", "Error...", MB_ICONERROR);
+            MessageBoxA(hwndDlg, "Something went wrong during the initialization of the plugin.\n\nMaybe the file you are loading is unsupported...", "Error...", MB_ICONERROR);
             SendMessageA(hwndDlg, WM_CLOSE, 0, 0);
         }
     }

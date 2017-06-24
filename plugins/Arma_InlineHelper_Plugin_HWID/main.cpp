@@ -148,7 +148,7 @@ BOOL CALLBACK DlgMain(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam) ///
 
         case IDC_BTN_ABOUT:
         {
-            MessageBoxA(hwndDlg, "Sample plugin, created by Mr. eXoDia", plugin_name, MB_ICONINFORMATION);
+            MessageBoxA(hwndDlg, "Sample plugin", plugin_name, MB_ICONINFORMATION);
         }
         return TRUE;
         }

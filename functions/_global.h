@@ -18,12 +18,6 @@
 #include "..\TitanEngine\TitanEngine.h"
 #include "..\BeaEngine/BeaEngine.h"
 
-#ifndef __GNUC__
-#define and &&
-#define or ||
-#endif //__GNUC__
-
-
 #include "keygen\keygen_main.h"
 
 /**********************************************************************

@@ -3,7 +3,7 @@
 unsigned int FindMagicPattern(BYTE* d, unsigned int size)
 {
     for(unsigned int i = 0; i < size; i++) //8813000089
-        if(d[i] == 0x88 and d[i + 1] == 0x13 and d[i + 2] == 0x00 and d[i + 3] == 0x00 and d[i + 4] == 0x89)
+        if(d[i] == 0x88 && d[i + 1] == 0x13 && d[i + 2] == 0x00 && d[i + 3] == 0x00 && d[i + 4] == 0x89)
         {
             return i + 7;
         }

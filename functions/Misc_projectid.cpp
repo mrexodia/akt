@@ -3,7 +3,7 @@
 unsigned int MSC_FindCertificateFunctionOld(BYTE* d, unsigned int size)
 {
     for(unsigned int i = 0; i < size; i++) //8B4424048B5424088B0883C004890AC3
-        if(d[i] == 0x8B and d[i + 1] == 0x44 and d[i + 2] == 0x24 and d[i + 3] == 0x04 and d[i + 4] == 0x8B and d[i + 5] == 0x54 and d[i + 6] == 0x24 and d[i + 7] == 0x08 and d[i + 8] == 0x8B and d[i + 9] == 0x08 and d[i + 10] == 0x83 and d[i + 11] == 0xC0 and d[i + 12] == 0x04 and d[i + 13] == 0x89 and d[i + 14] == 0x0A and d[i + 15] == 0xC3)
+        if(d[i] == 0x8B && d[i + 1] == 0x44 && d[i + 2] == 0x24 && d[i + 3] == 0x04 && d[i + 4] == 0x8B && d[i + 5] == 0x54 && d[i + 6] == 0x24 && d[i + 7] == 0x08 && d[i + 8] == 0x8B && d[i + 9] == 0x08 && d[i + 10] == 0x83 && d[i + 11] == 0xC0 && d[i + 12] == 0x04 && d[i + 13] == 0x89 && d[i + 14] == 0x0A && d[i + 15] == 0xC3)
             return i + 15;
     return 0;
 }
@@ -11,7 +11,7 @@ unsigned int MSC_FindCertificateFunctionOld(BYTE* d, unsigned int size)
 unsigned int MSC_FindCertificateFunctionNew(BYTE* d, unsigned int size)
 {
     for(unsigned int i = 0; i < size; i++) //558BEC8B450C8B4D088B1189108B450883C0045DC3
-        if(d[i] == 0x55 and d[i + 1] == 0x8B and d[i + 2] == 0xEC and d[i + 3] == 0x8B and d[i + 4] == 0x45 and d[i + 5] == 0x0C and d[i + 6] == 0x8B and d[i + 7] == 0x4D and d[i + 8] == 0x08 and d[i + 9] == 0x8B and d[i + 10] == 0x11 and d[i + 11] == 0x89 and d[i + 12] == 0x10 and d[i + 13] == 0x8B and d[i + 14] == 0x45 and d[i + 15] == 0x08 and d[i + 16] == 0x83 and d[i + 17] == 0xC0 and d[i + 18] == 0x04 and d[i + 19] == 0x5D and d[i + 20] == 0xC3)
+        if(d[i] == 0x55 && d[i + 1] == 0x8B && d[i + 2] == 0xEC && d[i + 3] == 0x8B && d[i + 4] == 0x45 && d[i + 5] == 0x0C && d[i + 6] == 0x8B && d[i + 7] == 0x4D && d[i + 8] == 0x08 && d[i + 9] == 0x8B && d[i + 10] == 0x11 && d[i + 11] == 0x89 && d[i + 12] == 0x10 && d[i + 13] == 0x8B && d[i + 14] == 0x45 && d[i + 15] == 0x08 && d[i + 16] == 0x83 && d[i + 17] == 0xC0 && d[i + 18] == 0x04 && d[i + 19] == 0x5D && d[i + 20] == 0xC3)
             return i + 20;
     return 0;
 }
@@ -19,7 +19,7 @@ unsigned int MSC_FindCertificateFunctionNew(BYTE* d, unsigned int size)
 unsigned int MSC_FindCertificateMarkers(BYTE* d, unsigned int size)
 {
     for(unsigned int i = 0; i < size; i++) //002D2A00
-        if(d[i] == 0x00 and d[i + 1] == 0x2D and d[i + 2] == 0x2A and d[i + 3] == 0x00)
+        if(d[i] == 0x00 && d[i + 1] == 0x2D && d[i + 2] == 0x2A && d[i + 3] == 0x00)
             return i;
     return 0;
 }
@@ -27,7 +27,7 @@ unsigned int MSC_FindCertificateMarkers(BYTE* d, unsigned int size)
 unsigned int MSC_FindCertificateMarkers2(BYTE* d, unsigned int size)
 {
     for(unsigned int i = 0; i < size; i++) //002B2A00
-        if(d[i] == 0x00 and d[i + 1] == 0x2B and d[i + 2] == 0x2A and d[i + 3] == 0x00)
+        if(d[i] == 0x00 && d[i + 1] == 0x2B && d[i + 2] == 0x2A && d[i + 3] == 0x00)
             return i;
     return 0;
 }
@@ -71,7 +71,7 @@ unsigned char* MSC_Decrypt(unsigned char** data, unsigned char** rand, unsigned 
 char* MSC_DecryptCerts(unsigned int* seed, unsigned char* raw_data, unsigned int raw_size)
 {
     char* projectid;
-    if(!raw_data or !raw_size or !seed)
+    if(!raw_data || !raw_size || !seed)
         return 0;
     unsigned int real_cert_size = FindBAADF00DPattern(raw_data, raw_size);
     if(!real_cert_size)
@@ -139,7 +139,7 @@ void MSC_cbOtherSeeds()
         and_addrs[i] = MSC_FindAndPattern2(eip_data, size);
         if(!and_addrs[i])
             and_addrs[i] = MSC_FindAndPattern1(eip_data, size);
-        if(!and_addrs[i] or and_addrs[i] > retn)
+        if(!and_addrs[i] || and_addrs[i] > retn)
         {
             MSC_FatalError("Could not find AND [REG],[VAL]");
             return;

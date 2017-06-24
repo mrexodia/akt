@@ -52,7 +52,7 @@ void CT_RetrieveSaltValue()
         len = Disasm(&MyDisasm);
         if(len == UNKNOWN_OPCODE)
             break;
-        if(MyDisasm.EIP != (UIntPtr)salt_code and MyDisasm.Instruction.Mnemonic[0] == 'x' and MyDisasm.Instruction.Mnemonic[1] == 'o' and MyDisasm.Instruction.Mnemonic[2] == 'r')
+        if(MyDisasm.EIP != (UIntPtr)salt_code && MyDisasm.Instruction.Mnemonic[0] == 'x' && MyDisasm.Instruction.Mnemonic[1] == 'o' && MyDisasm.Instruction.Mnemonic[2] == 'r')
             xor_count++;
         if(xor_count == 3)
             break;
@@ -363,7 +363,7 @@ void CT_cbCertificateFunction()
         unsigned int retn = CT_FindReturnPattern(return_bytes, 0x1000);
         if(!retn)
             CT_FindReturnPattern2(return_bytes, 0x1000);
-        if(push100 and push100 < retn)
+        if(push100 && push100 < retn)
         {
             unsigned int call = CT_FindCall1Pattern(return_bytes + push100, 0x1000 - push100);
             if(!call)
@@ -473,7 +473,7 @@ void CT_cbVirtualProtect()
     {
         unsigned int end_search = CT_FindEndInitSymVerifyPattern(security_code + magic_value_addr, security_code_size - magic_value_addr);
         unsigned int md5_move = CT_FindPubMd5MovePattern(security_code + magic_value_addr, security_code_size - magic_value_addr);
-        if(end_search and md5_move and md5_move > end_search) //Arma with MD5=0 in SymVerify
+        if(end_search && md5_move && md5_move > end_search) //Arma with MD5=0 in SymVerify
             CT_cert_data->zero_md5_symverify = true;
     }
     else if(CT_cert_data->timestamp < 0x49000000) //~v6 (before sometimes it failed)

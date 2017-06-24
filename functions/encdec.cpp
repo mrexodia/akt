@@ -65,7 +65,7 @@ BOOL CALLBACK DlgEncDec(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             unsigned char keybytes[512] = {0};
             char decrypted[1024] = "";
             char name[1024] = "";
-            if(GetDlgItemTextA(hwndDlg, IDC_EDT_ENCRYPTED, encrypted, 1024) and GetDlgItemTextA(hwndDlg, IDC_EDT_NAME_DECRYPT, name, 1024))
+            if(GetDlgItemTextA(hwndDlg, IDC_EDT_ENCRYPTED, encrypted, 1024) && GetDlgItemTextA(hwndDlg, IDC_EDT_NAME_DECRYPT, name, 1024))
             {
                 FormatHex(encrypted);
                 int keylength = StringToByteArray(encrypted, keybytes, 512);
@@ -83,7 +83,7 @@ BOOL CALLBACK DlgEncDec(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             unsigned char keybytes[512] = {0};
             char encrypted[1024] = "";
             char name[1024] = "";
-            if(GetDlgItemTextA(hwndDlg, IDC_EDT_DECRYPTED, decrypted, 1024) and GetDlgItemTextA(hwndDlg, IDC_EDT_NAME_ENCRYPT, name, 1024))
+            if(GetDlgItemTextA(hwndDlg, IDC_EDT_DECRYPTED, decrypted, 1024) && GetDlgItemTextA(hwndDlg, IDC_EDT_NAME_ENCRYPT, name, 1024))
             {
                 FormatHex(decrypted);
                 int keylength = StringToByteArray(decrypted, keybytes, 512);

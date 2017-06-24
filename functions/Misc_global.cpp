@@ -107,7 +107,7 @@ SECTION_ANALYSIS MSC_SD_section_info = {0};
 unsigned int MSC_FindReturnPattern(BYTE* d, unsigned int size)
 {
     for(unsigned int i = 0; i < size; i++) //5DC?
-        if(d[i] == 0x5D and (d[i + 1] >> 4) == 0x0C)
+        if(d[i] == 0x5D && (d[i + 1] >> 4) == 0x0C)
             return i + 1;
     return 0;
 }
@@ -123,7 +123,7 @@ unsigned int MSC_FindReturnPattern2(BYTE* d, unsigned int size)
 unsigned int MSC_FindPush100Pattern(BYTE* d, unsigned int size)
 {
     for(unsigned int i = 0; i < size; i++) //6800010000
-        if(d[i] == 0x68 and d[i + 1] == 0x00 and d[i + 2] == 0x01 and d[i + 3] == 0x00 and d[i + 4] == 0x00)
+        if(d[i] == 0x68 && d[i + 1] == 0x00 && d[i + 2] == 0x01 && d[i + 3] == 0x00 && d[i + 4] == 0x00)
             return i;
     return 0;
 }
@@ -131,7 +131,7 @@ unsigned int MSC_FindPush100Pattern(BYTE* d, unsigned int size)
 unsigned int MSC_FindCall1Pattern(BYTE* d, unsigned int size)
 {
     for(unsigned int i = 0; i < size; i++) //E8????????88
-        if(d[i] == 0xE8 and d[i + 5] == 0x88)
+        if(d[i] == 0xE8 && d[i + 5] == 0x88)
             return i;
     return 0;
 }
@@ -147,7 +147,7 @@ unsigned int MSC_FindCall2Pattern(BYTE* d, unsigned int size)
 unsigned int MSC_FindAndPattern1(BYTE* d, unsigned int size)
 {
     for(unsigned int i = 0; i < size; i++) //83E???03
-        if(d[i] == 0x83 and (d[i + 1] >> 4) == 0x0E and d[i + 3] == 0x03)
+        if(d[i] == 0x83 && (d[i + 1] >> 4) == 0x0E && d[i + 3] == 0x03)
             return i + 3;
     return 0;
 }
@@ -155,7 +155,7 @@ unsigned int MSC_FindAndPattern1(BYTE* d, unsigned int size)
 unsigned int MSC_FindAndPattern2(BYTE* d, unsigned int size)
 {
     for(unsigned int i = 0; i < size; i++) //81E?????????03
-        if(d[i] == 0x81 and (d[i + 1] >> 4) == 0x0E and d[i + 6] == 0x03)
+        if(d[i] == 0x81 && (d[i + 1] >> 4) == 0x0E && d[i + 6] == 0x03)
             return i + 5;
     return 0;
 }
@@ -163,7 +163,7 @@ unsigned int MSC_FindAndPattern2(BYTE* d, unsigned int size)
 unsigned int MSC_FindStdcallPattern(BYTE* d, unsigned int size)
 {
     for(unsigned int i = 0; i < size; i++) //E8????????83
-        if(d[i] == 0xE8 and d[i + 5] == 0x83)
+        if(d[i] == 0xE8 && d[i + 5] == 0x83)
             return i;
     return 0;
 }

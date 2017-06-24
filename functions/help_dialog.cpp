@@ -11,7 +11,7 @@ BOOL CALLBACK DlgHelp(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
         SendMessageA(hwndDlg, WM_SETICON, ICON_BIG, (LPARAM)LoadIconA(hInst, MAKEINTRESOURCE(IDI_ICON1)));
         char help_text[4096] = "";
         char help_title[2048] = "";
-        if(!GetEnvironmentVariableA("HELPID", help_text, 2048) or !GetEnvironmentVariableA("HELPTITLE", help_title, 2048) or help_open)
+        if(!GetEnvironmentVariableA("HELPID", help_text, 2048) || !GetEnvironmentVariableA("HELPTITLE", help_title, 2048) || help_open)
         {
             EndDialog(hwndDlg, 0);
             return TRUE;

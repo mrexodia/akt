@@ -39,7 +39,7 @@ void CT_DecryptCerts()
 {
     CERT_DATA* cd = CT_cert_data;
 
-    if(!cd->raw_data or !cd->raw_size)
+    if(!cd->raw_data || !cd->raw_size)
         return;
 
     unsigned int real_cert_size = FindBAADF00DPattern(cd->raw_data, cd->raw_size);

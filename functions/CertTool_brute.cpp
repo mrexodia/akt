@@ -39,7 +39,7 @@ bool InitializeSymBruteLibrary(HWND hwndDlg)
         BruteSetCallbacks = (SETCALLBACKS)GetProcAddress(hBrute, "SetCallbacks");
         BruteStop = (BRUTESTOP)GetProcAddress(hBrute, "BruteStop");
         BruteSettings = (BRUTESETTINGS)GetProcAddress(hBrute, "BruteSettings");
-        if(BruteStart and BruteSetCallbacks and BruteStop and BruteSettings)
+        if(BruteStart && BruteSetCallbacks && BruteStop && BruteSettings)
             return true;
         else
         {
@@ -60,7 +60,7 @@ bool InitializeDlpBruteLibrary(HWND hwndDlg)
     {
         UpdateKeys = (UPDATEKEYS)GetProcAddress(hBruteDlp, "UpdateKeys");
         SolveDlp = (SOLVEDLP)GetProcAddress(hBruteDlp, "SolveDLP");
-        if(UpdateKeys and SolveDlp)
+        if(UpdateKeys && SolveDlp)
             return true;
         else
         {
@@ -81,7 +81,7 @@ void cbBruteError(const char* error_msg)
 void cbBrutePrintFound(unsigned long hash, unsigned long key)
 {
     BRUTE_DATA* cb = CT_current_brute;
-    if(CT_brute_symverify and cb and cb->encrypted_data and cb->encrypted_size)
+    if(CT_brute_symverify && cb && cb->encrypted_data && cb->encrypted_size)
     {
         if(!MSC_VR_brute(cb->magic1, cb->magic2, (unsigned int)key, cb->md5, cb->encrypted_data, cb->encrypted_size))
         {

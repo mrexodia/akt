@@ -258,7 +258,7 @@ void VF_PrintArmaOptionsStructLog(ARMA_OPTIONS* op, char* log, unsigned int raw_
     }
     if(op->extra_options) //Enable everything
     {
-        if(!set_other_options_log and op->extra_options->has_other_options)
+        if(!set_other_options_log && op->extra_options->has_other_options)
             sprintf(log, "%s\r\nOther Options:\r\n", log);
         if(op->extra_options->no_clockback)
         {
@@ -331,7 +331,7 @@ void VF_PrintArmaOptionsStructLog(ARMA_OPTIONS* op, char* log, unsigned int raw_
     }
     if(op->version[0])
         sprintf(log, "%s\r\nVersion Number:\r\n>%s\r\n", log, op->version);
-    if(extra_options or raw_options)
+    if(extra_options || raw_options)
         sprintf(log, "%s\r\nRaw Values:", log);
     if(raw_options)
         sprintf(log, "%s\r\n>%.8X (Raw Options)", log, op->raw_options);

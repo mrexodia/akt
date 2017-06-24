@@ -110,7 +110,7 @@ char* FormatTextHex(const char* text)
     int len = strlen(text);
     FormatTextHex_format[0] = 0;
     for(int i = 0, j = 0; i < len; i++)
-        if((text[i] > 64 and text[i] < 71) or (text[i] > 47 and text[i] < 58))
+        if((text[i] > 64 && text[i] < 71) || (text[i] > 47 && text[i] < 58))
             j += sprintf(FormatTextHex_format + j, "%c", text[i]);
     return FormatTextHex_format;
 }
@@ -447,7 +447,7 @@ int DecodeShortV3(const char* serial, bool level10, unsigned char* dest, int des
 unsigned int FindBAADF00DPattern(BYTE* d, unsigned int size)
 {
     for(unsigned int i = 0; i < size; i++) //0DF0ADBA
-        if(d[i] == 0x0D and d[i + 1] == 0xF0 and d[i + 2] == 0xAD and d[i + 3] == 0xBA)
+        if(d[i] == 0x0D && d[i + 1] == 0xF0 && d[i + 2] == 0xAD && d[i + 3] == 0xBA)
             return i;
     return 0;
 }
@@ -455,7 +455,7 @@ unsigned int FindBAADF00DPattern(BYTE* d, unsigned int size)
 unsigned int FindSalt1Pattern(BYTE* d, unsigned int size)
 {
     for(unsigned int i = 0; i < size; i++) //83??????????000F84????????B?????????C?????8B
-        if(d[i] == 0x83 and d[i + 6] == 0x00 and d[i + 7] == 0x0F and d[i + 8] == 0x84 and (d[i + 13] >> 4) == 0x0B and (d[i + 18] >> 4) == 0x0C and d[i + 21] == 0x8B)
+        if(d[i] == 0x83 && d[i + 6] == 0x00 && d[i + 7] == 0x0F && d[i + 8] == 0x84 && (d[i + 13] >> 4) == 0x0B && (d[i + 18] >> 4) == 0x0C && d[i + 21] == 0x8B)
             return i + 13;
     return 0;
 }
@@ -463,7 +463,7 @@ unsigned int FindSalt1Pattern(BYTE* d, unsigned int size)
 unsigned int FindSalt2Pattern(BYTE* d, unsigned int size)
 {
     for(unsigned int i = 0; i < size; i++) //83??????????000F84????????33C?C?????8B
-        if(d[i] == 0x83 and d[i + 6] == 0x00 and d[i + 7] == 0x0F and d[i + 8] == 0x84 and d[i + 13] == 0x33 and (d[i + 14] >> 4) == 0x0C and (d[i + 15] >> 4) == 0x0C and d[i + 18] == 0x8B)
+        if(d[i] == 0x83 && d[i + 6] == 0x00 && d[i + 7] == 0x0F && d[i + 8] == 0x84 && d[i + 13] == 0x33 && (d[i + 14] >> 4) == 0x0C && (d[i + 15] >> 4) == 0x0C && d[i + 18] == 0x8B)
             return i + 13;
     return 0;
 }
@@ -481,7 +481,7 @@ bool IsArmadilloProtected(ULONG_PTR va)
 unsigned int FindCallPattern(BYTE* d, unsigned int size)
 {
     for(unsigned int i = 0; i < size; i++) //E8????????83
-        if(d[i] == 0xE8 and d[i + 5] == 0x83)
+        if(d[i] == 0xE8 && d[i + 5] == 0x83)
             return i;
     return 0;
 }
@@ -489,7 +489,7 @@ unsigned int FindCallPattern(BYTE* d, unsigned int size)
 unsigned int FindEB6APattern(BYTE* d, unsigned int size)
 {
     for(unsigned int i = 0; i < size; i++) //EB??6A
-        if(d[i] == 0xEB and d[i + 2] == 0x6A)
+        if(d[i] == 0xEB && d[i + 2] == 0x6A)
             return i;
     return 0;
 }
@@ -497,7 +497,7 @@ unsigned int FindEB6APattern(BYTE* d, unsigned int size)
 unsigned int Find960Pattern(BYTE* d, unsigned int size)
 {
     for(unsigned int i = 0; i < size; i++) //5?68????????E8
-        if((d[i] >> 4) == 0x05 and d[i + 1] == 0x68 and d[i + 6] == 0xE8)
+        if((d[i] >> 4) == 0x05 && d[i + 1] == 0x68 && d[i + 6] == 0xE8)
             return i;
     return 0;
 }
